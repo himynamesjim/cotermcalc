@@ -28,8 +28,8 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
 
 st.title("Co-Terming Cost Calculator")
 
-agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36)
-months_remaining = st.number_input("Months Remaining:", min_value=1, max_value=agreement_term, value=30)
+agreement_term = st.number_input("Agreement Term (Months):", min_value=1.0, value=36.0, step=0.01, format="%.2f")
+months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=agreement_term, value=30.0, step=0.01, format="%.2f")
 payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
 
 st.subheader("Enter License Information")
@@ -41,7 +41,7 @@ data = pd.DataFrame(columns=columns)
 for i in range(num_items):
     service_name = st.text_input(f"Cloud Service Description (Item {i+1}):")
     unit_quantity = st.number_input(f"Unit Quantity (Item {i+1}):", min_value=0, value=0)
-    annual_fee = st.number_input(f"Annual Unit Fee ($) (Item {i+1}):", min_value=0.0, value=0.0)
+    annual_fee = st.number_input(f"Annual Unit Fee ($) (Item {i+1}):", min_value=0.0, value=0.0, step=0.01, format="%.2f")
     additional_licenses = st.number_input(f"Additional Licenses (Item {i+1}):", min_value=0, value=0)
     
     new_row = pd.DataFrame({
@@ -60,7 +60,7 @@ for i in range(num_items):
 if st.button("Calculate Costs"):
     data, total_prepaid, total_first_year, total_annual = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.subheader("Results")
-    st.write(f"Months Elapsed: {agreement_term - months_remaining}")
+    st.write(f"Months Elapsed: {agreement_term - months_remaining:.2f}")
     st.write(f"Pre-Paid Co-Termed Cost: ${total_prepaid:.2f}") if payment_model == "Prepaid" else st.write("Pre-Paid Co-Termed Cost: $0.00")
     st.write(f"First Year Co-Termed Cost: ${total_first_year:.2f}") if payment_model == "Annual" else st.write("First Year Co-Termed Cost: $0.00")
     st.write(f"Total Annual Cost for Remaining Years: ${total_annual:.2f}") if payment_model == "Annual" else st.write("Total Annual Cost for Remaining Years: $0.00")
