@@ -44,17 +44,18 @@ for i in range(num_items):
     annual_fee = st.number_input(f"Annual Unit Fee ($) (Item {i+1}):", min_value=0.0, value=0.0)
     additional_licenses = st.number_input(f"Additional Licenses (Item {i+1}):", min_value=0, value=0)
     
-    data = data.append({
-        "Cloud Service Description": service_name,
-        "Unit Quantity": unit_quantity,
-        "Annual Unit Fee": annual_fee,
-        "Additional Licenses": additional_licenses,
-        "Annual Total Services Fee": 0,
-        "Subscription Term Total Service Fee": 0,
-        "Prepaid Co-Termed Cost": 0,
-        "First Year Co-Termed Cost": 0,
-        "Updated Annual Cost": 0
-    }, ignore_index=True)
+    new_row = pd.DataFrame({
+        "Cloud Service Description": [service_name],
+        "Unit Quantity": [unit_quantity],
+        "Annual Unit Fee": [annual_fee],
+        "Additional Licenses": [additional_licenses],
+        "Annual Total Services Fee": [0],
+        "Subscription Term Total Service Fee": [0],
+        "Prepaid Co-Termed Cost": [0],
+        "First Year Co-Termed Cost": [0],
+        "Updated Annual Cost": [0]
+    })
+    data = pd.concat([data, new_row], ignore_index=True)
 
 if st.button("Calculate Costs"):
     data, total_prepaid, total_first_year, total_annual = calculate_costs(data, agreement_term, months_remaining, payment_model)
