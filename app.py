@@ -45,6 +45,12 @@ def save_customer_data(customer_name, data):
     file_path = os.path.join(folder_path, f"{customer_name.replace(' ', '_')}.csv")
     data.to_csv(file_path, index=False)
 
+def load_customer_data(customer_name):
+    file_path = os.path.join("customer_data", f"{customer_name.replace(' ', '_')}.csv")
+    if os.path.exists(file_path):
+        return pd.read_csv(file_path)
+    return None
+
 def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, agreement_term, months_remaining):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -83,30 +89,21 @@ def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated
 
 st.title("Co-Terming Cost Calculator")
 
-st.subheader("Input Form")
+st.subheader("Select Customer")
 customer_name = st.text_input("Customer Name:")
+if customer_name:
+    existing_data = load_customer_data(customer_name)
+    if existing_data is not None:
+        st.subheader("Existing Data for Customer")
+        st.dataframe(existing_data)
+    
 agreement_term = st.number_input("Agreement Term (Months):", min_value=1.0, value=36.0, step=0.01, format="%.2f")
 months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=agreement_term, value=30.0, step=0.01, format="%.2f")
 payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1)
 
-st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Current Annual Total Services Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee"]
-data = pd.DataFrame(columns=columns)
-
-for i in range(num_items):
-    row_data = {}
-    st.markdown(f"**Item {i+1}**")
-    col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-    row_data["Cloud Service Description"] = col1.text_input(f"Service {i+1}", key=f"service_{i}")
-    row_data["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=0, key=f"qty_{i}")
-    row_data["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"fee_{i}")
-    row_data["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=0, key=f"add_lic_{i}")
-    
-    new_row = pd.DataFrame([row_data])
-    data = pd.concat([data, new_row], ignore_index=True)
-
-st.subheader("Results")
-if st.button("Calculate Costs"):
-    save_customer_data(customer_name, data)
+if st.button("Calculate and Save"):
+    save_customer_data(customer_name, existing_data)
     st.success(f"Data saved for customer: {customer_name}")
+    pdf_data = generate_pdf(existing_data, 0, 0, 0, 0, customer_name, agreement_term, months_remaining)
+    st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
