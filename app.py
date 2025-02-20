@@ -25,7 +25,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_annual_cost += updated_annual_cost
         total_prepaid_cost += co_termed_prepaid_cost
         total_first_year_cost += co_termed_first_year_cost
-        total_annual_unit_fee += row['Annual Unit Fee']
+        total_annual_unit_fee += row['Annual Unit Fee'] * row['Unit Quantity']
         total_subscription_term_fee += subscription_term_total_fee
     
     return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee
@@ -67,6 +67,9 @@ if st.button("Calculate Costs"):
     st.dataframe(data)
     
     st.subheader("Total Services Fee Summary")
-    st.markdown(f"**Annual Unit Fee (Total):** ${total_annual_unit_fee:.2f}")
-    st.markdown(f"**Annual Total Services Fee (New Annual Cost):** ${total_annual:.2f}")
-    st.markdown(f"**Subscription Term Total Fee (New Total Subscription Cost with Co-Termed Licenses):** ${total_subscription_term_fee:.2f}")
+    summary_data = pd.DataFrame({
+        "Annual Unit Fee (Total)": [f"${total_annual_unit_fee:.2f}"],
+        "Annual Total Services Fee (New Annual Cost)": [f"${total_annual:.2f}"],
+        "Subscription Term Total Fee (New Total Subscription Cost)": [f"${total_subscription_term_fee:.2f}"]
+    })
+    st.dataframe(summary_data, hide_index=True)
