@@ -60,21 +60,22 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
     pdf.cell(200, 10, f"Subscription Term Total Service Fee: ${total_subscription_term_fee:,.2f}", ln=True)
     pdf.ln(10)
     
-    pdf.set_font("Arial", "B", 10)
+    pdf.set_font("Arial", "B", 9)
     pdf.cell(200, 8, "Detailed Line Items", ln=True)
-    pdf.set_font("Arial", "", 8)
+    pdf.set_font("Arial", "", 7)
     
     headers = list(data.columns)
-    col_widths = [35, 20, 25, 20, 35, 35, 35, 35]
+    col_widths = [30, 18, 25, 18, 30, 30, 30, 30]
     
     for i, header in enumerate(headers):
         pdf.cell(col_widths[i], 6, header, border=1, align="C")
     pdf.ln()
     
-    pdf.set_font("Arial", "", 8)
+    pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
         for i, col in enumerate(headers):
-            pdf.cell(col_widths[i], 6, str(row[col]), border=1, align="C")
+            text = str(row[col])
+            pdf.multi_cell(col_widths[i], 5, text, border=1, align="C")
         pdf.ln()
     
     pdf_filename = "coterming_report.pdf"
