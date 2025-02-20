@@ -68,12 +68,13 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
     col_widths = [40, 25, 30, 25, 40, 40, 40, 40]
     
     for i, header in enumerate(headers):
-        pdf.cell(col_widths[i], 10, header, border=1, align="C")
+        pdf.cell(col_widths[i], 8, header, border=1, align="C")
     pdf.ln()
     
+    pdf.set_font("Arial", "", 10)
     for _, row in data.iterrows():
         for i, col in enumerate(headers):
-            pdf.cell(col_widths[i], 10, str(row[col]), border=1, align="C")
+            pdf.cell(col_widths[i], 8, str(row[col]), border=1, align="C")
         pdf.ln()
     
     pdf_filename = "coterming_report.pdf"
