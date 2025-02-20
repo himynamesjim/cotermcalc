@@ -9,6 +9,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     total_annual_unit_fee = 0
     total_subscription_term_fee = 0
     total_updated_annual_cost = 0
+    total_current_annual_services_fee = 0
     
     for index, row in df.iterrows():
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
@@ -17,7 +18,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if payment_model == 'Annual' else 0
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if payment_model == 'Annual' else 0
         
-        df.at[index, 'Annual Total Services Fee'] = annual_total_fee
+        df.at[index, 'Current Annual Total Services Fee'] = annual_total_fee
         df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
         df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
         df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
@@ -29,8 +30,9 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_annual_unit_fee += row['Annual Unit Fee']
         total_subscription_term_fee += subscription_term_total_fee
         total_updated_annual_cost += updated_annual_cost
+        total_current_annual_services_fee += annual_total_fee
     
-    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost
+    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee
 
 st.title("Co-Terming Cost Calculator")
 
@@ -41,7 +43,7 @@ payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1)
 
 st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Annual Total Services Fee", "Subscription Term Total Service Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost"]
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Current Annual Total Services Fee", "Subscription Term Total Service Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost"]
 data = pd.DataFrame(columns=columns)
 
 for i in range(num_items):
@@ -58,7 +60,7 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
     st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
     st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:,.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
@@ -67,7 +69,7 @@ if st.button("Calculate Costs"):
     
     st.subheader("Detailed Line Items")
     data['Annual Unit Fee'] = data['Annual Unit Fee'].apply(lambda x: f"${x:,.2f}")
-    data['Annual Total Services Fee'] = data['Annual Total Services Fee'].apply(lambda x: f"${x:,.2f}")
+    data['Current Annual Total Services Fee'] = data['Current Annual Total Services Fee'].apply(lambda x: f"${x:,.2f}")
     data['Subscription Term Total Service Fee'] = data['Subscription Term Total Service Fee'].apply(lambda x: f"${x:,.2f}")
     data['Prepaid Co-Termed Cost'] = data['Prepaid Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
     data['First Year Co-Termed Cost'] = data['First Year Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
@@ -78,7 +80,7 @@ if st.button("Calculate Costs"):
         "Unit Quantity": ["-"],
         "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
         "Additional Licenses": ["-"],
-        "Annual Total Services Fee": [f"${total_annual:,.2f}"],
+        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
         "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
         "Prepaid Co-Termed Cost": ["-"],
         "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
