@@ -120,11 +120,11 @@ if st.button("Calculate Costs"):
         "Updated Annual Cost": lambda x: f"${x:,.2f}" if isinstance(x, (int, float)) else x,
         "Subscription Term Total Service Fee": lambda x: f"${x:,.2f}" if isinstance(x, (int, float)) else x
     }).set_properties(**{"white-space": "normal"}))
-        "Annual Unit Fee": "${:,.2f}",
-        "Prepaid Co-Termed Cost": "${:,.2f}",
-        "First Year Co-Termed Cost": "${:,.2f}",
-        "Updated Annual Cost": "${:,.2f}",
-        "Subscription Term Total Service Fee": "${:,.2f}"
+
+
+
+
+
     }).set_properties(**{"white-space": "normal"}))
     pdf_path = generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data)
     with open(pdf_path, "rb") as file:
