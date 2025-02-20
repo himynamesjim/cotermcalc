@@ -88,7 +88,7 @@ st.subheader("Input Form")
 current_date = datetime.today().strftime('%Y-%m-%d')
 st.text(f"Date: {current_date}")
 customer_name = st.text_input("Customer Name:")
-billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid"])
+billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid", "Monthly"])
 agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
 months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
 
