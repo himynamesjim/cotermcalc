@@ -6,8 +6,8 @@ from datetime import datetime
 
 st.title("Customer Agreement Details")
 
-# Load selected customer from session state
-if "selected_customer" not in st.session_state:
+# Check if a customer is selected
+if "selected_customer" not in st.session_state or not st.session_state["selected_customer"]:
     st.error("No customer selected. Please return to the home page.")
     st.stop()
 
@@ -79,3 +79,8 @@ def generate_pdf(data, customer_name):
 if st.button("Download Agreement PDF"):
     pdf_data = generate_pdf(data, customer_name)
     st.download_button("Download PDF", pdf_data, f"{customer_name}_agreement.pdf", "application/pdf")
+
+# Go back to the home page
+if st.button("Back to Home"):
+    st.session_state["selected_customer"] = None
+    st.experimental_rerun()
