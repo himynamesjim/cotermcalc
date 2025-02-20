@@ -74,4 +74,16 @@ if st.button("Calculate Costs"):
     st.markdown(f"### Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}")
     
     st.subheader("Detailed Line Items")
+    total_row = pd.DataFrame({
+        "Cloud Service Description": ["Total Services Cost"],
+        "Unit Quantity": ["-"],
+        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
+        "Additional Licenses": ["-"],
+        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
+        "Prepaid Co-Termed Cost": [f"${total_prepaid_total_cost:,.2f}"],
+        "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
+        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
+    })
+    data = pd.concat([data, total_row], ignore_index=True)
     st.dataframe(data)
