@@ -101,7 +101,10 @@ for i in range(num_items):
     new_row = pd.DataFrame([row_data])
     data = pd.concat([data, new_row], ignore_index=True)
 
-st.subheader("Results")
-if st.button("Generate PDF"):
-    pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, 0, 0, 0, 0)
+if st.button("Calculate Results"):
+    data, total_prepaid, total_first_year, total_annual, *_ = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    st.write("### Results")
+    st.dataframe(data)
+    
+    pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid, total_first_year, total_annual, 0)
     st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
