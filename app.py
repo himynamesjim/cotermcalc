@@ -55,7 +55,7 @@ for i in range(num_items):
     col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
     row_data["Cloud Service Description"] = col1.text_input(f"Service {i+1}", key=f"service_{i}")
     row_data["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=0, step=1, format="%d", key=f"qty_{i}")
-    row_data["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0, value=0, step=1, format="%d", key=f"fee_{i}")
+    row_data["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"fee_{i}")
     row_data["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=0, step=1, format="%d", key=f"add_lic_{i}")
     
     new_row = pd.DataFrame([row_data])
