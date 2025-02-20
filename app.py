@@ -51,32 +51,35 @@ st.subheader("Line Items")
 if 'line_items' not in st.session_state:
     st.session_state.line_items = []
 
-def add_line():
-    st.session_state.line_items.append({
-        "Cloud Service Description": "",
-        "Unit Quantity": 0,
-        "Annual Unit Fee": 0.0,
-        "Additional Licenses": 0
-    })
-
-def remove_line():
-    if st.session_state.line_items:
+def modify_lines(change):
+    if change == 1:
+        st.session_state.line_items.append({
+            "Cloud Service Description": "",
+            "Unit Quantity": 0,
+            "Annual Unit Fee": 0.0,
+            "Additional Licenses": 0
+        })
+    elif change == -1 and st.session_state.line_items:
         st.session_state.line_items.pop()
 
-st.button("➕ Add Line Item", on_click=add_line)
-st.button("➖ Remove Last Line Item", on_click=remove_line)
+col1, col2 = st.columns([3, 1])
+num_lines = col1.number_input("Number of Line Items", min_value=1, value=len(st.session_state.line_items), step=1, key="num_lines")
+col2.button("➕", on_click=modify_lines, args=(1,))
+col2.button("➖", on_click=modify_lines, args=(-1,))
 
 data = pd.DataFrame(st.session_state.line_items)
 
 st.write("### Line Items")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"]
-col1, col2, col3, col4 = st.columns([3, 1, 2, 2])
+cols = st.columns([3, 1, 2, 2])
+headers = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"]
+for col, header in zip(cols, headers):
+    col.write(f"**{header}**")
 
 for i, item in enumerate(st.session_state.line_items):
-    item["Cloud Service Description"] = col1.text_input(f"Service {i+1}", value=item["Cloud Service Description"], key=f"service_{i}")
-    item["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=item["Unit Quantity"], key=f"qty_{i}")
-    item["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=item["Annual Unit Fee"], step=0.01, format="%.2f", key=f"fee_{i}")
-    item["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=item["Additional Licenses"], key=f"add_lic_{i}")
+    item["Cloud Service Description"] = cols[0].text_input(f"Service {i+1}", value=item["Cloud Service Description"], key=f"service_{i}")
+    item["Unit Quantity"] = cols[1].number_input(f"Qty {i+1}", min_value=0, value=item["Unit Quantity"], key=f"qty_{i}")
+    item["Annual Unit Fee"] = cols[2].number_input(f"Fee {i+1} ($)", min_value=0.0, value=item["Annual Unit Fee"], step=0.01, format="%.2f", key=f"fee_{i}")
+    item["Additional Licenses"] = cols[3].number_input(f"Add Licenses {i+1}", min_value=0, value=item["Additional Licenses"], key=f"add_lic_{i}")
 
 data = pd.DataFrame(st.session_state.line_items)
 
