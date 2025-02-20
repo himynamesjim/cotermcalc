@@ -62,10 +62,10 @@ def modify_lines(change):
     elif change == -1 and st.session_state.line_items:
         st.session_state.line_items.pop()
 
-col1, col2, col3 = st.columns([3, 1, 1])
+col1, col2 = st.columns([3, 1])
 num_lines = col1.number_input("Number of Line Items", min_value=1, value=len(st.session_state.line_items), step=1, key="num_lines")
 col2.button("➕", on_click=modify_lines, args=(1,))
-col3.button("➖", on_click=modify_lines, args=(-1,))
+col2.button("➖", on_click=modify_lines, args=(-1,))
 
 data = pd.DataFrame(st.session_state.line_items)
 
