@@ -68,12 +68,15 @@ st.button("➖ Remove Last Line Item", on_click=remove_line)
 
 data = pd.DataFrame(st.session_state.line_items)
 
+st.write("### Line Items")
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"]
+col1, col2, col3, col4 = st.columns([3, 1, 2, 2])
+
 for i, item in enumerate(st.session_state.line_items):
-    with st.expander(f"Line Item {i+1}"):
-        item["Cloud Service Description"] = st.text_input(f"Service {i+1}", value=item["Cloud Service Description"], key=f"service_{i}")
-        item["Unit Quantity"] = st.number_input(f"Qty {i+1}", min_value=0, value=item["Unit Quantity"], key=f"qty_{i}")
-        item["Annual Unit Fee"] = st.number_input(f"Fee {i+1} ($)", min_value=0.0, value=item["Annual Unit Fee"], step=0.01, format="%.2f", key=f"fee_{i}")
-        item["Additional Licenses"] = st.number_input(f"Add Licenses {i+1}", min_value=0, value=item["Additional Licenses"], key=f"add_lic_{i}")
+    item["Cloud Service Description"] = col1.text_input(f"Service {i+1}", value=item["Cloud Service Description"], key=f"service_{i}")
+    item["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=item["Unit Quantity"], key=f"qty_{i}")
+    item["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=item["Annual Unit Fee"], step=0.01, format="%.2f", key=f"fee_{i}")
+    item["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=item["Additional Licenses"], key=f"add_lic_{i}")
 
 data = pd.DataFrame(st.session_state.line_items)
 
