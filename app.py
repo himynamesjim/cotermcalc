@@ -93,5 +93,8 @@ for i in range(int(num_items)):
     data = pd.concat([data, pd.DataFrame([row_data])], ignore_index=True)
 
 if st.button("Calculate Results"):
-    data, *_ = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.dataframe(data)
+    
+    pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee)
+    st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
