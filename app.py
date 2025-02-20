@@ -96,10 +96,16 @@ num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=
 
 data = pd.DataFrame(columns=["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"])
 
+for i in range(int(num_items)):
+    row_data = {
+        "Cloud Service Description": st.text_input(f"Service {i+1}", key=f"service_{i}"),
+        "Unit Quantity": st.number_input(f"Qty {i+1}", min_value=0, value=0, key=f"qty_{i}"),
+        "Annual Unit Fee": st.number_input(f"Fee {i+1} ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"fee_{i}"),
+        "Additional Licenses": st.number_input(f"Add Licenses {i+1}", min_value=0, value=0, key=f"add_lic_{i}")
+    }
+    data = pd.concat([data, pd.DataFrame([row_data])], ignore_index=True)
+
 if st.button("Calculate Results"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    data, *_ = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.write("### Results")
     st.dataframe(data)
-    
-    pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid, total_first_year, total_updated_annual_cost, total_subscription_term_fee)
-    st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
