@@ -64,8 +64,8 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
     pdf.cell(200, 10, "Detailed Line Items", ln=True)
     pdf.set_font("Arial", "", 10)
     
-    headers = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost"]
-    col_widths = [60, 30, 40, 30, 40]
+    headers = list(data.columns)
+    col_widths = [40, 25, 30, 25, 40, 40, 40, 40]
     
     for i, header in enumerate(headers):
         pdf.cell(col_widths[i], 10, header, border=1, align="C")
@@ -93,7 +93,7 @@ payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
 st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost"]
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee"]
 data = pd.DataFrame(columns=columns)
 
 for i in range(num_items):
