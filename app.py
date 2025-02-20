@@ -10,6 +10,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     total_first_year_cost = 0
     total_updated_annual_cost = 0
     total_subscription_term_fee = 0
+    total_annual_unit_fee = 0
     
     for index, row in df.iterrows():
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
@@ -27,11 +28,12 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_prepaid_cost += co_termed_prepaid_cost
         total_first_year_cost += co_termed_first_year_cost
         total_subscription_term_fee += subscription_term_total_fee
+        total_annual_unit_fee += row['Annual Unit Fee']
     
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Services Cost"],
         "Unit Quantity": ["-"],
-        "Annual Unit Fee": ["-"],
+        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
         "Additional Licenses": ["-"],
         "Prepaid Co-Termed Cost": [f"${total_prepaid_cost:,.2f}"],
         "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],
@@ -94,27 +96,17 @@ months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_valu
 payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
-st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee"]
-data = pd.DataFrame(columns=columns)
-
-for i in range(num_items):
-    row_data = {}
-    st.markdown(f"**Item {i+1}**")
-    col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-    row_data["Cloud Service Description"] = col1.text_input(f"Service {i+1}", key=f"service_{i}")
-    row_data["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=0, step=1, format="%d", key=f"qty_{i}")
-    row_data["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"fee_{i}")
-    row_data["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=0, step=1, format="%d", key=f"add_lic_{i}")
-    
-    new_row = pd.DataFrame([row_data])
-    data = pd.concat([data, new_row], ignore_index=True)
-
 st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.subheader("Detailed Line Items")
-    st.dataframe(data.style.set_properties(**{"white-space": "normal"}))
+    st.dataframe(data.style.format({
+        "Annual Unit Fee": "${:,.2f}",
+        "Prepaid Co-Termed Cost": "${:,.2f}",
+        "First Year Co-Termed Cost": "${:,.2f}",
+        "Updated Annual Cost": "${:,.2f}",
+        "Subscription Term Total Service Fee": "${:,.2f}"
+    }).set_properties(**{"white-space": "normal"}))
     pdf_path = generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data)
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
