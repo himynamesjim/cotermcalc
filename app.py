@@ -64,8 +64,16 @@ if st.button("Calculate Costs"):
     st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:,.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
     
     st.subheader("Detailed Line Items")
+    data['Annual Unit Fee'] = data['Annual Unit Fee'].apply(lambda x: f"${x:,.2f}")
+    data['Annual Total Services Fee'] = data['Annual Total Services Fee'].apply(lambda x: f"${x:,.2f}")
+    data['Subscription Term Total Service Fee'] = data['Subscription Term Total Service Fee'].apply(lambda x: f"${x:,.2f}")
+    data['Prepaid Co-Termed Cost'] = data['Prepaid Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
+    data['First Year Co-Termed Cost'] = data['First Year Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
+    data['Updated Annual Cost'] = data['Updated Annual Cost'].apply(lambda x: f"${x:,.2f}")
+    data['Cloud Service Description'] = data['Cloud Service Description'].apply(lambda x: f"**{x}**")
+    
     summary_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Services Fee"],
+        "Cloud Service Description": ["**Total Services Fee**"],
         "Unit Quantity": ["-"],
         "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
         "Additional Licenses": ["-"],
