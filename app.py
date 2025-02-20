@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+from fpdf import FPDF
 
 def calculate_costs(df, agreement_term, months_remaining, payment_model):
     months_elapsed = agreement_term - months_remaining
@@ -36,7 +37,41 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_current_annual_services_fee += annual_total_fee
         total_prepaid_total_cost += co_termed_prepaid_cost
     
+    total_row = pd.DataFrame({
+        "Cloud Service Description": ["Total Services Cost"],
+        "Unit Quantity": ["-"],
+        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
+        "Additional Licenses": ["-"],
+        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
+        "Prepaid Co-Termed Cost": [f"${total_prepaid_total_cost:,.2f}"],
+        "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
+        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
+    })
+    df = pd.concat([df, total_row], ignore_index=True)
+    
     return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost
+
+def generate_pdf(customer_name, subject, current_date, data):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(200, 10, "Co-Terming Cost Report", ln=True, align="C")
+    pdf.ln(10)
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(200, 10, f"Date: {current_date}", ln=True)
+    pdf.cell(200, 10, f"Customer Name: {customer_name}", ln=True)
+    pdf.cell(200, 10, f"Subject: {subject}", ln=True)
+    pdf.ln(10)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(200, 10, "Detailed Line Items", ln=True)
+    pdf.set_font("Arial", "", 10)
+    
+    for index, row in data.iterrows():
+        pdf.cell(200, 10, f"{row.to_string(index=False)}", ln=True)
+    
+    pdf.ln(10)
+    pdf.output("coterming_report.pdf")
 
 st.title("Co-Terming Cost Calculator")
 
@@ -70,26 +105,9 @@ st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
-    st.markdown(f"### Date: {current_date}")
-    st.markdown(f"### Customer Name: {customer_name}")
-    st.markdown(f"### Subject: {subject}")
-    st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
-    st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:,.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
-    st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:,.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
-    st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:,.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
-    st.markdown(f"### Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}")
-    
     st.subheader("Detailed Line Items")
-    total_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Services Cost"],
-        "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
-        "Additional Licenses": ["-"],
-        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
-        "Prepaid Co-Termed Cost": [f"${total_prepaid_total_cost:,.2f}"],
-        "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
-        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
-        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
-    })
-    data = pd.concat([data, total_row], ignore_index=True)
     st.dataframe(data)
+    
+    if st.button("Download PDF"):
+        generate_pdf(customer_name, subject, current_date, data)
+        st.success("PDF Generated! You can download it from the output folder.")
