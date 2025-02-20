@@ -22,6 +22,8 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if payment_model == 'Annual' else 0
         
         df.at[index, 'Annual Unit Fee'] = f"${row['Annual Unit Fee']:,.2f}"
+        df.at[index, 'Unit Quantity'] = f"{row['Unit Quantity']}"
+        df.at[index, 'Additional Licenses'] = f"{row['Additional Licenses']}"
         df.at[index, 'Current Annual Total Services Fee'] = f"${annual_total_fee:,.2f}"
         df.at[index, 'Prepaid Co-Termed Cost'] = f"${co_termed_prepaid_cost:,.2f}"
         df.at[index, 'First Year Co-Termed Cost'] = f"${co_termed_first_year_cost:,.2f}"
@@ -50,7 +52,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     })
     df = pd.concat([df, total_row], ignore_index=True)
     
-    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost
+    return df
 
 def generate_pdf(customer_name, subject, current_date, data):
     pdf = FPDF()
@@ -67,16 +69,15 @@ def generate_pdf(customer_name, subject, current_date, data):
     pdf.cell(200, 10, "Detailed Line Items", ln=True)
     pdf.set_font("Arial", "", 10)
     
-    column_widths = [60, 20, 30, 20, 40, 40, 40, 40, 40]
-    headers = ["Cloud Service Description", "Qty", "Annual Fee", "Add Licenses", "Current Annual Fee", "Prepaid Co-Term", "First Year Co-Term", "Updated Annual", "Subscription Term"]
-    
-    for i, header in enumerate(headers):
-        pdf.cell(column_widths[i], 10, header, border=1, align="C")
+    headers = data.columns.tolist()
+    col_width = 30
+    for header in headers:
+        pdf.cell(col_width, 10, header, border=1, align="C")
     pdf.ln()
     
     for _, row in data.iterrows():
-        for i, col in enumerate(headers):
-            pdf.cell(column_widths[i], 10, str(row[col]), border=1, align="C")
+        for col in headers:
+            pdf.cell(col_width, 10, str(row[col]), border=1, align="C")
         pdf.ln()
     
     pdf_filename = "coterming_report.pdf"
@@ -113,7 +114,7 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, *_ = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    data = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.subheader("Detailed Line Items")
     st.dataframe(data)
     pdf_path = generate_pdf(customer_name, subject, current_date, data)
