@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from fpdf import FPDF
 
-def calculate_costs(df, agreement_term, months_remaining, billing_term):
+def calculate_costs(df, agreement_term, months_remaining, payment_model):
     months_elapsed = agreement_term - months_remaining
     total_annual_cost = 0
     total_prepaid_cost = 0
@@ -14,9 +14,9 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
     for index, row in df.iterrows():
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
         subscription_term_total_fee = ((annual_total_fee * months_remaining) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12)
-        co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12 if billing_term == 'Prepaid' else 0
-        co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if billing_term == 'Annual' else 0
-        updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if billing_term == 'Annual' else 0
+        co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12 if payment_model == 'Prepaid' else 0
+        co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if payment_model == 'Annual' else 0
+        updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if payment_model == 'Annual' else 0
         
         df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
         df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
@@ -91,6 +91,7 @@ customer_name = st.text_input("Customer Name:")
 billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid"])
 agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
 months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
+payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
 st.subheader("Enter License Information")
@@ -111,18 +112,15 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
+    data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.subheader("Detailed Line Items")
     st.dataframe(data.style.format({
-        "Annual Unit Fee": lambda x: f"${x:,.2f}" if isinstance(x, (int, float)) else x,
-        "Prepaid Co-Termed Cost": lambda x: f"${x:,.2f}" if isinstance(x, (int, float)) else x,
-        "First Year Co-Termed Cost": lambda x: f"${x:,.2f}" if isinstance(x, (int, float)) else x,
-        "Updated Annual Cost": lambda x: f"${x:,.2f}" if isinstance(x, (int, float)) else x,
-        "Subscription Term Total Service Fee": lambda x: f"${x:,.2f}" if isinstance(x, (int, float)) else x
+        "Annual Unit Fee": "${:,.2f}",
+        "Prepaid Co-Termed Cost": "${:,.2f}",
+        "First Year Co-Termed Cost": "${:,.2f}",
+        "Updated Annual Cost": "${:,.2f}",
+        "Subscription Term Total Service Fee": "${:,.2f}"
     }).set_properties(**{"white-space": "normal"}))
-
-
-    )
     pdf_path = generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data)
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
