@@ -30,13 +30,13 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Services Cost"],
-        "Unit Quantity": [0],
-        "Annual Unit Fee": [0.0],
-        "Additional Licenses": [0],
-        "Prepaid Co-Termed Cost": [total_prepaid_cost],
-        "First Year Co-Termed Cost": [total_first_year_cost],
-        "Updated Annual Cost": [total_updated_annual_cost],
-        "Subscription Term Total Service Fee": [total_subscription_term_fee]
+        "Unit Quantity": ["-"],
+        "Annual Unit Fee": ["-"],
+        "Additional Licenses": ["-"],
+        "Prepaid Co-Termed Cost": [f"${total_prepaid_cost:,.2f}"],
+        "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],
+        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
     })
     df = pd.concat([df, total_row], ignore_index=True)
     
@@ -64,8 +64,17 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
     pdf.cell(200, 10, "Detailed Line Items", ln=True)
     pdf.set_font("Arial", "", 10)
     
+    headers = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost"]
+    col_widths = [60, 30, 40, 30, 40]
+    
+    for i, header in enumerate(headers):
+        pdf.cell(col_widths[i], 10, header, border=1, align="C")
+    pdf.ln()
+    
     for _, row in data.iterrows():
-        pdf.multi_cell(0, 10, f"Service: {row['Cloud Service Description']} - Qty: {int(row['Unit Quantity'])} - Fee: ${row['Annual Unit Fee']:.2f} - Prepaid Cost: ${row['Prepaid Co-Termed Cost']:.2f}", border=1)
+        for i, col in enumerate(headers):
+            pdf.cell(col_widths[i], 10, str(row[col]), border=1, align="C")
+        pdf.ln()
     
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
