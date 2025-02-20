@@ -45,27 +45,27 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
 def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", "B", 16)
+    pdf.set_font("Arial", "B", 14)
     pdf.cell(200, 10, "Co-Terming Cost Report", ln=True, align="C")
-    pdf.ln(10)
+    pdf.ln(8)
     
-    pdf.set_font("Arial", "", 12)
-    pdf.cell(200, 10, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=True)
-    pdf.cell(200, 10, f"Customer Name: {customer_name}", ln=True)
-    pdf.cell(200, 10, f"Billing Term: {billing_term}", ln=True)
-    pdf.cell(200, 10, f"Subscription Term Remaining Months: {months_remaining:.2f}", ln=True)
-    pdf.cell(200, 10, f"Total Pre-Paid Cost: ${total_prepaid_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"Subscription Term Total Service Fee: ${total_subscription_term_fee:,.2f}", ln=True)
-    pdf.ln(10)
+    pdf.set_font("Arial", "", 11)
+    pdf.cell(200, 8, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=True)
+    pdf.cell(200, 8, f"Customer Name: {customer_name}", ln=True)
+    pdf.cell(200, 8, f"Billing Term: {billing_term}", ln=True)
+    pdf.cell(200, 8, f"Subscription Term Remaining Months: {months_remaining:.2f}", ln=True)
+    pdf.cell(200, 8, f"Total Pre-Paid Cost: ${total_prepaid_cost:,.2f}", ln=True)
+    pdf.cell(200, 8, f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}", ln=True)
+    pdf.cell(200, 8, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
+    pdf.cell(200, 8, f"Subscription Term Total Service Fee: ${total_subscription_term_fee:,.2f}", ln=True)
+    pdf.ln(8)
     
     pdf.set_font("Arial", "B", 9)
-    pdf.cell(200, 8, "Detailed Line Items", ln=True)
+    pdf.cell(200, 7, "Detailed Line Items", ln=True)
     pdf.set_font("Arial", "", 7)
     
     headers = list(data.columns)
-    col_widths = [30, 18, 25, 18, 30, 30, 30, 30]
+    col_widths = [40, 20, 30, 20, 35, 35, 35, 35]
     
     for i, header in enumerate(headers):
         pdf.cell(col_widths[i], 6, header, border=1, align="C")
@@ -74,8 +74,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
     pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
         for i, col in enumerate(headers):
-            text = str(row[col])
-            pdf.multi_cell(col_widths[i], 5, text, border=1, align="C")
+            pdf.cell(col_widths[i], 6, str(row[col]), border=1, align="C")
         pdf.ln()
     
     pdf_filename = "coterming_report.pdf"
