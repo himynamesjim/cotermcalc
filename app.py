@@ -8,6 +8,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     total_first_year_cost = 0
     total_annual_unit_fee = 0
     total_subscription_term_fee = 0
+    total_updated_annual_cost = 0
     
     for index, row in df.iterrows():
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
@@ -27,8 +28,9 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_first_year_cost += co_termed_first_year_cost
         total_annual_unit_fee += row['Annual Unit Fee']
         total_subscription_term_fee += subscription_term_total_fee
+        total_updated_annual_cost += updated_annual_cost
     
-    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee
+    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost
 
 st.title("Co-Terming Cost Calculator")
 
@@ -56,7 +58,7 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
     st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
     st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:,.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
@@ -79,8 +81,8 @@ if st.button("Calculate Costs"):
         "Annual Total Services Fee": [f"${total_annual:,.2f}"],
         "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
         "Prepaid Co-Termed Cost": ["-"],
-        "First Year Co-Termed Cost": ["-"],
-        "Updated Annual Cost": ["-"]
+        "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
+        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"]
     })
     data = pd.concat([data, summary_row], ignore_index=True)
     
