@@ -70,10 +70,9 @@ if st.button("Calculate Costs"):
     data['Prepaid Co-Termed Cost'] = data['Prepaid Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
     data['First Year Co-Termed Cost'] = data['First Year Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
     data['Updated Annual Cost'] = data['Updated Annual Cost'].apply(lambda x: f"${x:,.2f}")
-    data['Cloud Service Description'] = data['Cloud Service Description'].apply(lambda x: f"**{x}**")
     
     summary_row = pd.DataFrame({
-        "Cloud Service Description": ["**Total Services Fee**"],
+        "Cloud Service Description": ["Total Services Fee"],
         "Unit Quantity": ["-"],
         "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
         "Additional Licenses": ["-"],
@@ -84,4 +83,5 @@ if st.button("Calculate Costs"):
         "Updated Annual Cost": ["-"]
     })
     data = pd.concat([data, summary_row], ignore_index=True)
-    st.dataframe(data)
+    
+    st.dataframe(data.style.set_properties(subset=['Cloud Service Description'], **{'font-weight': 'bold'}))
