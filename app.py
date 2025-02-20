@@ -39,6 +39,37 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     
     return df, f"${total_prepaid_cost:,.2f}", f"${total_first_year_cost:,.2f}", f"${total_annual_cost:,.2f}", f"${total_annual_unit_fee:,.2f}", f"${total_subscription_term_fee:,.2f}", f"${total_updated_annual_cost:,.2f}", f"${total_current_annual_services_fee:,.2f}", f"${total_prepaid_total_cost:,.2f}"
 
+def generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid_total_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(200, 10, "Co-Terming Cost Report", ln=True, align='C')
+    pdf.ln(10)
+    
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(200, 10, "Summary", ln=True)
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(200, 10, f"Date: {datetime.now().strftime('%Y-%m-%d')}", ln=True)
+    pdf.cell(200, 10, f"Customer Name: {customer_name}", ln=True)
+    pdf.cell(200, 10, f"Billing Term (Agreement Term): {agreement_term} months", ln=True)
+    pdf.cell(200, 10, f"Subscription Term Remaining Months: {months_remaining:.2f}", ln=True)
+    pdf.cell(200, 10, f"Total Pre-Paid Cost: {total_prepaid_total_cost}", ln=True)
+    pdf.cell(200, 10, f"First Year Co-Termed Cost: {total_first_year_cost}", ln=True)
+    pdf.cell(200, 10, f"Updated Annual Cost: {total_updated_annual_cost}", ln=True)
+    pdf.cell(200, 10, f"Subscription Term Total Service Fee: {total_subscription_term_fee}", ln=True)
+    pdf.ln(10)
+    
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(200, 10, "Detailed Line Items", ln=True)
+    pdf.set_font("Arial", "", 10)
+    
+    for index, row in data.iterrows():
+        pdf.cell(200, 10, f"Service: {row['Cloud Service Description']} - Qty: {row['Unit Quantity']} - Fee: {row['Annual Unit Fee']} - Prepaid Cost: {row['Prepaid Co-Termed Cost']}", ln=True)
+    
+    return pdf.output(dest='S').encode('latin1')
+
 st.title("Co-Terming Cost Calculator")
 
 st.subheader("Input Form")
@@ -63,6 +94,7 @@ for i in range(int(num_items)):
 
 if st.button("Calculate Results"):
     data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    st.write("### Results")
     st.dataframe(data)
     
     pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee)
