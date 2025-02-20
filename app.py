@@ -56,6 +56,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
 
 def generate_pdf(customer_name, subject, current_date, data):
     pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     pdf.set_font("Arial", "B", 16)
     pdf.cell(200, 10, "Co-Terming Cost Report", ln=True, align="C")
@@ -70,14 +71,15 @@ def generate_pdf(customer_name, subject, current_date, data):
     pdf.set_font("Arial", "", 10)
     
     headers = data.columns.tolist()
-    col_width = 30
-    for header in headers:
-        pdf.cell(col_width, 10, header, border=1, align="C")
+    col_widths = [50, 20, 30, 20, 40, 40, 40, 40, 40]
+    
+    for i, header in enumerate(headers):
+        pdf.cell(col_widths[i], 10, header, border=1, align="C")
     pdf.ln()
     
     for _, row in data.iterrows():
-        for col in headers:
-            pdf.cell(col_width, 10, str(row[col]), border=1, align="C")
+        for i, col in enumerate(headers):
+            pdf.multi_cell(col_widths[i], 10, str(row[col]), border=1, align="C")
         pdf.ln()
     
     pdf_filename = "coterming_report.pdf"
