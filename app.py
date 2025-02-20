@@ -40,10 +40,10 @@ st.title("Co-Terming Cost Calculator")
 
 st.subheader("Input Form")
 customer_name = st.text_input("Customer Name:")
-agreement_term = st.number_input("Agreement Term (Months):", min_value=1.0, value=36.0, step=0.01, format="%.2f")
-months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=agreement_term, value=30.0, step=0.01, format="%.2f")
+agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
+months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
 payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
-num_items = st.number_input("Number of Line Items:", min_value=1, value=1)
+num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
 st.subheader("Enter License Information")
 columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Current Annual Total Services Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee"]
@@ -54,9 +54,9 @@ for i in range(num_items):
     st.markdown(f"**Item {i+1}**")
     col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
     row_data["Cloud Service Description"] = col1.text_input(f"Service {i+1}", key=f"service_{i}")
-    row_data["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=0, key=f"qty_{i}")
-    row_data["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"fee_{i}")
-    row_data["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=0, key=f"add_lic_{i}")
+    row_data["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=0, step=1, format="%d", key=f"qty_{i}")
+    row_data["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0, value=0, step=1, format="%d", key=f"fee_{i}")
+    row_data["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=0, step=1, format="%d", key=f"add_lic_{i}")
     
     new_row = pd.DataFrame([row_data])
     data = pd.concat([data, new_row], ignore_index=True)
@@ -73,24 +73,4 @@ if st.button("Calculate Costs"):
     st.markdown(f"### Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}")
     
     st.subheader("Detailed Line Items")
-    data['Annual Unit Fee'] = data['Annual Unit Fee'].apply(lambda x: f"${x:,.2f}")
-    data['Current Annual Total Services Fee'] = data['Current Annual Total Services Fee'].apply(lambda x: f"${x:,.2f}")
-    data['Subscription Term Total Service Fee'] = data['Subscription Term Total Service Fee'].apply(lambda x: f"${x:,.2f}")
-    data['Prepaid Co-Termed Cost'] = data['Prepaid Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
-    data['First Year Co-Termed Cost'] = data['First Year Co-Termed Cost'].apply(lambda x: f"${x:,.2f}")
-    data['Updated Annual Cost'] = data['Updated Annual Cost'].apply(lambda x: f"${x:,.2f}")
-    
-    summary_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Services Fee"],
-        "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
-        "Additional Licenses": ["-"],
-        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
-        "Prepaid Co-Termed Cost": [f"${total_prepaid_total_cost:,.2f}"],
-        "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
-        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
-        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
-    })
-    data = pd.concat([data, summary_row], ignore_index=True)
-    
-    st.dataframe(data.style.set_properties(subset=['Cloud Service Description'], **{'font-weight': 'bold'}))
+    st.dataframe(data)
