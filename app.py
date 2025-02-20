@@ -41,6 +41,12 @@ def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
+    
+    # Add Logo
+    logo_path = "logo.png"  # Ensure this image is available in the working directory
+    pdf.image(logo_path, x=10, y=8, w=30)
+    pdf.ln(20)  # Space after logo
+    
     pdf.set_font("Arial", "B", 16)
     pdf.cell(200, 10, "Co-Terming Cost Report", ln=True, align='C')
     pdf.ln(10)
