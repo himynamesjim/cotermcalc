@@ -28,6 +28,18 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_first_year_cost += co_termed_first_year_cost
         total_subscription_term_fee += subscription_term_total_fee
     
+    total_row = pd.DataFrame({
+        "Cloud Service Description": ["Total Services Cost"],
+        "Unit Quantity": ["-"],
+        "Annual Unit Fee": ["-"],
+        "Additional Licenses": ["-"],
+        "Prepaid Co-Termed Cost": [f"${total_prepaid_cost:,.2f}"],
+        "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],
+        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
+    })
+    df = pd.concat([df, total_row], ignore_index=True)
+    
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
 
 def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
