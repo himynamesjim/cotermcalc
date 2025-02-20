@@ -68,10 +68,11 @@ def generate_pdf(customer_name, subject, current_date, data):
     pdf.set_font("Arial", "", 10)
     
     for index, row in data.iterrows():
-        pdf.cell(200, 10, f"{row.to_string(index=False)}", ln=True)
+        pdf.multi_cell(0, 10, f"{row.to_string(index=False)}")
     
     pdf.ln(10)
     pdf.output("coterming_report.pdf")
+    return "coterming_report.pdf"
 
 st.title("Co-Terming Cost Calculator")
 
@@ -109,5 +110,6 @@ if st.button("Calculate Costs"):
     st.dataframe(data)
     
     if st.button("Download PDF"):
-        generate_pdf(customer_name, subject, current_date, data)
-        st.success("PDF Generated! You can download it from the output folder.")
+        pdf_path = generate_pdf(customer_name, subject, current_date, data)
+        with open(pdf_path, "rb") as file:
+            st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
