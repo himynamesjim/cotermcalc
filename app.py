@@ -19,6 +19,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if payment_model == 'Annual' else 0
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if payment_model == 'Annual' else 0
         
+        df.at[index, 'Annual Unit Fee'] = f"${row['Annual Unit Fee']:,.2f}"
         df.at[index, 'Current Annual Total Services Fee'] = f"${annual_total_fee:,.2f}"
         df.at[index, 'Prepaid Co-Termed Cost'] = f"${co_termed_prepaid_cost:,.2f}"
         df.at[index, 'First Year Co-Termed Cost'] = f"${co_termed_first_year_cost:,.2f}"
