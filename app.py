@@ -31,7 +31,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_annual_cost += updated_annual_cost
         total_prepaid_cost += co_termed_prepaid_cost
         total_first_year_cost += co_termed_first_year_cost
-        total_annual_unit_fee += row['Annual Unit Fee']
+        total_annual_unit_fee += row['Annual Unit Fee'] * row['Unit Quantity']
         total_subscription_term_fee += subscription_term_total_fee
         total_updated_annual_cost += updated_annual_cost
         total_current_annual_services_fee += annual_total_fee
@@ -70,10 +70,19 @@ if st.button("Calculate Results"):
     st.write("### Results")
     st.dataframe(data)
     
-    st.write("### Total Services Fees")
-    st.write(f"**Annual Unit Fee:** ${total_annual_unit_fee:,.2f}")
-    st.write(f"**Current Annual Total Services Fee:** ${total_current_annual_services_fee:,.2f}")
-    st.write(f"**Subscription Term Total Fee:** ${total_subscription_term_fee:,.2f}")
+    # Add total row
+    total_row = pd.DataFrame({
+        "Cloud Service Description": ["Total Services Fee"],
+        "Unit Quantity": [""],
+        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
+        "Additional Licenses": [""],
+        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
+        "Prepaid Co-Termed Cost": [""],
+        "First Year Co-Termed Cost": [""],
+        "Updated Annual Cost": [""],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
+    })
+    st.dataframe(pd.concat([data, total_row], ignore_index=True))
     
     pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid, total_first_year, total_updated_annual_cost, total_subscription_term_fee)
     st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
