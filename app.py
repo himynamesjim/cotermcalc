@@ -67,10 +67,18 @@ def generate_pdf(customer_name, subject, current_date, data):
     pdf.cell(200, 10, "Detailed Line Items", ln=True)
     pdf.set_font("Arial", "", 10)
     
-    for index, row in data.iterrows():
-        pdf.multi_cell(0, 10, f"{row.to_string(index=False)}")
+    column_widths = [60, 20, 30, 20, 40, 40, 40, 40, 40]
+    headers = ["Cloud Service Description", "Qty", "Annual Fee", "Add Licenses", "Current Annual Fee", "Prepaid Co-Term", "First Year Co-Term", "Updated Annual", "Subscription Term"]
     
-    pdf.ln(10)
+    for i, header in enumerate(headers):
+        pdf.cell(column_widths[i], 10, header, border=1, align="C")
+    pdf.ln()
+    
+    for _, row in data.iterrows():
+        for i, col in enumerate(headers):
+            pdf.cell(column_widths[i], 10, str(row[col]), border=1, align="C")
+        pdf.ln()
+    
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
     return pdf_filename
@@ -105,11 +113,9 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
-    
+    data, *_ = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.subheader("Detailed Line Items")
     st.dataframe(data)
-    
     pdf_path = generate_pdf(customer_name, subject, current_date, data)
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
