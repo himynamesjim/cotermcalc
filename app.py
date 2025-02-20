@@ -19,7 +19,7 @@ if customer_files:
 
     if st.button("View Co-Termed Agreements"):
         st.session_state["selected_customer"] = selected_customer
-        st.experimental_set_query_params(customer=selected_customer)  # Persist selection in URL
+        st.query_params["customer"] = selected_customer  # Persist selection in URL
 
 # Redirect to customer_detail.py when a customer is selected
 if st.session_state["selected_customer"]:
