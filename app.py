@@ -28,9 +28,9 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
 
 st.title("Co-Terming Cost Calculator")
 
-col1, col2 = st.columns([2, 1])
+layout = st.columns([2, 1])
 
-with col1:
+with layout[0]:
     st.subheader("Input Form")
     agreement_term = st.number_input("Agreement Term (Months):", min_value=1.0, value=36.0, step=0.01, format="%.2f")
     months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=agreement_term, value=30.0, step=0.01, format="%.2f")
@@ -53,16 +53,15 @@ with col1:
         new_row = pd.DataFrame([row_data])
         data = pd.concat([data, new_row], ignore_index=True)
 
-with col2:
+with layout[1]:
     st.subheader("Results")
     if st.button("Calculate Costs"):
         data, total_prepaid, total_first_year, total_annual = calculate_costs(data, agreement_term, months_remaining, payment_model)
         
-        with col2:
-            st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
-            st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
-            st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
-            st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
+        st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
+        st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
+        st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
+        st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
     
     st.subheader("Detailed Line Items")
     st.dataframe(data)
