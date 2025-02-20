@@ -38,7 +38,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     
     return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost
 
-def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, billing_term, months_remaining):
+def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, agreement_term, months_remaining):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
@@ -57,7 +57,7 @@ def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated
     pdf.set_font("Arial", "", 12)
     pdf.cell(200, 10, f"Date: {datetime.now().strftime('%Y-%m-%d')}", ln=True)
     pdf.cell(200, 10, f"Customer Name: {customer_name}", ln=True)
-    pdf.cell(200, 10, f"Billing Term: {billing_term}", ln=True)
+    pdf.cell(200, 10, f"Billing Term (Agreement Term): {agreement_term} months", ln=True)
     pdf.cell(200, 10, f"Subscription Term Remaining Months: {months_remaining:.2f}", ln=True)
     pdf.cell(200, 10, f"Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}", ln=True)
     pdf.cell(200, 10, f"First Year Co-Termed Cost: ${total_first_year:,.2f}", ln=True)
@@ -78,7 +78,6 @@ st.title("Co-Terming Cost Calculator")
 
 st.subheader("Input Form")
 customer_name = st.text_input("Customer Name:")
-billing_term = st.text_input("Billing Term:")
 agreement_term = st.number_input("Agreement Term (Months):", min_value=1.0, value=36.0, step=0.01, format="%.2f")
 months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=agreement_term, value=30.0, step=0.01, format="%.2f")
 payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
@@ -104,5 +103,5 @@ st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
-    pdf_data = generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, billing_term, months_remaining)
+    pdf_data = generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, agreement_term, months_remaining)
     st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
