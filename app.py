@@ -25,7 +25,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_annual_cost += updated_annual_cost
         total_prepaid_cost += co_termed_prepaid_cost
         total_first_year_cost += co_termed_first_year_cost
-        total_annual_unit_fee += row['Annual Unit Fee'] * row['Unit Quantity']
+        total_annual_unit_fee += row['Annual Unit Fee']
         total_subscription_term_fee += subscription_term_total_fee
     
     return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee
@@ -59,18 +59,18 @@ if st.button("Calculate Costs"):
     data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
     st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
-    st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
-    st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
-    st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
+    st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:,.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
+    st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:,.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
+    st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:,.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
     
     st.subheader("Detailed Line Items")
     summary_row = pd.DataFrame({
         "Cloud Service Description": ["Total Services Fee"],
         "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${total_annual_unit_fee:.2f}"],
+        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
         "Additional Licenses": ["-"],
-        "Annual Total Services Fee": [f"${total_annual:.2f}"],
-        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:.2f}"],
+        "Annual Total Services Fee": [f"${total_annual:,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
         "Prepaid Co-Termed Cost": ["-"],
         "First Year Co-Termed Cost": ["-"],
         "Updated Annual Cost": ["-"]
