@@ -72,7 +72,17 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
 
 st.title("Co-Terming Cost Calculator")
 
-st.subheader("Results")
+st.subheader("Input Form")
+customer_name = st.text_input("Customer Name:")
+billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid"])
+agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
+months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
+payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
+num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
+
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee"]
+data = pd.DataFrame(columns=columns)
+
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.subheader("Detailed Line Items")
