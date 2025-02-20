@@ -44,7 +44,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         "Additional Licenses": ["-"],
         "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
         "Prepaid Co-Termed Cost": [f"${total_prepaid_total_cost:,.2f}"],
-        "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
+        "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],
         "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
         "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
     })
