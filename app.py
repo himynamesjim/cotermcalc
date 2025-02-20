@@ -39,6 +39,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
 st.title("Co-Terming Cost Calculator")
 
 st.subheader("Input Form")
+customer_name = st.text_input("Customer Name:")
 agreement_term = st.number_input("Agreement Term (Months):", min_value=1.0, value=36.0, step=0.01, format="%.2f")
 months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=agreement_term, value=30.0, step=0.01, format="%.2f")
 payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
@@ -64,6 +65,7 @@ st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
+    st.markdown(f"### Customer Name: {customer_name}")
     st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
     st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:,.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
     st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:,.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
