@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
+import os
 
 def calculate_costs(df, agreement_term, months_remaining, payment_model):
     months_elapsed = agreement_term - months_remaining
@@ -37,6 +38,12 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_prepaid_total_cost += co_termed_prepaid_cost
     
     return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost
+
+def save_customer_data(customer_name, data):
+    folder_path = "customer_data"
+    os.makedirs(folder_path, exist_ok=True)
+    file_path = os.path.join(folder_path, f"{customer_name.replace(' ', '_')}.csv")
+    data.to_csv(file_path, index=False)
 
 def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, agreement_term, months_remaining):
     pdf = FPDF()
@@ -101,7 +108,5 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
-    
-    pdf_data = generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, agreement_term, months_remaining)
-    st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
+    save_customer_data(customer_name, data)
+    st.success(f"Data saved for customer: {customer_name}")
