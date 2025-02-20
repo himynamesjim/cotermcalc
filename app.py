@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
+import os
 
 def calculate_costs(df, agreement_term, months_remaining, payment_model):
     months_elapsed = agreement_term - months_remaining
@@ -30,49 +31,13 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_annual_cost += updated_annual_cost
         total_prepaid_cost += co_termed_prepaid_cost
         total_first_year_cost += co_termed_first_year_cost
-        total_annual_unit_fee += row['Annual Unit Fee']
+        total_annual_unit_fee += row['Annual Unit Fee'] * row['Unit Quantity']
         total_subscription_term_fee += subscription_term_total_fee
         total_updated_annual_cost += updated_annual_cost
         total_current_annual_services_fee += annual_total_fee
         total_prepaid_total_cost += co_termed_prepaid_cost
     
     return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost
-
-def generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, agreement_term, months_remaining):
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
-    
-    # Add Logo
-    logo_path = "logo.png"  # Ensure this image is available in the working directory
-    pdf.image(logo_path, x=10, y=8, w=30)
-    pdf.ln(20)  # Space after logo
-    
-    pdf.set_font("Arial", "B", 16)
-    pdf.cell(200, 10, "Co-Terming Cost Report", ln=True, align='C')
-    pdf.ln(10)
-    
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(200, 10, "Summary", ln=True)
-    pdf.set_font("Arial", "", 12)
-    pdf.cell(200, 10, f"Date: {datetime.now().strftime('%Y-%m-%d')}", ln=True)
-    pdf.cell(200, 10, f"Customer Name: {customer_name}", ln=True)
-    pdf.cell(200, 10, f"Billing Term (Agreement Term): {agreement_term} months", ln=True)
-    pdf.cell(200, 10, f"Subscription Term Remaining Months: {months_remaining:.2f}", ln=True)
-    pdf.cell(200, 10, f"Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"First Year Co-Termed Cost: ${total_first_year:,.2f}", ln=True)
-    pdf.cell(200, 10, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"Subscription Term Total Service Fee: ${total_subscription_term_fee:,.2f}", ln=True)
-    pdf.ln(10)
-    
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(200, 10, "Detailed Line Items", ln=True)
-    pdf.set_font("Arial", "", 10)
-    
-    for index, row in data.iterrows():
-        pdf.cell(200, 10, f"Service: {row['Cloud Service Description']} - Qty: {row['Unit Quantity']} - Fee: {row['Annual Unit Fee']} - Prepaid Cost: {row['Prepaid Co-Termed Cost']}", ln=True)
-    
-    return pdf.output(dest='S').encode('latin1')
 
 st.title("Co-Terming Cost Calculator")
 
@@ -99,9 +64,26 @@ for i in range(num_items):
     new_row = pd.DataFrame([row_data])
     data = pd.concat([data, new_row], ignore_index=True)
 
-st.subheader("Results")
-if st.button("Calculate Costs"):
+if st.button("Calculate Results"):
     data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
-    pdf_data = generate_pdf(data, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee, customer_name, agreement_term, months_remaining)
+    st.write("### Results")
+    
+    # Add total row
+    total_row = pd.DataFrame({
+        "Cloud Service Description": ["Total Services Fee"],
+        "Unit Quantity": [""],
+        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
+        "Additional Licenses": [""],
+        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
+        "Prepaid Co-Termed Cost": [""],
+        "First Year Co-Termed Cost": [""],
+        "Updated Annual Cost": [""],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
+    })
+    
+    data_with_total = pd.concat([data, total_row], ignore_index=True)
+    st.dataframe(data_with_total)
+    
+    pdf_data = generate_pdf(data_with_total, customer_name, agreement_term, months_remaining, total_prepaid, total_first_year, total_updated_annual_cost, total_subscription_term_fee)
     st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
