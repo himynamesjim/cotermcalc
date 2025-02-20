@@ -63,10 +63,27 @@ def generate_pdf(data, customer_name, agreement_term, months_remaining, total_pr
     
     pdf.set_font("Arial", "B", 12)
     pdf.cell(200, 10, "Detailed Line Items", ln=True)
+    pdf.ln(5)
+    pdf.set_font("Arial", "B", 10)
+    
+    # Table headers
+    headers = ["Service Description", "Qty", "Annual Fee", "Prepaid Cost", "First Year Cost", "Updated Annual Cost"]
+    col_widths = [50, 20, 30, 30, 30, 30]
+    for i, header in enumerate(headers):
+        pdf.cell(col_widths[i], 10, header, 1, 0, 'C')
+    pdf.ln()
+    
     pdf.set_font("Arial", "", 10)
     
-    for index, row in data.iterrows():
-        pdf.cell(200, 10, f"Service: {row['Cloud Service Description']} - Qty: {row['Unit Quantity']} - Fee: {row['Annual Unit Fee']} - Prepaid Cost: {row['Prepaid Co-Termed Cost']}", ln=True)
+    # Table rows
+    for _, row in data.iterrows():
+        pdf.cell(50, 10, str(row['Cloud Service Description']), 1)
+        pdf.cell(20, 10, str(row['Unit Quantity']), 1)
+        pdf.cell(30, 10, str(row['Annual Unit Fee']), 1)
+        pdf.cell(30, 10, str(row['Prepaid Co-Termed Cost']), 1)
+        pdf.cell(30, 10, str(row['First Year Co-Termed Cost']), 1)
+        pdf.cell(30, 10, str(row['Updated Annual Cost']), 1)
+        pdf.ln()
     
     return pdf.output(dest='S').encode('latin1')
 
@@ -93,9 +110,8 @@ for i in range(int(num_items)):
     data = pd.concat([data, pd.DataFrame([row_data])], ignore_index=True)
 
 if st.button("Calculate Results"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
-    st.write("### Results")
+    data, *_ = calculate_costs(data, agreement_term, months_remaining, payment_model)
     st.dataframe(data)
     
-    pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee)
+    pdf_data = generate_pdf(data, customer_name, agreement_term, months_remaining, *_)
     st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
