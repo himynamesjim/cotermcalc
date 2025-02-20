@@ -113,7 +113,7 @@ st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
     st.subheader("Detailed Line Items")
-    st.dataframe(data.style.format({
+    st.dataframe(data.apply(pd.to_numeric, errors='ignore').style.format({
         "Annual Unit Fee": "${:,.2f}",
         "Prepaid Co-Termed Cost": "${:,.2f}",
         "First Year Co-Termed Cost": "${:,.2f}",
