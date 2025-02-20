@@ -19,10 +19,10 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if payment_model == 'Annual' else 0
         
         df.at[index, 'Current Annual Total Services Fee'] = annual_total_fee
-        df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
         df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
         df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
         df.at[index, 'Updated Annual Cost'] = updated_annual_cost
+        df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
         
         total_annual_cost += updated_annual_cost
         total_prepaid_cost += co_termed_prepaid_cost
@@ -43,7 +43,7 @@ payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1)
 
 st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Current Annual Total Services Fee", "Subscription Term Total Service Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost"]
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Current Annual Total Services Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee"]
 data = pd.DataFrame(columns=columns)
 
 for i in range(num_items):
@@ -81,10 +81,10 @@ if st.button("Calculate Costs"):
         "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
         "Additional Licenses": ["-"],
         "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
-        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
         "Prepaid Co-Termed Cost": ["-"],
         "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
-        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"]
+        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
     })
     data = pd.concat([data, summary_row], ignore_index=True)
     
