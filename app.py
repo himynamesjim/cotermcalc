@@ -68,7 +68,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
     pdf.set_font("Arial", "", 5)
     
     headers = list(data.columns)
-    col_widths = [35, 15, 20, 15, 25, 25, 25, 25]
+    col_widths = [35, 15, 20, 15, 25, 25, 25, 25, 25]
     
     for i, header in enumerate(headers):
         pdf.cell(col_widths[i], 4, header, border=1, align="C")
