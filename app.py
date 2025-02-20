@@ -67,9 +67,6 @@ for i in range(num_items):
 if st.button("Calculate Results"):
     data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
-    st.write("### Results")
-    st.dataframe(data)
-    
     # Add total row
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Services Fee"],
