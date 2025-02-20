@@ -14,7 +14,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     
     for index, row in df.iterrows():
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
-        subscription_term_total_fee = (annual_total_fee * months_remaining) / 12
+        subscription_term_total_fee = ((annual_total_fee * months_remaining) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12)
         co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12 if payment_model == 'Prepaid' else 0
         co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if payment_model == 'Annual' else 0
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if payment_model == 'Annual' else 0
@@ -74,16 +74,4 @@ if st.button("Calculate Costs"):
     st.markdown(f"### Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}")
     
     st.subheader("Detailed Line Items")
-    total_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Services Cost"],
-        "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
-        "Additional Licenses": ["-"],
-        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
-        "Prepaid Co-Termed Cost": [f"${total_prepaid_total_cost:,.2f}"],
-        "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
-        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
-        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
-    })
-    data = pd.concat([data, total_row], ignore_index=True)
     st.dataframe(data)
