@@ -10,6 +10,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     total_subscription_term_fee = 0
     total_updated_annual_cost = 0
     total_current_annual_services_fee = 0
+    total_prepaid_total_cost = 0
     
     for index, row in df.iterrows():
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
@@ -31,8 +32,9 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_subscription_term_fee += subscription_term_total_fee
         total_updated_annual_cost += updated_annual_cost
         total_current_annual_services_fee += annual_total_fee
+        total_prepaid_total_cost += co_termed_prepaid_cost
     
-    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee
+    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost
 
 st.title("Co-Terming Cost Calculator")
 
@@ -60,12 +62,13 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
     st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
     st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:,.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
     st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:,.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
     st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:,.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
+    st.markdown(f"### Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}")
     
     st.subheader("Detailed Line Items")
     data['Annual Unit Fee'] = data['Annual Unit Fee'].apply(lambda x: f"${x:,.2f}")
@@ -81,7 +84,7 @@ if st.button("Calculate Costs"):
         "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
         "Additional Licenses": ["-"],
         "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
-        "Prepaid Co-Termed Cost": ["-"],
+        "Prepaid Co-Termed Cost": [f"${total_prepaid_total_cost:,.2f}"],
         "First Year Co-Termed Cost": [f"${total_first_year:,.2f}"],
         "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
         "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
