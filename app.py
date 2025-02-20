@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from fpdf import FPDF
 
-def calculate_costs(df, agreement_term, months_remaining):
+def calculate_costs(df, agreement_term, months_remaining, billing_term):
     months_elapsed = agreement_term - months_remaining
     total_annual_cost = 0
     total_prepaid_cost = 0
@@ -111,7 +111,7 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining)
+    data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
     st.subheader("Detailed Line Items")
     st.dataframe(data.style.format({
         "Annual Unit Fee": "${:,.2f}",
