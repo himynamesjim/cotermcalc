@@ -71,8 +71,9 @@ def generate_pdf(customer_name, subject, current_date, data):
         pdf.multi_cell(0, 10, f"{row.to_string(index=False)}")
     
     pdf.ln(10)
-    pdf.output("coterming_report.pdf")
-    return "coterming_report.pdf"
+    pdf_filename = "coterming_report.pdf"
+    pdf.output(pdf_filename)
+    return pdf_filename
 
 st.title("Co-Terming Cost Calculator")
 
@@ -109,7 +110,6 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     st.dataframe(data)
     
-    if st.button("Download PDF"):
-        pdf_path = generate_pdf(customer_name, subject, current_date, data)
-        with open(pdf_path, "rb") as file:
-            st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
+    pdf_path = generate_pdf(customer_name, subject, current_date, data)
+    with open(pdf_path, "rb") as file:
+        st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
