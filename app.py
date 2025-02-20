@@ -6,6 +6,8 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
     total_annual_cost = 0
     total_prepaid_cost = 0
     total_first_year_cost = 0
+    total_annual_unit_fee = 0
+    total_subscription_term_fee = 0
     
     for index, row in df.iterrows():
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
@@ -23,8 +25,10 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_annual_cost += updated_annual_cost
         total_prepaid_cost += co_termed_prepaid_cost
         total_first_year_cost += co_termed_first_year_cost
+        total_annual_unit_fee += row['Annual Unit Fee']
+        total_subscription_term_fee += subscription_term_total_fee
     
-    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost
+    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee
 
 st.title("Co-Terming Cost Calculator")
 
@@ -52,7 +56,7 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid, total_first_year, total_annual = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, payment_model)
     
     st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
     st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
@@ -61,3 +65,8 @@ if st.button("Calculate Costs"):
     
     st.subheader("Detailed Line Items")
     st.dataframe(data)
+    
+    st.subheader("Total Services Fee Summary")
+    st.markdown(f"**Annual Unit Fee (Total):** ${total_annual_unit_fee:.2f}")
+    st.markdown(f"**Annual Total Services Fee (New Annual Cost):** ${total_annual:.2f}")
+    st.markdown(f"**Subscription Term Total Fee (New Total Subscription Cost with Co-Termed Licenses):** ${total_subscription_term_fee:.2f}")
