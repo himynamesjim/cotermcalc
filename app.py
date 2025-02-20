@@ -17,9 +17,9 @@ if "selected_customer" not in st.session_state:
 if customer_files:
     selected_customer = st.selectbox("Select a Customer", customer_files)
 
-    if st.button("View Agreement"):
+    if st.button("View Co-Termed Agreements"):
         st.session_state["selected_customer"] = selected_customer
-        st.experimental_rerun()  # Forces the app to refresh to show the selected customer
+        st.experimental_set_query_params(customer=selected_customer)  # Persist selection in URL
 
 # Redirect to customer_detail.py when a customer is selected
 if st.session_state["selected_customer"]:
