@@ -22,11 +22,11 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if payment_model == 'Annual' else 0
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if payment_model == 'Annual' else 0
         
-        df.at[index, 'Current Annual Total Services Fee'] = annual_total_fee
-        df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
-        df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
-        df.at[index, 'Updated Annual Cost'] = updated_annual_cost
-        df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
+        df.at[index, 'Current Annual Total Services Fee'] = f"${annual_total_fee:,.2f}"
+        df.at[index, 'Prepaid Co-Termed Cost'] = f"${co_termed_prepaid_cost:,.2f}"
+        df.at[index, 'First Year Co-Termed Cost'] = f"${co_termed_first_year_cost:,.2f}"
+        df.at[index, 'Updated Annual Cost'] = f"${updated_annual_cost:,.2f}"
+        df.at[index, 'Subscription Term Total Service Fee'] = f"${subscription_term_total_fee:,.2f}"
         
         total_annual_cost += updated_annual_cost
         total_prepaid_cost += co_termed_prepaid_cost
@@ -37,38 +37,7 @@ def calculate_costs(df, agreement_term, months_remaining, payment_model):
         total_current_annual_services_fee += annual_total_fee
         total_prepaid_total_cost += co_termed_prepaid_cost
     
-    return df, total_prepaid_cost, total_first_year_cost, total_annual_cost, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost
-
-def generate_pdf(data, customer_name, agreement_term, months_remaining, total_prepaid_total_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee):
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
-    
-    pdf.set_font("Arial", "B", 16)
-    pdf.cell(200, 10, "Co-Terming Cost Report", ln=True, align='C')
-    pdf.ln(10)
-    
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(200, 10, "Summary", ln=True)
-    pdf.set_font("Arial", "", 12)
-    pdf.cell(200, 10, f"Date: {datetime.now().strftime('%Y-%m-%d')}", ln=True)
-    pdf.cell(200, 10, f"Customer Name: {customer_name}", ln=True)
-    pdf.cell(200, 10, f"Billing Term (Agreement Term): {agreement_term} months", ln=True)
-    pdf.cell(200, 10, f"Subscription Term Remaining Months: {months_remaining:.2f}", ln=True)
-    pdf.cell(200, 10, f"Total Pre-Paid Cost: ${total_prepaid_total_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
-    pdf.cell(200, 10, f"Subscription Term Total Service Fee: ${total_subscription_term_fee:,.2f}", ln=True)
-    pdf.ln(10)
-    
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(200, 10, "Detailed Line Items", ln=True)
-    pdf.set_font("Arial", "", 10)
-    
-    for index, row in data.iterrows():
-        pdf.cell(200, 10, f"Service: {row['Cloud Service Description']} - Qty: {row['Unit Quantity']} - Fee: {row['Annual Unit Fee']} - Prepaid Cost: {row['Prepaid Co-Termed Cost']}", ln=True)
-    
-    return pdf.output(dest='S').encode('latin1')
+    return df, f"${total_prepaid_cost:,.2f}", f"${total_first_year_cost:,.2f}", f"${total_annual_cost:,.2f}", f"${total_annual_unit_fee:,.2f}", f"${total_subscription_term_fee:,.2f}", f"${total_updated_annual_cost:,.2f}", f"${total_current_annual_services_fee:,.2f}", f"${total_prepaid_total_cost:,.2f}"
 
 st.title("Co-Terming Cost Calculator")
 
