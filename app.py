@@ -77,22 +77,21 @@ customer_name = st.text_input("Customer Name:")
 agreement_term = st.number_input("Agreement Term (Months):", min_value=1.0, value=36.0, step=0.01, format="%.2f")
 months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=agreement_term, value=30.0, step=0.01, format="%.2f")
 payment_model = st.selectbox("Payment Model:", ["Prepaid", "Annual"])
-num_items = st.number_input("Number of Line Items:", min_value=1, value=1)
+num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1)
 
-st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Current Annual Total Services Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee"]
-data = pd.DataFrame(columns=columns)
+data = pd.DataFrame(columns=["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"])
+
+for i in range(int(num_items)):
+    st.markdown(f"**Item {i+1}**")
+    col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+    row_data = {
+        "Cloud Service Description": col1.text_input(f"Service {i+1}", key=f"service_{i}"),
+        "Unit Quantity": col2.number_input(f"Qty {i+1}", min_value=0, value=0, key=f"qty_{i}"),
+        "Annual Unit Fee": col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"fee_{i}"),
+        "Additional Licenses": col4.number_input(f"Add Licenses {i+1}", min_value=0, value=0, key=f"add_lic_{i}")
+    }
+    data = pd.concat([data, pd.DataFrame([row_data])], ignore_index=True)
 
 if st.button("Calculate Results"):
-    data, total_prepaid, total_first_year, total_annual, total_annual_unit_fee, total_subscription_term_fee, total_updated_annual_cost, total_current_annual_services_fee, total_prepaid_total_cost = calculate_costs(data, agreement_term, months_remaining, payment_model)
-    
-    data_with_total = pd.concat([data, pd.DataFrame({
-        "Cloud Service Description": ["Total Services Fee"],
-        "Annual Unit Fee": [f"${total_annual_unit_fee:,.2f}"],
-        "Current Annual Total Services Fee": [f"${total_current_annual_services_fee:,.2f}"],
-        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
-    })], ignore_index=True)
-    
-    st.dataframe(data_with_total)
-    pdf_data = generate_pdf(data_with_total, customer_name, agreement_term, months_remaining, total_prepaid_total_cost, total_first_year, total_updated_annual_cost, total_subscription_term_fee)
-    st.download_button("Download PDF Report", pdf_data, "co_terming_cost_report.pdf", "application/pdf")
+    data, *_ = calculate_costs(data, agreement_term, months_remaining, payment_model)
+    st.dataframe(data)
