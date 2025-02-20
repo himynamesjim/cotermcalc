@@ -57,10 +57,11 @@ with col2:
     st.subheader("Results")
     if st.button("Calculate Costs"):
         data, total_prepaid, total_first_year, total_annual = calculate_costs(data, agreement_term, months_remaining, payment_model)
-        st.write(f"Months Elapsed: {agreement_term - months_remaining:.2f}")
-        st.write(f"Pre-Paid Co-Termed Cost: ${total_prepaid:.2f}") if payment_model == "Prepaid" else st.write("Pre-Paid Co-Termed Cost: $0.00")
-        st.write(f"First Year Co-Termed Cost: ${total_first_year:.2f}") if payment_model == "Annual" else st.write("First Year Co-Termed Cost: $0.00")
-        st.write(f"Total Annual Cost for Remaining Years: ${total_annual:.2f}") if payment_model == "Annual" else st.write("Total Annual Cost for Remaining Years: $0.00")
+        
+        st.markdown(f"### Months Elapsed: {agreement_term - months_remaining:.2f}")
+        st.markdown(f"### Pre-Paid Co-Termed Cost: ${total_prepaid:.2f}" if payment_model == "Prepaid" else "### Pre-Paid Co-Termed Cost: $0.00")
+        st.markdown(f"### First Year Co-Termed Cost: ${total_first_year:.2f}" if payment_model == "Annual" else "### First Year Co-Termed Cost: $0.00")
+        st.markdown(f"### Total Annual Cost for Remaining Years: ${total_annual:.2f}" if payment_model == "Annual" else "### Total Annual Cost for Remaining Years: $0.00")
     
     st.subheader("Detailed Line Items")
     st.dataframe(data)
