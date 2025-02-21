@@ -141,14 +141,18 @@ st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
     st.subheader("Detailed Line Items")
-    if billing_term == 'Monthly':
-        data = data.drop(columns=['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost'])
-    elif billing_term == 'Annual':
-        data = data.drop(columns=['Prepaid Co-Termed Cost'])
-        data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost'])
-    elif billing_term == 'Prepaid':
-        data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Prepaid Co-Termed Cost', 'Remaining Prepaid Cost'])
-    data = data.copy()
+columns_to_drop = []
+if billing_term == 'Monthly':
+    columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+elif billing_term == 'Annual':
+    columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
+elif billing_term == 'Prepaid':
+    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+
+# Only drop columns that exist in the dataframe
+existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
+if existing_columns_to_drop:
+    data = data.drop(columns=existing_columns_to_drop)
     for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]:
         if col in data.columns:
             data[col] = pd.to_numeric(data[col], errors='coerce')
