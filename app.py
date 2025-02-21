@@ -37,18 +37,18 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         total_subscription_term_fee += subscription_term_total_fee
     
     total_row = pd.DataFrame({
-        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],,
+        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],
         "Remaining Prepaid Cost": [f"${df['Remaining Prepaid Cost'].sum():,.2f}"],
         "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"],
         "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"],
         "Cloud Service Description": ["Total Services Cost"],
         "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],,
+        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],
         "Additional Licenses": ["-"],
-        "Prepaid Co-Termed Cost": [f"${total_prepaid_cost:,.2f}"],,
-        "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],,
-        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],,
-        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
+        "Prepaid Co-Termed Cost": [f"${total_prepaid_cost:,.2f}"],
+        "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],
+        "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
     })
     df = pd.concat([df, total_row], ignore_index=True)
     
