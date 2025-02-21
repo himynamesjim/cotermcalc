@@ -18,10 +18,12 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         subscription_term_total_fee = ((annual_total_fee * months_remaining) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12)
         co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12 if billing_term == 'Prepaid' else 0
         co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / agreement_term if billing_term == 'Prepaid' else 0
+        co_termed_prepaid_additional_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * months_remaining) / 12 if billing_term == 'Prepaid' else 0
         co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if billing_term == 'Annual' else 0
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if billing_term == 'Annual' else 0
         
         df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
+        df.at[index, 'Prepaid Additional Licenses Co-Termed Cost'] = co_termed_prepaid_additional_cost
         df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
         df.at[index, 'Updated Annual Cost'] = updated_annual_cost
         df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
@@ -35,6 +37,7 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         total_subscription_term_fee += subscription_term_total_fee
     
     total_row = pd.DataFrame({
+        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],
         "Remaining Prepaid Cost": [f"${df['Remaining Prepaid Cost'].sum():,.2f}"],
         "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"],
         "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"],
@@ -104,7 +107,7 @@ months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_valu
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
 st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Remaining Prepaid Cost"]
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Remaining Prepaid Cost"]
 data = pd.DataFrame(columns=columns)
 
 for i in range(num_items):
