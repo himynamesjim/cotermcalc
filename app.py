@@ -122,7 +122,7 @@ months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_valu
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
 st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Remaining Prepaid Cost"]
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
 data = pd.DataFrame(columns=columns)
 
 for i in range(num_items):
