@@ -1,4 +1,4 @@
-"Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
+"Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"]
         "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"],
     })
     df = pd.concat([df, total_row], ignore_index=True)
