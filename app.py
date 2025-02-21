@@ -126,7 +126,7 @@ if st.button("Calculate Costs"):
         data = data.drop(columns=['Prepaid Co-Termed Cost'])
         data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost'])
     elif billing_term == 'Prepaid':
-        data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost'])
+        data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Prepaid Co-Termed Cost'])
         data = data.drop(columns=['Prepaid Co-Termed Cost'])
         data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost'])
     st.dataframe(data.style.set_properties(**{"white-space": "normal"}))
