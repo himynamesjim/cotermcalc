@@ -41,33 +41,21 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
     ]
 
+    # Convert to numeric and handle possible errors
     for col in numeric_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-    # Create a single "Total Services Cost" row that only sums up dollar columns
-    total_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Services Cost"],
-        "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"] if "Annual Unit Fee" in df else ["$0.00"],
-        "Additional Licenses": ["-"],
-        "Prepaid Co-Termed Cost": [f"${df['Prepaid Co-Termed Cost'].sum():,.2f}"] if "Prepaid Co-Termed Cost" in df else ["$0.00"],
-        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"] if "Prepaid Additional Licenses Co-Termed Cost" in df else ["$0.00"],
-        "First Year Co-Termed Cost": [f"${df['First Year Co-Termed Cost'].sum():,.2f}"] if "First Year Co-Termed Cost" in df else ["$0.00"],
-        "Updated Annual Cost": [f"${df['Updated Annual Cost'].sum():,.2f}"] if "Updated Annual Cost" in df else ["$0.00"],
-        "Subscription Term Total Service Fee": [f"${df['Subscription Term Total Service Fee'].sum():,.2f}"] if "Subscription Term Total Service Fee" in df else ["$0.00"],
-        "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"] if "Monthly Co-Termed Cost" in df else ["$0.00"],
-        "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"] if "First Month Co-Termed Cost" in df else ["$0.00"]
-    })
-
-    # Remove any existing total row to prevent duplicates before adding the new one
-    df = df[df["Cloud Service Description"] != "Total Services Cost"]
+    # Create a total row for each numeric column
+    total_row = {col: df[col].sum() for col in numeric_cols}
+    total_row["Cloud Service Description"] = "Total Services Cost"
+    total_row["Unit Quantity"] = "-"
+    total_row["Additional Licenses"] = "-"
 
     # Append total row to the dataframe
-    df = pd.concat([df, total_row], ignore_index=True)
-
-    return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
-
+    df = df.append(total_row, ignore_index=True)
+    
+    return df
 
 def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
     pdf = FPDF()
@@ -140,18 +128,10 @@ for i in range(num_items):
 st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
+    
     st.subheader("Detailed Line Items")
-    if billing_term == 'Monthly':
-        data = data.drop(columns=['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost'])
-    elif billing_term == 'Annual':
-        data = data.drop(columns=['Prepaid Co-Termed Cost'])
-        data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost'])
-    elif billing_term == 'Prepaid':
-        data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Prepaid Co-Termed Cost', 'Remaining Prepaid Cost'])
-    data = data.copy()
-    for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]:
-        if col in data.columns:
-            data[col] = pd.to_numeric(data[col], errors='coerce')
+    formatted_data = data.style.format({
+        "Annual Unit Fee": "${:
     
     st.dataframe(data.style.format({
         "Annual Unit Fee": "${:,.2f}",
