@@ -133,7 +133,17 @@ if st.button("Calculate Costs"):
         data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost'])
     elif billing_term == 'Prepaid':
         data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Prepaid Co-Termed Cost', 'Remaining Prepaid Cost'])
-    st.dataframe(data.style.format({
+    data_numeric = data.copy()
+    numeric_cols = [
+        'Annual Unit Fee', 'Prepaid Co-Termed Cost', 'Prepaid Additional Licenses Co-Termed Cost',
+        'First Year Co-Termed Cost', 'Updated Annual Cost', 'Subscription Term Total Service Fee',
+        'Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'Remaining Prepaid Cost'
+    ]
+    for col in numeric_cols:
+        if col in data_numeric.columns:
+            data_numeric[col] = pd.to_numeric(data_numeric[col], errors='coerce')
+    
+    st.dataframe(data_numeric.style.format({
         "Annual Unit Fee": "${:,.2f}",
         "Prepaid Co-Termed Cost": "${:,.2f}",
         "Prepaid Additional Licenses Co-Termed Cost": "${:,.2f}",
