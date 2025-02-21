@@ -42,7 +42,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     # (Keep the existing code for numeric columns conversion and totals calculation)
 
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
-def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
+def generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", "B", 10)
@@ -53,7 +53,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_co
     pdf.cell(200, 5, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=True)
     pdf.cell(200, 5, f"Customer Name: {customer_name}", ln=True)
     pdf.cell(200, 5, f"Billing Term: {billing_term}", ln=True)
-    pdf.cell(200, 5, f"Subscription Term Remaining Months: {months_remaining:.2f}", ln=True)
+    pdf.cell(200, 5, f"Original Remaining Months: {months_remaining:.2f}", ln=True)
     if extension_months > 0:
         pdf.cell(200, 5, f"Extension Period: {extension_months} months", ln=True)
         pdf.cell(200, 5, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
@@ -163,6 +163,16 @@ if st.button("Calculate Costs"):
         "First Month Co-Termed Cost": "${:,.2f}"
     }).set_properties(**{"white-space": "normal"}))
     
-    pdf_path = generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data)    
-    with open(pdf_path, "rb") as file:
+pdf_path = generate_pdf(
+        customer_name,
+        billing_term,
+        months_remaining,
+        extension_months,
+        total_prepaid_cost,
+        total_first_year_cost,
+        total_updated_annual_cost,
+        total_subscription_term_fee,
+        data
+    )
+with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
