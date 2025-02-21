@@ -38,9 +38,7 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
     
         total_row = pd.DataFrame({
             "Cloud Service Description": ["Total Services Cost"],
-            "Unit Quantity": ["-"],
             "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],
-            "Additional Licenses": ["-"],
             "Prepaid Co-Termed Cost": [f"${df['Prepaid Co-Termed Cost'].sum():,.2f}"] if "Prepaid Co-Termed Cost" in df else ["$0.00"],
             "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"] if "Prepaid Additional Licenses Co-Termed Cost" in df else ["$0.00"],
             "First Year Co-Termed Cost": [f"${df['First Year Co-Termed Cost'].sum():,.2f}"] if "First Year Co-Termed Cost" in df else ["$0.00"],
