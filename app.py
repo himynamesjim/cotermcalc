@@ -36,9 +36,23 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         total_first_year_cost += co_termed_first_year_cost
         total_subscription_term_fee += subscription_term_total_fee
     
+       # Ensure all relevant columns are converted to numeric for summation
+        numeric_cols = [
+            "Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost",
+            "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
+            "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
+        ]
+        
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        
+        # Create Total Services Cost row
         total_row = pd.DataFrame({
             "Cloud Service Description": ["Total Services Cost"],
-            "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],
+            "Unit Quantity": ["-"],
+            "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"] if "Annual Unit Fee" in df else ["$0.00"],
+            "Additional Licenses": ["-"],
             "Prepaid Co-Termed Cost": [f"${df['Prepaid Co-Termed Cost'].sum():,.2f}"] if "Prepaid Co-Termed Cost" in df else ["$0.00"],
             "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"] if "Prepaid Additional Licenses Co-Termed Cost" in df else ["$0.00"],
             "First Year Co-Termed Cost": [f"${df['First Year Co-Termed Cost'].sum():,.2f}"] if "First Year Co-Termed Cost" in df else ["$0.00"],
@@ -47,6 +61,10 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
             "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"] if "Monthly Co-Termed Cost" in df else ["$0.00"],
             "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"] if "First Month Co-Termed Cost" in df else ["$0.00"]
         })
+        
+        # Append total row to the dataframe
+        df = pd.concat([df, total_row], ignore_index=True)
+
 
     df = pd.concat([df, total_row], ignore_index=True)
     
