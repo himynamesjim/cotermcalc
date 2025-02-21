@@ -123,7 +123,15 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, extension_months, billing_term)    st.subheader("Detailed Line Items")
+    data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
+        data, 
+        agreement_term, 
+        months_remaining, 
+        extension_months, 
+        billing_term
+    )
+    
+    st.subheader("Detailed Line Items")
     
     columns_to_drop = []
     if billing_term == 'Monthly':
@@ -132,7 +140,6 @@ if st.button("Calculate Costs"):
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
     elif billing_term == 'Prepaid':
         columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-
     # Only drop columns that exist in the dataframe
     existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
     if existing_columns_to_drop:
