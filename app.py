@@ -156,7 +156,7 @@ if st.button("Calculate Costs"):
         if col in data.columns:
             data[col] = pd.to_numeric(data[col], errors='coerce')
     
-    st.dataframe(data.style.format({
+st.dataframe(data.style.format({
         "Annual Unit Fee": "${:,.2f}",
         "Prepaid Co-Termed Cost": "${:,.2f}",
         "Prepaid Additional Licenses Co-Termed Cost": "${:,.2f}",
@@ -168,15 +168,15 @@ if st.button("Calculate Costs"):
     }).set_properties(**{"white-space": "normal"}))
     
 pdf_path = generate_pdf(
-        customer_name,
-        billing_term,
-        months_remaining,
-        extension_months,
-        total_prepaid_cost,
-        total_first_year_cost,
-        total_updated_annual_cost,
-        total_subscription_term_fee,
-        data
-    )
-    with open(pdf_path, "rb") as file:
-        st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
+    customer_name,
+    billing_term,
+    months_remaining,
+    extension_months,
+    total_prepaid_cost,
+    total_first_year_cost,
+    total_updated_annual_cost,
+    total_subscription_term_fee,
+    data
+)
+with open(pdf_path, "rb") as file:
+    st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
