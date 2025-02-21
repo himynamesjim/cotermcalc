@@ -37,15 +37,15 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Services Cost"],
         "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],
+        "Annual Unit Fee": [df['Annual Unit Fee'].sum()],
         "Additional Licenses": ["-"],
-        "Prepaid Co-Termed Cost": [f"${df['Prepaid Co-Termed Cost'].sum():,.2f}"],
-        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],
-        "First Year Co-Termed Cost": [f"${df['First Year Co-Termed Cost'].sum():,.2f}"],
-        "Updated Annual Cost": [f"${df['Updated Annual Cost'].sum():,.2f}"],
-        "Subscription Term Total Service Fee": [f"${df['Subscription Term Total Service Fee'].sum():,.2f}"],
-        "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"],
-        "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"],
+        "Prepaid Co-Termed Cost": [df['Prepaid Co-Termed Cost'].sum()],
+        "Prepaid Additional Licenses Co-Termed Cost": [df['Prepaid Additional Licenses Co-Termed Cost'].sum()],
+        "First Year Co-Termed Cost": [df['First Year Co-Termed Cost'].sum()],
+        "Updated Annual Cost": [df['Updated Annual Cost'].sum()],
+        "Subscription Term Total Service Fee": [df['Subscription Term Total Service Fee'].sum()],
+        "Monthly Co-Termed Cost": [df['Monthly Co-Termed Cost'].sum()],
+        "First Month Co-Termed Cost": [df['First Month Co-Termed Cost'].sum()],
     })
     df = pd.concat([df, total_row], ignore_index=True)
     
@@ -68,6 +68,7 @@ data = pd.DataFrame(columns=columns)
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
     st.subheader("Detailed Line Items")
+    data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').fillna(0)
     st.dataframe(data.style.format({
         "Annual Unit Fee": "${:,.2f}",
         "Prepaid Co-Termed Cost": "${:,.2f}",
