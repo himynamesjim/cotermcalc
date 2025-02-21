@@ -37,18 +37,18 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         total_subscription_term_fee += subscription_term_total_fee
     
     total_row = pd.DataFrame({
-        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],,
+        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],
         "Remaining Prepaid Cost": [f"${df['Remaining Prepaid Cost'].sum():,.2f}"],
         "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"],
         "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"],
         "Cloud Service Description": ["Total Services Cost"],
         "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],,
+        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],
         "Additional Licenses": ["-"],
         "Prepaid Co-Termed Cost": [f"${total_prepaid_cost:,.2f}"],
         "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],
         "Updated Annual Cost": [f"${total_updated_annual_cost:,.2f}"],
-        "Subscription Term Total Service Fee": [f"${df['Subscription Term Total Service Fee'].sum():,.2f}"],
+        "Subscription Term Total Service Fee": [f"${total_subscription_term_fee:,.2f}"]
     })
     df = pd.concat([df, total_row], ignore_index=True)
     
@@ -133,17 +133,7 @@ if st.button("Calculate Costs"):
         data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost'])
     elif billing_term == 'Prepaid':
         data = data.drop(columns=['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Prepaid Co-Termed Cost', 'Remaining Prepaid Cost'])
-    data_numeric = data.copy()
-    numeric_cols = [
-        'Annual Unit Fee', 'Prepaid Co-Termed Cost', 'Prepaid Additional Licenses Co-Termed Cost',
-        'First Year Co-Termed Cost', 'Updated Annual Cost', 'Subscription Term Total Service Fee',
-        'Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'Remaining Prepaid Cost'
-    ]
-    for col in numeric_cols:
-        if col in data_numeric.columns:
-            data_numeric[col] = pd.to_numeric(data_numeric[col], errors='coerce')
-    
-    st.dataframe(data_numeric.style.format({
+    st.dataframe(data.style.format({
         "Annual Unit Fee": "${:,.2f}",
         "Prepaid Co-Termed Cost": "${:,.2f}",
         "Prepaid Additional Licenses Co-Termed Cost": "${:,.2f}",
