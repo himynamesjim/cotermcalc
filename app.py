@@ -37,7 +37,7 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         total_subscription_term_fee += subscription_term_total_fee
     
     total_row = pd.DataFrame({
-        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],,
+        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"],
         "Remaining Prepaid Cost": [f"${df['Remaining Prepaid Cost'].sum():,.2f}"],
         "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"],
         "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"],
