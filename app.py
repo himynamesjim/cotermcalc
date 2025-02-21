@@ -43,7 +43,7 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"],
         "Cloud Service Description": ["Total Services Cost"],
         "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],,
+        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"],
         "Additional Licenses": ["-"],
         "Prepaid Co-Termed Cost": [f"${total_prepaid_cost:,.2f}"],
         "First Year Co-Termed Cost": [f"${total_first_year_cost:,.2f}"],
