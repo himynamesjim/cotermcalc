@@ -25,7 +25,7 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
         df.at[index, 'Updated Annual Cost'] = updated_annual_cost
         df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
-        df.at[index, 'Remaining Prepaid Cost'] = remaining_prepaid_cost
+        
         df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
         df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
         
