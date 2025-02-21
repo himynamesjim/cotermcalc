@@ -68,23 +68,27 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.set_font("Arial", "", 5)
     
     headers = list(data.columns)
-    col_widths = [35, 15, 20, 15, 25, 25, 25, 25, 25, 25]
+    col_widths = [35, 15, 20, 15, 25, 25, 25, 25, 25, 25]  # Adjust these widths as needed
     
+    # Print headers
     for i, header in enumerate(headers):
-        pdf.cell(col_widths[i], 4, header, border=1, align="C")
+        if i < len(col_widths):  # Only print if we have a defined width
+            pdf.cell(col_widths[i], 4, header, border=1, align="C")
     pdf.ln()
     
+    # Print data rows
     pdf.set_font("Arial", "", 5)
     for _, row in data.iterrows():
         for i, col in enumerate(headers):
-            text = str(row[col])
-            pdf.cell(col_widths[i], 4, text, border=1, align="C")
+            if i < len(col_widths):  # Only print if we have a defined width
+                text = str(row[col])
+                pdf.cell(col_widths[i], 4, text, border=1, align="C")
         pdf.ln()
     
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
     return pdf_filename
-
+    
 st.title("Co-Terming Cost Calculator")
 
 st.subheader("Input Form")
@@ -174,5 +178,5 @@ pdf_path = generate_pdf(
         total_subscription_term_fee,
         data
     )
-with open(pdf_path, "rb") as file:
+    with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
