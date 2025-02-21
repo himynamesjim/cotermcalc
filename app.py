@@ -68,6 +68,7 @@ data = pd.DataFrame(columns=columns)
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
     st.subheader("Detailed Line Items")
+    numeric_cols = ["Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
     data[numeric_cols] = data[numeric_cols].apply(pd.to_numeric, errors='coerce').fillna(0)
     st.dataframe(data.style.format({
         "Annual Unit Fee": "${:,.2f}",
