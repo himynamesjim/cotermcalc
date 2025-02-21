@@ -34,40 +34,40 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         total_first_year_cost += co_termed_first_year_cost
         total_subscription_term_fee += subscription_term_total_fee
 
-    # Identify only numeric columns for summation
+    # Convert all numeric columns to float type
     numeric_cols = [
         "Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost",
         "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
         "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
     ]
 
+    # Convert numeric columns to float and handle any non-numeric values
     for col in numeric_cols:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0)
 
-    # Create a single "Total Services Cost" row that only sums up dollar columns
-    total_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Services Cost"],
-        "Unit Quantity": ["-"],
-        "Annual Unit Fee": [f"${df['Annual Unit Fee'].sum():,.2f}"] if "Annual Unit Fee" in df else ["$0.00"],
-        "Additional Licenses": ["-"],
-        "Prepaid Co-Termed Cost": [f"${df['Prepaid Co-Termed Cost'].sum():,.2f}"] if "Prepaid Co-Termed Cost" in df else ["$0.00"],
-        "Prepaid Additional Licenses Co-Termed Cost": [f"${df['Prepaid Additional Licenses Co-Termed Cost'].sum():,.2f}"] if "Prepaid Additional Licenses Co-Termed Cost" in df else ["$0.00"],
-        "First Year Co-Termed Cost": [f"${df['First Year Co-Termed Cost'].sum():,.2f}"] if "First Year Co-Termed Cost" in df else ["$0.00"],
-        "Updated Annual Cost": [f"${df['Updated Annual Cost'].sum():,.2f}"] if "Updated Annual Cost" in df else ["$0.00"],
-        "Subscription Term Total Service Fee": [f"${df['Subscription Term Total Service Fee'].sum():,.2f}"] if "Subscription Term Total Service Fee" in df else ["$0.00"],
-        "Monthly Co-Termed Cost": [f"${df['Monthly Co-Termed Cost'].sum():,.2f}"] if "Monthly Co-Termed Cost" in df else ["$0.00"],
-        "First Month Co-Termed Cost": [f"${df['First Month Co-Termed Cost'].sum():,.2f}"] if "First Month Co-Termed Cost" in df else ["$0.00"]
-    })
+    # Calculate sums for numeric columns
+    totals = {}
+    for col in df.columns:
+        if col in numeric_cols:
+            totals[col] = df[col].sum()
+        elif col == "Cloud Service Description":
+            totals[col] = "Total Services Cost"
+        elif col in ["Unit Quantity", "Additional Licenses"]:
+            totals[col] = "-"
+        else:
+            totals[col] = "-"
 
-    # Remove any existing total row to prevent duplicates before adding the new one
+    # Create the total row
+    total_row = pd.DataFrame([totals])
+
+    # Remove any existing total row to prevent duplicates
     df = df[df["Cloud Service Description"] != "Total Services Cost"]
 
-    # Append total row to the dataframe
+    # Concatenate the original dataframe with the total row
     df = pd.concat([df, total_row], ignore_index=True)
 
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
-
 
 def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
     pdf = FPDF()
