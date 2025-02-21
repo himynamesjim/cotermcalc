@@ -5,7 +5,6 @@ from fpdf import FPDF
 
 def calculate_costs(df, agreement_term, months_remaining, billing_term):
     months_elapsed = agreement_term - months_remaining
-    total_annual_cost = 0
     total_prepaid_cost = 0
     total_first_year_cost = 0
     total_updated_annual_cost = 0
@@ -29,19 +28,13 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
         df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
         df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
 
-        total_annual_cost += updated_annual_cost
-        total_prepaid_cost += co_termed_prepaid_cost
-        total_first_year_cost += co_termed_first_year_cost
-        total_subscription_term_fee += subscription_term_total_fee
-
-    # Convert all numeric columns to float type
+    # Convert numeric columns to float and handle any non-numeric values
     numeric_cols = [
         "Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost",
         "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
         "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
     ]
 
-    # Convert numeric columns to float and handle any non-numeric values
     for col in numeric_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0)
@@ -67,8 +60,17 @@ def calculate_costs(df, agreement_term, months_remaining, billing_term):
     # Concatenate the original dataframe with the total row
     df = pd.concat([df, total_row], ignore_index=True)
 
-    return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
+    # Calculate final totals from the dataframe
+    if 'Prepaid Co-Termed Cost' in df.columns:
+        total_prepaid_cost = df['Prepaid Co-Termed Cost'].iloc[:-1].sum()
+    if 'First Year Co-Termed Cost' in df.columns:
+        total_first_year_cost = df['First Year Co-Termed Cost'].iloc[:-1].sum()
+    if 'Updated Annual Cost' in df.columns:
+        total_updated_annual_cost = df['Updated Annual Cost'].iloc[:-1].sum()
+    if 'Subscription Term Total Service Fee' in df.columns:
+        total_subscription_term_fee = df['Subscription Term Total Service Fee'].iloc[:-1].sum()
 
+    return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
 def generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
     pdf = FPDF()
     pdf.add_page()
@@ -141,19 +143,24 @@ st.subheader("Results")
 if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
     st.subheader("Detailed Line Items")
-columns_to_drop = []
-if billing_term == 'Monthly':
-    columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-elif billing_term == 'Annual':
-    columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
-elif billing_term == 'Prepaid':
-    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+    
+    columns_to_drop = []
+    if billing_term == 'Monthly':
+        columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+    elif billing_term == 'Annual':
+        columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
+    elif billing_term == 'Prepaid':
+        columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
 
-# Only drop columns that exist in the dataframe
-existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
-if existing_columns_to_drop:
-    data = data.drop(columns=existing_columns_to_drop)
-    for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]:
+    # Only drop columns that exist in the dataframe
+    existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
+    if existing_columns_to_drop:
+        data = data.drop(columns=existing_columns_to_drop)
+    
+    data = data.copy()
+    for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", 
+                "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", 
+                "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]:
         if col in data.columns:
             data[col] = pd.to_numeric(data[col], errors='coerce')
     
@@ -167,6 +174,7 @@ if existing_columns_to_drop:
         "Monthly Co-Termed Cost": "${:,.2f}",
         "First Month Co-Termed Cost": "${:,.2f}"
     }).set_properties(**{"white-space": "normal"}))
+    
     pdf_path = generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data)
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
