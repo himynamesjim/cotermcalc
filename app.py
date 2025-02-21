@@ -130,10 +130,9 @@ if st.button("Calculate Costs"):
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(data, agreement_term, months_remaining, billing_term)
     
     st.subheader("Detailed Line Items")
-    formatted_data = data.style.format({
-        "Annual Unit Fee": "${:
     
-    st.dataframe(data.style.format({
+    # Format the DataFrame for display with proper string formatting
+    formatted_data = data.style.format({
         "Annual Unit Fee": "${:,.2f}",
         "Prepaid Co-Termed Cost": "${:,.2f}",
         "Prepaid Additional Licenses Co-Termed Cost": "${:,.2f}",
@@ -142,6 +141,10 @@ if st.button("Calculate Costs"):
         "Subscription Term Total Service Fee": "${:,.2f}",
         "Monthly Co-Termed Cost": "${:,.2f}",
         "First Month Co-Termed Cost": "${:,.2f}"
+    }).set_properties(**{"white-space": "normal"})
+
+    # Display the formatted DataFrame
+    st.dataframe(formatted_data)
     }).set_properties(**{"white-space": "normal"}))
     pdf_path = generate_pdf(customer_name, billing_term, months_remaining, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data)
     with open(pdf_path, "rb") as file:
