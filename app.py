@@ -3,6 +3,130 @@ import pandas as pd
 from datetime import datetime
 from fpdf import FPDF
 
+# Add this with your other imports at the top
+import streamlit.components.v1 as components
+
+# Then add this React component definition
+REACT_COMPONENT_CODE = """
+<script>
+const CostComparisonChart = ({ costData = {} }) => {
+  // Set default values if costData is undefined or missing properties
+  const {
+    coTermedCost = 0,
+    annualCost = 0,
+    subscriptionCost = 0
+  } = costData || {};
+
+  const [activeTypes, setActiveTypes] = React.useState({
+    coTermed: true,
+    annual: true,
+    subscription: true
+  });
+
+  // Format the data for the chart
+  const chartData = [
+    {
+      name: 'Cost Comparison',
+      'Co-Termed Cost': Number(coTermedCost) || 0,
+      'New Annual Cost': Number(annualCost) || 0,
+      'Total Subscription Cost': Number(subscriptionCost) || 0
+    }
+  ];
+
+  // Toggle visibility of bars
+  const handleLegendClick = (entry) => {
+    setActiveTypes(prev => ({
+      ...prev,
+      [entry.value]: !prev[entry.value]
+    }));
+  };
+
+  // Custom tooltip formatter
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-4 border rounded shadow">
+          {payload.map((entry, index) => (
+            <div key={index} className="text-sm">
+              <span style={{ color: entry.color }}>{entry.name}: </span>
+              <span className="font-bold">
+                ${(entry.value || 0).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="w-full mt-4">
+      <div>
+        <h3>Cost Comparison Chart</h3>
+      </div>
+      <div>
+        <div style={{ height: '400px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis 
+                tickFormatter={(value) => 
+                  `$${(value || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  })}`
+                }
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend 
+                onClick={(entry) => handleLegendClick(entry)}
+                formatter={(value, entry) => {
+                  return (
+                    <span style={{ color: activeTypes[entry.value] ? entry.color : '#999' }}>
+                      {value}
+                    </span>
+                  );
+                }}
+              />
+              {activeTypes.coTermed && (
+                <Bar 
+                  dataKey="Co-Termed Cost" 
+                  fill="#8884d8" 
+                  name="Co-Termed Cost"
+                  value="coTermed"
+                />
+              )}
+              {activeTypes.annual && (
+                <Bar 
+                  dataKey="New Annual Cost" 
+                  fill="#82ca9d" 
+                  name="New Annual Cost"
+                  value="annual"
+                />
+              )}
+              {activeTypes.subscription && (
+                <Bar 
+                  dataKey="Total Subscription Cost" 
+                  fill="#ffc658" 
+                  name="Total Subscription Cost"
+                  value="subscription"
+                />
+              )}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+};
+</script>
+"""
+
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
     months_elapsed = agreement_term - months_remaining
@@ -192,7 +316,32 @@ if st.button("Calculate Costs"):
         "Monthly Co-Termed Cost": "${:,.2f}",
         "First Month Co-Termed Cost": "${:,.2f}"
     }).set_properties(**{"white-space": "normal"}))
+    # After the dataframe display
+    st.write("### Cost Comparison")
     
+    # Calculate the costs for the chart - with error handling
+    total_co_termed = total_prepaid_cost if billing_term == 'Prepaid' else total_first_year_cost
+    
+    components.html(
+        f"""
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.2/Recharts.min.js"></script>
+        {REACT_COMPONENT_CODE}
+        <div id="cost-comparison-chart"></div>
+        <script>
+            const chartElement = document.getElementById('cost-comparison-chart');
+            const chartRoot = ReactDOM.createRoot(chartElement);
+            const costData = {{
+                coTermedCost: {float(total_co_termed or 0)},
+                annualCost: {float(total_updated_annual_cost or 0)},
+                subscriptionCost: {float(total_subscription_term_fee or 0)}
+            }};
+            chartRoot.render(React.createElement(CostComparisonChart, {{ costData }}));
+        </script>
+        """,
+        height=500
+    )
     # Now generate the PDF with all the calculated values
     pdf_path = generate_pdf(
         customer_name,
