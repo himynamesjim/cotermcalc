@@ -17,29 +17,63 @@ CHART_HTML = """
     <canvas id="costChart" style="width: 100%; height: 400px;"></canvas>
     
     <script>
-        function renderChart(data) {
+        function renderChart(data, billingTerm) {
             const ctx = document.getElementById('costChart').getContext('2d');
+            
+            // Define datasets based on billing term
+            let datasets = [];
+            
+            if (billingTerm === 'Prepaid') {
+                datasets = [
+                    {
+                        label: 'Co-Termed Prepaid Cost',
+                        data: [data.coTermedPrepaid],
+                        backgroundColor: '#8884d8'
+                    }
+                ];
+            } else if (billingTerm === 'Monthly') {
+                datasets = [
+                    {
+                        label: 'Co-Termed Monthly Cost',
+                        data: [data.coTermedMonthly],
+                        backgroundColor: '#8884d8'
+                    },
+                    {
+                        label: 'New Monthly Cost',
+                        data: [data.newMonthly],
+                        backgroundColor: '#82ca9d'
+                    },
+                    {
+                        label: 'Total Subscription Cost',
+                        data: [data.subscription],
+                        backgroundColor: '#ffc658'
+                    }
+                ];
+            } else if (billingTerm === 'Annual') {
+                datasets = [
+                    {
+                        label: 'First Year Co-Termed Cost',
+                        data: [data.firstYearCoTerm],
+                        backgroundColor: '#8884d8'
+                    },
+                    {
+                        label: 'New Annual Cost',
+                        data: [data.newAnnual],
+                        backgroundColor: '#82ca9d'
+                    },
+                    {
+                        label: 'Total Subscription Cost',
+                        data: [data.subscription],
+                        backgroundColor: '#ffc658'
+                    }
+                ];
+            }
+
             new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Cost Comparison'],
-                    datasets: [
-                        {
-                            label: 'Co-Termed Cost',
-                            data: [data.coTermed],
-                            backgroundColor: '#8884d8'
-                        },
-                        {
-                            label: 'New Annual Cost',
-                            data: [data.annual],
-                            backgroundColor: '#82ca9d'
-                        },
-                        {
-                            label: 'Total Subscription Cost',
-                            data: [data.subscription],
-                            backgroundColor: '#ffc658'
-                        }
-                    ]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
@@ -267,18 +301,30 @@ if st.button("Calculate Costs"):
 # Then in your "Calculate Costs" button section, after the dataframe display:
     st.write("### Cost Comparison")
     
-    # Calculate the costs for the chart
-    total_co_termed = float(total_prepaid_cost if billing_term == 'Prepaid' else total_first_year_cost)
-    chart_data = {
-        "coTermed": total_co_termed,
-        "annual": float(total_updated_annual_cost),
-        "subscription": float(total_subscription_term_fee)
-    }
+    # Prepare different data based on billing term
+    if billing_term == 'Prepaid':
+        chart_data = {
+            "coTermedPrepaid": float(total_prepaid_cost)
+        }
+    elif billing_term == 'Monthly':
+        monthly_co_termed = float(data['Monthly Co-Termed Cost'].iloc[-2])  # Get the last non-total row
+        first_month_co_termed = float(data['First Month Co-Termed Cost'].iloc[-2])  # Get the last non-total row
+        chart_data = {
+            "coTermedMonthly": monthly_co_termed,
+            "newMonthly": first_month_co_termed,
+            "subscription": float(total_subscription_term_fee)
+        }
+    else:  # Annual
+        chart_data = {
+            "firstYearCoTerm": float(total_first_year_cost),
+            "newAnnual": float(total_updated_annual_cost),
+            "subscription": float(total_subscription_term_fee)
+        }
     
     components.html(
         CHART_HTML + f"""
         <script>
-            renderChart({chart_data});
+            renderChart({chart_data}, '{billing_term}');
         </script>
         """,
         height=500
