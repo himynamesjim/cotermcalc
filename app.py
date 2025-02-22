@@ -283,7 +283,6 @@ for i in range(num_items):
 
 st.subheader("Results")
 if st.button("Calculate Costs"):
-    # First calculate all costs and get the variables
     data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
         data, 
         agreement_term, 
@@ -294,9 +293,8 @@ if st.button("Calculate Costs"):
     
     st.subheader("Detailed Line Items")
     
-   # In your "Calculate Costs" button section
     columns_to_drop = []
-   if billing_term == 'Monthly':
+    if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
         # Get the monthly costs (excluding the Total Services Cost row)
@@ -309,9 +307,6 @@ if st.button("Calculate Costs"):
             "newMonthly": total_first_month,
             "subscription": float(total_subscription_term_fee)
         }
-        
-        # Debug: Print the chart_data to verify values
-        st.write("Chart Data:", chart_data)
     elif billing_term == 'Annual':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
         chart_data = {
@@ -325,7 +320,7 @@ if st.button("Calculate Costs"):
             "coTermedPrepaid": float(total_prepaid_cost)
         }
 
-    # Keep existing column dropping code
+    # Only drop columns that exist in the dataframe
     existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
     if existing_columns_to_drop:
         data = data.drop(columns=existing_columns_to_drop)
