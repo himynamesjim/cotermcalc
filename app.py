@@ -296,27 +296,22 @@ if st.button("Calculate Costs"):
     
    # In your "Calculate Costs" button section
     columns_to_drop = []
-    if billing_term == 'Monthly':
-            columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-            
-            # Debug: Print the relevant columns before calculation
-            st.write("Debug Monthly Co-Termed Cost values:", data['Monthly Co-Termed Cost'])
-            st.write("Debug First Month Co-Termed Cost values:", data['First Month Co-Termed Cost'])
-            
-            # Calculate totals excluding the 'Total Services Cost' row
-            mask = data['Cloud Service Description'] != 'Total Services Cost'
-            total_monthly_co_termed = data.loc[mask, 'Monthly Co-Termed Cost'].sum()
-            total_first_month = data.loc[mask, 'First Month Co-Termed Cost'].sum()
-            
-            # Debug: Print the calculated totals
-            st.write(f"Total Monthly Co-Termed: {total_monthly_co_termed}")
-            st.write(f"Total First Month: {total_first_month}")
-            
-            chart_data = {
-                "coTermedMonthly": float(total_monthly_co_termed),
-                "newMonthly": float(total_first_month),
-                "subscription": float(total_subscription_term_fee)
-            }
+   if billing_term == 'Monthly':
+        columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+        
+        # Get the monthly costs (excluding the Total Services Cost row)
+        mask = data['Cloud Service Description'] != 'Total Services Cost'
+        total_monthly_co_termed = float(data.loc[mask, 'Monthly Co-Termed Cost'].sum())
+        total_first_month = float(data.loc[mask, 'First Month Co-Termed Cost'].sum())
+        
+        chart_data = {
+            "coTermedMonthly": total_monthly_co_termed,
+            "newMonthly": total_first_month,
+            "subscription": float(total_subscription_term_fee)
+        }
+        
+        # Debug: Print the chart_data to verify values
+        st.write("Chart Data:", chart_data)
     elif billing_term == 'Annual':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
         chart_data = {
