@@ -18,10 +18,6 @@ CHART_HTML = """
     
     <script>
         function renderChart(data, billingTerm) {
-            // For debugging
-            console.log('Data received:', data);
-            console.log('Billing Term:', billingTerm);
-            
             const ctx = document.getElementById('costChart').getContext('2d');
             
             let datasets = [];
@@ -30,7 +26,7 @@ CHART_HTML = """
                 datasets = [
                     {
                         label: 'Co-Termed Monthly Cost',
-                        data: [data.coTermedMonthly],
+                        data: [data.coTermedMonthly || 0],
                         backgroundColor: '#8884d8'
                     },
                     {
@@ -45,31 +41,9 @@ CHART_HTML = """
                     }
                 ];
             } else if (billingTerm === 'Annual') {
-                datasets = [
-                    {
-                        label: 'First Year Co-Termed Cost',
-                        data: [data.firstYearCoTerm],
-                        backgroundColor: '#8884d8'
-                    },
-                    {
-                        label: 'New Annual Cost',
-                        data: [data.newAnnual],
-                        backgroundColor: '#82ca9d'
-                    },
-                    {
-                        label: 'Total Subscription Cost',
-                        data: [data.subscription],
-                        backgroundColor: '#ffc658'
-                    }
-                ];
+                // ... (keep existing annual code)
             } else if (billingTerm === 'Prepaid') {
-                datasets = [
-                    {
-                        label: 'Co-Termed Prepaid Cost',
-                        data: [data.coTermedPrepaid],
-                        backgroundColor: '#8884d8'
-                    }
-                ];
+                // ... (keep existing prepaid code)
             }
 
             new Chart(ctx, {
@@ -92,10 +66,28 @@ CHART_HTML = """
                                     })}`;
                                 }
                             }
+                        },
+                        // Add value labels on top of bars
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'start',
+                            offset: 4,
+                            formatter: function(value) {
+                                return '$' + value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            },
+                            color: 'black',
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            }
                         }
                     },
                     scales: {
                         y: {
+                            type: 'logarithmic',  // Change to logarithmic scale
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
