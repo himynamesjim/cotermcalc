@@ -46,26 +46,6 @@ window.addEventListener('load', function() {
 </script>
 """
 
-# Then in your "Calculate Costs" button section, after the dataframe display:
-    st.write("### Cost Comparison")
-    
-    # Calculate the costs for the chart
-    total_co_termed = float(total_prepaid_cost if billing_term == 'Prepaid' else total_first_year_cost)
-    
-    components.html(
-        CHART_HTML + f"""
-        <script>
-            window.chartData = {{
-                name: 'Costs',
-                coTermed: {total_co_termed},
-                annual: {float(total_updated_annual_cost)},
-                subscription: {float(total_subscription_term_fee)}
-            }};
-        </script>
-        """,
-        height=500
-    )
-
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
     months_elapsed = agreement_term - months_remaining
@@ -255,28 +235,21 @@ if st.button("Calculate Costs"):
         "Monthly Co-Termed Cost": "${:,.2f}",
         "First Month Co-Termed Cost": "${:,.2f}"
     }).set_properties(**{"white-space": "normal"}))
-    # After the dataframe display
+# Then in your "Calculate Costs" button section, after the dataframe display:
     st.write("### Cost Comparison")
     
-    # Calculate the costs for the chart - with error handling
-    total_co_termed = total_prepaid_cost if billing_term == 'Prepaid' else total_first_year_cost
+    # Calculate the costs for the chart
+    total_co_termed = float(total_prepaid_cost if billing_term == 'Prepaid' else total_first_year_cost)
     
     components.html(
-        f"""
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.2/Recharts.min.js"></script>
-        {REACT_COMPONENT_CODE}
-        <div id="cost-comparison-chart"></div>
+        CHART_HTML + f"""
         <script>
-            const chartElement = document.getElementById('cost-comparison-chart');
-            const chartRoot = ReactDOM.createRoot(chartElement);
-            const costData = {{
-                coTermedCost: {float(total_co_termed or 0)},
-                annualCost: {float(total_updated_annual_cost or 0)},
-                subscriptionCost: {float(total_subscription_term_fee or 0)}
+            window.chartData = {{
+                name: 'Costs',
+                coTermed: {total_co_termed},
+                annual: {float(total_updated_annual_cost)},
+                subscription: {float(total_subscription_term_fee)}
             }};
-            chartRoot.render(React.createElement(CostComparisonChart, {{ costData }}));
         </script>
         """,
         height=500
