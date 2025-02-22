@@ -294,13 +294,15 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     
     columns_to_drop = []
-    if billing_term == 'Monthly':
+if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
-        # Get the monthly costs (excluding the Total Services Cost row)
-        mask = data['Cloud Service Description'] != 'Total Services Cost'
-        total_monthly_co_termed = float(data.loc[mask, 'Monthly Co-Termed Cost'].sum())
-        total_first_month = float(data.loc[mask, 'First Month Co-Termed Cost'].sum())
+        # Get values from the Total Services Cost row
+        total_monthly_co_termed = float(data.loc[data['Cloud Service Description'] == 'Total Services Cost', 'Monthly Co-Termed Cost'].iloc[0])
+        total_first_month = float(data.loc[data['Cloud Service Description'] == 'Total Services Cost', 'First Month Co-Termed Cost'].iloc[0])
+        
+        st.write("Debug - Monthly Co-termed:", total_monthly_co_termed)
+        st.write("Debug - First Month:", total_first_month)
         
         chart_data = {
             "coTermedMonthly": total_monthly_co_termed,
