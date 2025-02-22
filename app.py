@@ -302,8 +302,8 @@ if st.button("Calculate Costs"):
         total_monthly_co_termed = data[data['Cloud Service Description'] != 'Total Services Cost']['Monthly Co-Termed Cost'].sum()
         total_first_month = data[data['Cloud Service Description'] != 'Total Services Cost']['First Month Co-Termed Cost'].sum()
         chart_data = {
-            "coTermedMonthly": float(total_monthly_co_termed),
-            "newMonthly": float(total_first_month),
+            "coTermedMonthly": float(total_monthly_co_termed_cost),
+            "newMonthly": float(total_first_month_cost),
             "subscription": float(total_subscription_term_fee)
         }
     elif billing_term == 'Annual':
