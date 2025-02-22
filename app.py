@@ -12,11 +12,16 @@ CHART_HTML = """
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 <body>
     <canvas id="costChart" style="width: 100%; height: 400px;"></canvas>
     
     <script>
+    // Register the plugin
+        Chart.register(ChartDataLabels);
+        
         function renderChart(data, billingTerm) {
             const ctx = document.getElementById('costChart').getContext('2d');
             
@@ -89,6 +94,20 @@ CHART_HTML = """
                                     })}`;
                                 }
                             }
+                        },
+                        // Add value labels on top of bars
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: function(value) {
+                                return '$' + value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            },
+                            font: {
+                                weight: 'bold'
+                            }
                         }
                     },
                     scales: {
@@ -99,6 +118,12 @@ CHART_HTML = """
                                     return '$' + value.toLocaleString();
                                 }
                             }
+                        }
+                    },
+                    // Add space at the top for labels
+                    layout: {
+                        padding: {
+                            top: 30
                         }
                     }
                 }
