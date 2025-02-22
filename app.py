@@ -12,45 +12,35 @@ CHART_HTML = """
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 <body>
     <canvas id="costChart" style="width: 100%; height: 400px;"></canvas>
     
     <script>
-    // Register the plugin
-        Chart.register(ChartDataLabels);
-        
         function renderChart(data, billingTerm) {
+            // For debugging
+            console.log('Data received:', data);
+            console.log('Billing Term:', billingTerm);
+            
             const ctx = document.getElementById('costChart').getContext('2d');
             
-            // Define datasets based on billing term
             let datasets = [];
             
-            if (billingTerm === 'Prepaid') {
-                datasets = [
-                    {
-                        label: 'Co-Termed Prepaid Cost',
-                        data: [data.coTermedPrepaid],
-                        backgroundColor: '#8884d8'
-                    }
-                ];
-            } else if (billingTerm === 'Monthly') {
+            if (billingTerm === 'Monthly') {
                 datasets = [
                     {
                         label: 'Co-Termed Monthly Cost',
-                        data: [data.coTermedMonthly],
+                        data: [data.coTermedMonthly || 0],
                         backgroundColor: '#8884d8'
                     },
                     {
                         label: 'New Monthly Cost',
-                        data: [data.newMonthly],
+                        data: [data.newMonthly || 0],
                         backgroundColor: '#82ca9d'
                     },
                     {
                         label: 'Total Subscription Cost',
-                        data: [data.subscription],
+                        data: [data.subscription || 0],
                         backgroundColor: '#ffc658'
                     }
                 ];
@@ -70,6 +60,14 @@ CHART_HTML = """
                         label: 'Total Subscription Cost',
                         data: [data.subscription],
                         backgroundColor: '#ffc658'
+                    }
+                ];
+            } else if (billingTerm === 'Prepaid') {
+                datasets = [
+                    {
+                        label: 'Co-Termed Prepaid Cost',
+                        data: [data.coTermedPrepaid],
+                        backgroundColor: '#8884d8'
                     }
                 ];
             }
@@ -94,20 +92,6 @@ CHART_HTML = """
                                     })}`;
                                 }
                             }
-                        },
-                        // Add value labels on top of bars
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            formatter: function(value) {
-                                return '$' + value.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                });
-                            },
-                            font: {
-                                weight: 'bold'
-                            }
                         }
                     },
                     scales: {
@@ -118,12 +102,6 @@ CHART_HTML = """
                                     return '$' + value.toLocaleString();
                                 }
                             }
-                        }
-                    },
-                    // Add space at the top for labels
-                    layout: {
-                        padding: {
-                            top: 30
                         }
                     }
                 }
@@ -365,7 +343,8 @@ if st.button("Calculate Costs"):
             "newAnnual": float(total_updated_annual_cost),
             "subscription": float(total_subscription_term_fee)
         }
-    
+        st.write("Final chart_data being sent:", chart_data)
+
     components.html(
         CHART_HTML + f"""
         <script>
