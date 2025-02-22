@@ -22,7 +22,6 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if billing_term == 'Annual' else 0
 
         df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
-        df.at[index, 'Prepaid Additional Licenses Co-Termed Cost'] = co_termed_prepaid_additional_cost
         df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
         df.at[index, 'Updated Annual Cost'] = updated_annual_cost
         df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
