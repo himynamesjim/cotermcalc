@@ -30,7 +30,7 @@ CHART_HTML = """
                 datasets = [
                     {
                         label: 'Co-Termed Monthly Cost',
-                        data: [data.coTermedMonthly || 0],
+                        data: [data.coTermedMonthly],
                         backgroundColor: '#8884d8'
                     },
                     {
