@@ -31,11 +31,10 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
 
     # Convert numeric columns to float
     numeric_cols = [
-        "Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost",
+        "Annual Unit Fee", "Prepaid Co-Termed Cost",
         "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
         "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
     ]
-
     for col in numeric_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
@@ -137,8 +136,7 @@ else:
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
 st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
-data = pd.DataFrame(columns=columns)
+columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]data = pd.DataFrame(columns=columns)
 
 for i in range(num_items):
     row_data = {}
@@ -188,7 +186,6 @@ if st.button("Calculate Costs"):
     st.dataframe(data.style.format({
         "Annual Unit Fee": "${:,.2f}",
         "Prepaid Co-Termed Cost": "${:,.2f}",
-        "Prepaid Additional Licenses Co-Termed Cost": "${:,.2f}",
         "First Year Co-Termed Cost": "${:,.2f}",
         "Updated Annual Cost": "${:,.2f}",
         "Subscription Term Total Service Fee": "${:,.2f}",
