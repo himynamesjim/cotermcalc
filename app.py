@@ -6,44 +6,51 @@ from fpdf import FPDF
 # At the top of your file with other imports
 import streamlit.components.v1 as components
 
-# After your imports, add this HTML/React code
+# After your imports, add this constant for the chart HTML/JS
 CHART_HTML = """
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/recharts@2.12.0/umd/Recharts.min.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/recharts@2.12.0/umd/Recharts.js"></script>
+</head>
+<body>
+    <div id="chart" style="width: 100%; height: 400px;"></div>
+    
+    <script type="text/javascript">
+        const {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} = Recharts;
+        
+        function formatCurrency(value) {
+            return '$' + value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        function Chart({data}) {
+            return React.createElement(ResponsiveContainer, {width: '100%', height: 400},
+                React.createElement(BarChart, {data: [data]},
+                    React.createElement(CartesianGrid, {strokeDasharray: "3 3"}),
+                    React.createElement(XAxis, {dataKey: "name"}),
+                    React.createElement(YAxis, {tickFormatter: formatCurrency}),
+                    React.createElement(Tooltip, {formatter: formatCurrency}),
+                    React.createElement(Legend),
+                    React.createElement(Bar, {dataKey: "coTermed", name: "Co-Termed Cost", fill: "#8884d8"}),
+                    React.createElement(Bar, {dataKey: "annual", name: "New Annual Cost", fill: "#82ca9d"}),
+                    React.createElement(Bar, {dataKey: "subscription", name: "Total Subscription Cost", fill: "#ffc658"})
+                )
+            );
+        }
 
-<div id="cost-chart"></div>
-
-<script>
-const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
-
-function CostChart({ data }) {
-    return (
-        <div style={{ width: '100%', height: 400 }}>
-            <ResponsiveContainer>
-                <BarChart data={[data]}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
-                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                    <Legend />
-                    <Bar dataKey="coTermed" name="Co-Termed Cost" fill="#8884d8" />
-                    <Bar dataKey="annual" name="New Annual Cost" fill="#82ca9d" />
-                    <Bar dataKey="subscription" name="Total Subscription Cost" fill="#ffc658" />
-                </BarChart>
-            </ResponsiveContainer>
-        </div>
-    );
-}
-
-// Wait for the document to be ready
-window.addEventListener('load', function() {
-    const chartData = window.chartData;
-    const container = document.getElementById('cost-chart');
-    const root = ReactDOM.createRoot(container);
-    root.render(React.createElement(CostChart, { data: chartData }));
-});
-</script>
+        function renderChart(data) {
+            const container = document.getElementById('chart');
+            const root = ReactDOM.createRoot(container);
+            root.render(React.createElement(Chart, {data: data}));
+        }
+    </script>
+</body>
+</html>
 """
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
@@ -240,19 +247,20 @@ if st.button("Calculate Costs"):
     
     # Calculate the costs for the chart
     total_co_termed = float(total_prepaid_cost if billing_term == 'Prepaid' else total_first_year_cost)
+    chart_data = {
+        "name": "Costs",
+        "coTermed": total_co_termed,
+        "annual": float(total_updated_annual_cost),
+        "subscription": float(total_subscription_term_fee)
+    }
     
     components.html(
         CHART_HTML + f"""
         <script>
-            window.chartData = {{
-                name: 'Costs',
-                coTermed: {total_co_termed},
-                annual: {float(total_updated_annual_cost)},
-                subscription: {float(total_subscription_term_fee)}
-            }};
+            renderChart({chart_data});
         </script>
         """,
-        height=500
+        height=600
     )
     # Now generate the PDF with all the calculated values
     pdf_path = generate_pdf(
