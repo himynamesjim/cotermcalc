@@ -294,15 +294,32 @@ if st.button("Calculate Costs"):
     
     st.subheader("Detailed Line Items")
     
+   # In your "Calculate Costs" button section
     columns_to_drop = []
     if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+        # Add chart data preparation after the columns_to_drop
+        total_monthly_co_termed = data[data['Cloud Service Description'] != 'Total Services Cost']['Monthly Co-Termed Cost'].sum()
+        total_first_month = data[data['Cloud Service Description'] != 'Total Services Cost']['First Month Co-Termed Cost'].sum()
+        chart_data = {
+            "coTermedMonthly": float(total_monthly_co_termed),
+            "newMonthly": float(total_first_month),
+            "subscription": float(total_subscription_term_fee)
+        }
     elif billing_term == 'Annual':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
+        chart_data = {
+            "firstYearCoTerm": float(total_first_year_cost),
+            "newAnnual": float(total_updated_annual_cost),
+            "subscription": float(total_subscription_term_fee)
+        }
     elif billing_term == 'Prepaid':
         columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+        chart_data = {
+            "coTermedPrepaid": float(total_prepaid_cost)
+        }
 
-    # Only drop columns that exist in the dataframe
+    # Keep existing column dropping code
     existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
     if existing_columns_to_drop:
         data = data.drop(columns=existing_columns_to_drop)
