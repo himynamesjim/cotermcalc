@@ -143,7 +143,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_subscription_term_fee = 0
 
     for index, row in df.iterrows():
-        first_month_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * (total_term % 1) if billing_term == 'Monthly' else 0
+        first_month_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * (months_remaining % 1) if billing_term == 'Monthly' else 0
         monthly_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] if billing_term == 'Monthly' else 0
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
         subscription_term_total_fee = ((annual_total_fee * total_term) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
@@ -297,15 +297,26 @@ if st.button("Calculate Costs"):
    # In your "Calculate Costs" button section
     columns_to_drop = []
     if billing_term == 'Monthly':
-        columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-        # Add chart data preparation after the columns_to_drop
-        total_monthly_co_termed = data[data['Cloud Service Description'] != 'Total Services Cost']['Monthly Co-Termed Cost'].sum()
-        total_first_month = data[data['Cloud Service Description'] != 'Total Services Cost']['First Month Co-Termed Cost'].sum()
-        chart_data = {
-            "coTermedMonthly": float(total_monthly_co_termed),
-            "newMonthly": float(total_first_month),
-            "subscription": float(total_subscription_term_fee)
-        }
+            columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+            
+            # Debug: Print the relevant columns before calculation
+            st.write("Debug Monthly Co-Termed Cost values:", data['Monthly Co-Termed Cost'])
+            st.write("Debug First Month Co-Termed Cost values:", data['First Month Co-Termed Cost'])
+            
+            # Calculate totals excluding the 'Total Services Cost' row
+            mask = data['Cloud Service Description'] != 'Total Services Cost'
+            total_monthly_co_termed = data.loc[mask, 'Monthly Co-Termed Cost'].sum()
+            total_first_month = data.loc[mask, 'First Month Co-Termed Cost'].sum()
+            
+            # Debug: Print the calculated totals
+            st.write(f"Total Monthly Co-Termed: {total_monthly_co_termed}")
+            st.write(f"Total First Month: {total_first_month}")
+            
+            chart_data = {
+                "coTermedMonthly": float(total_monthly_co_termed),
+                "newMonthly": float(total_first_month),
+                "subscription": float(total_subscription_term_fee)
+            }
     elif billing_term == 'Annual':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
         chart_data = {
