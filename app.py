@@ -11,42 +11,64 @@ CHART_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/recharts@2.12.0/umd/Recharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div id="chart" style="width: 100%; height: 400px;"></div>
+    <canvas id="costChart" style="width: 100%; height: 400px;"></canvas>
     
-    <script type="text/javascript">
-        const {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} = Recharts;
-        
-        function formatCurrency(value) {
-            return '$' + value.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-        
-        function Chart({data}) {
-            return React.createElement(ResponsiveContainer, {width: '100%', height: 400},
-                React.createElement(BarChart, {data: [data]},
-                    React.createElement(CartesianGrid, {strokeDasharray: "3 3"}),
-                    React.createElement(XAxis, {dataKey: "name"}),
-                    React.createElement(YAxis, {tickFormatter: formatCurrency}),
-                    React.createElement(Tooltip, {formatter: formatCurrency}),
-                    React.createElement(Legend),
-                    React.createElement(Bar, {dataKey: "coTermed", name: "Co-Termed Cost", fill: "#8884d8"}),
-                    React.createElement(Bar, {dataKey: "annual", name: "New Annual Cost", fill: "#82ca9d"}),
-                    React.createElement(Bar, {dataKey: "subscription", name: "Total Subscription Cost", fill: "#ffc658"})
-                )
-            );
-        }
-
+    <script>
         function renderChart(data) {
-            const container = document.getElementById('chart');
-            const root = ReactDOM.createRoot(container);
-            root.render(React.createElement(Chart, {data: data}));
+            const ctx = document.getElementById('costChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Cost Comparison'],
+                    datasets: [
+                        {
+                            label: 'Co-Termed Cost',
+                            data: [data.coTermed],
+                            backgroundColor: '#8884d8'
+                        },
+                        {
+                            label: 'New Annual Cost',
+                            data: [data.annual],
+                            backgroundColor: '#82ca9d'
+                        },
+                        {
+                            label: 'Total Subscription Cost',
+                            data: [data.subscription],
+                            backgroundColor: '#ffc658'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw;
+                                    return `${context.dataset.label}: $${value.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>
@@ -248,7 +270,6 @@ if st.button("Calculate Costs"):
     # Calculate the costs for the chart
     total_co_termed = float(total_prepaid_cost if billing_term == 'Prepaid' else total_first_year_cost)
     chart_data = {
-        "name": "Costs",
         "coTermed": total_co_termed,
         "annual": float(total_updated_annual_cost),
         "subscription": float(total_subscription_term_fee)
@@ -260,7 +281,7 @@ if st.button("Calculate Costs"):
             renderChart({chart_data});
         </script>
         """,
-        height=600
+        height=500
     )
     # Now generate the PDF with all the calculated values
     pdf_path = generate_pdf(
