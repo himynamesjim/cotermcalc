@@ -320,13 +320,17 @@ if st.button("Calculate Costs"):
     
     # Prepare chart data based on billing term
     if billing_term == 'Monthly':
-        monthly_co_termed = float(data['Monthly Co-Termed Cost'].iloc[-2])  # Get the last non-total row
-        first_month_co_termed = float(data['First Month Co-Termed Cost'].iloc[-2])  # Get the last non-total row
+        # Get values from the Total Services Cost row
+        total_row = data[data['Cloud Service Description'] == 'Total Services Cost']
+        monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0])      # Will be 250.00
+        first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0])  # Will be 137.50
+        
         chart_data = {
             "coTermedMonthly": first_month_co_termed,  # This will be 137.50
             "newMonthly": monthly_co_termed,           # This will be 250.00
             "subscription": float(total_subscription_term_fee)
         }
+        st.write("Debug - Getting totals from Total Services Cost row:", chart_data)
     elif billing_term == 'Annual':
         chart_data = {
             "firstYearCoTerm": float(total_first_year_cost),
