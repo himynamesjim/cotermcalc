@@ -8,7 +8,6 @@ import streamlit.components.v1 as components
 
 # After your imports, add this constant for the chart HTML/JS
 CHART_HTML = """
-CHART_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
