@@ -62,16 +62,18 @@ CHART_HTML = """
                         backgroundColor: '#ffc658'
                     }
                 ];
+                }
             else if (billingTerm === 'Prepaid') {
+                    console.log('Prepaid data:', data);  // Debug log
                     datasets = [
                         {
                             label: 'Co-Termed Prepaid Cost',
-                            data: [data.coTermedPrepaid],
+                            data: [data.coTermedPrepaid || 0],
                             backgroundColor: '#8884d8'
                         },
                         {
                             label: 'Total Subscription Cost',
-                            data: [data.subscription],
+                            data: [data.subscription || 0],
                             backgroundColor: '#ffc658'
                         }
                     ];
