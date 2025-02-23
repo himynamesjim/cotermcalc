@@ -286,7 +286,7 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     
     columns_to_drop = []
-if billing_term == 'Monthly':
+    if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
         # Calculate the sum of all rows except the Total Services Cost row
