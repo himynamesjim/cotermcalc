@@ -14,90 +14,205 @@ CHART_HTML = """
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <canvas id="costChart" style="width: 100%; height: 400px;"></canvas>
+    <div style="margin-bottom: 20px;">
+        <canvas id="monthlyCostChart" style="width: 100%; height: 300px;"></canvas>
+    </div>
+    <div>
+        <canvas id="subscriptionCostChart" style="width: 100%; height: 300px;"></canvas>
+    </div>
     
     <script>
         function renderChart(data, billingTerm) {
-            const ctx = document.getElementById('costChart').getContext('2d');
-            
-            let datasets = [];
-            
             if (billingTerm === 'Monthly') {
-                datasets = [
-                    {
-                        label: 'Co-Termed Monthly Cost',
-                        data: [data.coTermedMonthly || 0],
-                        backgroundColor: '#8884d8'
+                // First chart - Monthly Costs
+                const monthlyCtx = document.getElementById('monthlyCostChart').getContext('2d');
+                new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Monthly Costs'],
+                        datasets: [
+                            {
+                                label: 'Co-Termed Monthly Cost',
+                                data: [data.coTermedMonthly || 0],
+                                backgroundColor: '#8884d8'
+                            },
+                            {
+                                label: 'New Monthly Cost',
+                                data: [data.newMonthly || 0],
+                                backgroundColor: '#82ca9d'
+                            }
+                        ]
                     },
-                    {
-                        label: 'New Monthly Cost',
-                        data: [data.newMonthly || 0],
-                        backgroundColor: '#82ca9d'
-                    },
-                    {
-                        label: 'Total Subscription Cost',
-                        data: [data.subscription || 0],
-                        backgroundColor: '#ffc658'
-                    }
-                ];
-            } else if (billingTerm === 'Annual') {
-                // ... (keep existing annual code)
-            } else if (billingTerm === 'Prepaid') {
-                // ... (keep existing prepaid code)
-            }
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Cost Comparison'],
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let value = context.raw;
-                                    return `${context.dataset.label}: $${value.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}`;
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Monthly Payment Comparison',
+                                font: { size: 16 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: $${context.raw.toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}`;
+                                    }
                                 }
                             }
                         },
-                        // Add value labels on top of bars
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'start',
-                            offset: 4,
-                            formatter: function(value) {
-                                return '$' + value.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                });
-                            },
-                            color: 'black',
-                            font: {
-                                weight: 'bold',
-                                size: 11
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            type: 'logarithmic',  // Change to logarithmic scale
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+
+                // Second chart - Total Subscription Cost
+                const subscriptionCtx = document.getElementById('subscriptionCostChart').getContext('2d');
+                new Chart(subscriptionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Total Subscription Cost'],
+                        datasets: [{
+                            label: 'Total Subscription Cost',
+                            data: [data.subscription || 0],
+                            backgroundColor: '#ffc658'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Total Subscription Cost',
+                                font: { size: 16 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: $${context.raw.toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (billingTerm === 'Annual') {
+                const monthlyCtx = document.getElementById('monthlyCostChart').getContext('2d');
+                new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Cost Comparison'],
+                        datasets: [
+                            {
+                                label: 'First Year Co-Termed Cost',
+                                data: [data.firstYearCoTerm],
+                                backgroundColor: '#8884d8'
+                            },
+                            {
+                                label: 'New Annual Cost',
+                                data: [data.newAnnual],
+                                backgroundColor: '#82ca9d'
+                            },
+                            {
+                                label: 'Total Subscription Cost',
+                                data: [data.subscription],
+                                backgroundColor: '#ffc658'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: $${context.raw.toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (billingTerm === 'Prepaid') {
+                const monthlyCtx = document.getElementById('monthlyCostChart').getContext('2d');
+                new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Cost Comparison'],
+                        datasets: [
+                            {
+                                label: 'Co-Termed Prepaid Cost',
+                                data: [data.coTermedPrepaid],
+                                backgroundColor: '#8884d8'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: $${context.raw.toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
     </script>
 </body>
