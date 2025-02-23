@@ -290,15 +290,21 @@ if st.button("Calculate Costs"):
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
         # Get values from the row with index 2
-        monthly_co_termed = float(data.iloc[2]['Monthly Co-Termed Cost'].replace('$', '').replace(',', ''))  # Should be 250.00
-        first_month = float(data.iloc[2]['First Month Co-Termed Cost'].replace('$', '').replace(',', ''))    # Should be 137.50
+        monthly_co_termed = data.iloc[2]['Monthly Co-Termed Cost']  # Should be 250.00
+        first_month = data.iloc[2]['First Month Co-Termed Cost']    # Should be 137.50
         
+        # Convert to float if they're strings
+        if isinstance(monthly_co_termed, str):
+            monthly_co_termed = float(monthly_co_termed.replace('$', '').replace(',', ''))
+        if isinstance(first_month, str):
+            first_month = float(first_month.replace('$', '').replace(',', ''))
+            
         st.write("Debug - Monthly Co-termed (should be 250.00):", monthly_co_termed)
         st.write("Debug - First Month (should be 137.50):", first_month)
         
         chart_data = {
-            "coTermedMonthly": first_month,       # This will be 137.50
-            "newMonthly": monthly_co_termed,      # This will be 250.00
+            "coTermedMonthly": float(first_month),       # This will be 137.50
+            "newMonthly": float(monthly_co_termed),      # This will be 250.00
             "subscription": float(total_subscription_term_fee)
         }
     elif billing_term == 'Annual':
