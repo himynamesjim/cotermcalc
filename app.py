@@ -62,15 +62,20 @@ CHART_HTML = """
                         backgroundColor: '#ffc658'
                     }
                 ];
-            } else if (billingTerm === 'Prepaid') {
-                datasets = [
-                    {
-                        label: 'Co-Termed Prepaid Cost',
-                        data: [data.coTermedPrepaid],
-                        backgroundColor: '#8884d8'
-                    }
-                ];
-            }
+            else if (billingTerm === 'Prepaid') {
+                    datasets = [
+                        {
+                            label: 'Co-Termed Prepaid Cost',
+                            data: [data.coTermedPrepaid],
+                            backgroundColor: '#8884d8'
+                        },
+                        {
+                            label: 'Total Subscription Cost',
+                            data: [data.subscription],
+                            backgroundColor: '#ffc658'
+                        }
+                    ];
+                }
 
             new Chart(ctx, {
                 type: 'bar',
@@ -339,7 +344,8 @@ if st.button("Calculate Costs"):
         }
     elif billing_term == 'Prepaid':
         chart_data = {
-            "coTermedPrepaid": float(total_prepaid_cost)
+            "coTermedPrepaid": float(total_prepaid_cost),
+            "subscription": float(total_subscription_term_fee)  # Added this line
         }
     
     components.html(
