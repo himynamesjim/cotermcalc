@@ -286,27 +286,6 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     
     columns_to_drop = []
-    if billing_term == 'Monthly':
-        columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-        
-        # Get values from the row with index 2
-        monthly_co_termed = data.iloc[2]['Monthly Co-Termed Cost']  # Should be 250.00
-        first_month = data.iloc[2]['First Month Co-Termed Cost']    # Should be 137.50
-        
-        # Convert to float if they're strings
-        if isinstance(monthly_co_termed, str):
-            monthly_co_termed = float(monthly_co_termed.replace('$', '').replace(',', ''))
-        if isinstance(first_month, str):
-            first_month = float(first_month.replace('$', '').replace(',', ''))
-            
-        st.write("Debug - Monthly Co-termed (should be 250.00):", monthly_co_termed)
-        st.write("Debug - First Month (should be 137.50):", first_month)
-        
-        chart_data = {
-            "coTermedMonthly": float(first_month),       # This will be 137.50
-            "newMonthly": float(monthly_co_termed),      # This will be 250.00
-            "subscription": float(total_subscription_term_fee)
-        }
     elif billing_term == 'Annual':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
         chart_data = {
@@ -353,8 +332,8 @@ if st.button("Calculate Costs"):
         monthly_co_termed = float(data['Monthly Co-Termed Cost'].iloc[-2])  # Get the last non-total row
         first_month_co_termed = float(data['First Month Co-Termed Cost'].iloc[-2])  # Get the last non-total row
         chart_data = {
-            "coTermedMonthly": monthly_co_termed,
-            "newMonthly": first_month_co_termed,
+            "coTermedMonthly": first_month_co_termed,  # This will be 137.50
+            "newMonthly": monthly_co_termed,           # This will be 250.00
             "subscription": float(total_subscription_term_fee)
         }
     else:  # Annual
