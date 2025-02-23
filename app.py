@@ -285,19 +285,14 @@ if st.button("Calculate Costs"):
     
     st.subheader("Detailed Line Items")
     
+   # Handle column dropping first
     columns_to_drop = []
+    if billing_term == 'Monthly':
+        columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
     elif billing_term == 'Annual':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
-        chart_data = {
-            "firstYearCoTerm": float(total_first_year_cost),
-            "newAnnual": float(total_updated_annual_cost),
-            "subscription": float(total_subscription_term_fee)
-        }
     elif billing_term == 'Prepaid':
         columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-        chart_data = {
-            "coTermedPrepaid": float(total_prepaid_cost)
-        }
 
     # Only drop columns that exist in the dataframe
     existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
@@ -320,15 +315,11 @@ if st.button("Calculate Costs"):
         "Monthly Co-Termed Cost": "${:,.2f}",
         "First Month Co-Termed Cost": "${:,.2f}"
     }).set_properties(**{"white-space": "normal"}))
-# Then in your "Calculate Costs" button section, after the dataframe display:
+
     st.write("### Cost Comparison")
     
-    # Prepare different data based on billing term
-    if billing_term == 'Prepaid':
-        chart_data = {
-            "coTermedPrepaid": float(total_prepaid_cost)
-        }
-    elif billing_term == 'Monthly':
+    # Prepare chart data based on billing term
+    if billing_term == 'Monthly':
         monthly_co_termed = float(data['Monthly Co-Termed Cost'].iloc[-2])  # Get the last non-total row
         first_month_co_termed = float(data['First Month Co-Termed Cost'].iloc[-2])  # Get the last non-total row
         chart_data = {
@@ -336,13 +327,18 @@ if st.button("Calculate Costs"):
             "newMonthly": monthly_co_termed,           # This will be 250.00
             "subscription": float(total_subscription_term_fee)
         }
-    else:  # Annual
+    elif billing_term == 'Annual':
         chart_data = {
             "firstYearCoTerm": float(total_first_year_cost),
             "newAnnual": float(total_updated_annual_cost),
             "subscription": float(total_subscription_term_fee)
         }
-        st.write("Final chart_data being sent:", chart_data)
+    elif billing_term == 'Prepaid':
+        chart_data = {
+            "coTermedPrepaid": float(total_prepaid_cost)
+        }
+    
+    st.write("Final chart_data being sent:", chart_data)
 
     components.html(
         CHART_HTML + f"""
