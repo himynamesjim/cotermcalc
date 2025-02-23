@@ -331,7 +331,6 @@ if st.button("Calculate Costs"):
             "newMonthly": monthly_co_termed,           # This will be 250.00
             "subscription": float(total_subscription_term_fee)
         }
-        st.write("Debug - Getting totals from Total Services Cost row:", chart_data)
     elif billing_term == 'Annual':
         chart_data = {
             "firstYearCoTerm": float(total_first_year_cost),
