@@ -85,16 +85,22 @@ CHART_HTML = """
                     labels: ['Cost Comparison'],
                     datasets: datasets
                 },
-               options: {
+              options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
+                    title: {
+                        display: false  // Remove title padding
+                    },
                     legend: {
                         position: 'top',
-                        padding: 20,  // Add padding around the legend
                         labels: {
-                            padding: 20  // Add padding between legend items
-                        }
+                            padding: 15,  // Padding between legend items
+                            font: {
+                                size: 12  // Adjust font size if needed
+                            }
+                        },
+                        margin: 0  // Remove extra margin
                     },
                     datalabels: {
                         anchor: 'end',
@@ -109,7 +115,7 @@ CHART_HTML = """
                             weight: 'bold',
                             size: 12
                         },
-                        offset: 10  // Increased offset for data labels
+                        offset: 8
                     },
                     tooltip: {
                         callbacks: {
@@ -125,8 +131,8 @@ CHART_HTML = """
                 },
                 layout: {
                     padding: {
-                        top: 30,    // Add padding at the top
-                        bottom: 10  // Add padding at the bottom
+                        top: 10,    // Reduced top padding
+                        bottom: 10
                     }
                 },
                 scales: {
