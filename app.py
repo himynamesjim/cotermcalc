@@ -291,22 +291,16 @@ if st.button("Calculate Costs"):
         
         # Get the last row values (excluding the Total Services Cost row)
         mask = data['Cloud Service Description'] != 'Total Services Cost'
-        total_monthly_co_termed = data[mask]['Monthly Co-Termed Cost'].iloc[-1]  # Get last row
-        total_first_month = data[mask]['First Month Co-Termed Cost'].iloc[-1]  # Get last row
-        
-        # Convert to float and handle any currency formatting
-        if isinstance(total_monthly_co_termed, str):
-            total_monthly_co_termed = float(total_monthly_co_termed.replace('$', '').replace(',', ''))
-        if isinstance(total_first_month, str):
-            total_first_month = float(total_first_month.replace('$', '').replace(',', ''))
+        total_monthly_co_termed = data[mask]['Monthly Co-Termed Cost'].iloc[-1]  # This will be 250.00
+        total_first_month = data[mask]['First Month Co-Termed Cost'].iloc[-1]    # This will be 137.50
         
         st.write("Debug - Total Monthly Co-termed:", total_monthly_co_termed)
         st.write("Debug - Total First Month:", total_first_month)
         
         chart_data = {
-            "coTermedMonthly": float(total_monthly_co_termed),  # Should be 250.00
-            "newMonthly": float(total_first_month),            # Should be 137.50
-            "subscription": float(total_subscription_term_fee)  # Looks correct at 12,581.25
+            "coTermedMonthly": float(total_first_month),      # Should show 137.50
+            "newMonthly": float(total_monthly_co_termed),     # Should show 250.00
+            "subscription": float(total_subscription_term_fee) # The 12,581.25 is correct
         }
     elif billing_term == 'Annual':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
