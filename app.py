@@ -286,7 +286,7 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     
     columns_to_drop = []
-if billing_term == 'Monthly':
+    if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
         # Get totals specifically from the "Total Services Cost" row
@@ -325,7 +325,7 @@ if billing_term == 'Monthly':
     existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
     if existing_columns_to_drop:
         data = data.drop(columns=existing_columns_to_drop)
-    
+        
     data = data.copy()
     for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", 
                 "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", 
