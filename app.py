@@ -286,26 +286,21 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     
     columns_to_drop = []
-    if billing_term == 'Monthly':
+if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
-        # Get totals specifically from the "Total Services Cost" row
-        total_row = data[data['Cloud Service Description'] == 'Total Services Cost'].iloc[0]
-        total_monthly_co_termed = total_row['Monthly Co-Termed Cost']
-        total_first_month = total_row['First Month Co-Termed Cost']
+        # Calculate the sum of all rows except the Total Services Cost row
+        mask = data['Cloud Service Description'] != 'Total Services Cost'
+        total_monthly_co_termed = data[mask]['Monthly Co-Termed Cost'].astype(float).sum()
+        total_first_month = data[mask]['First Month Co-Termed Cost'].astype(float).sum()
         
-        # Convert string values to float if they're formatted as currency
-        if isinstance(total_monthly_co_termed, str):
-            total_monthly_co_termed = float(total_monthly_co_termed.replace('$', '').replace(',', ''))
-        if isinstance(total_first_month, str):
-            total_first_month = float(total_first_month.replace('$', '').replace(',', ''))
-        
-        st.write("Debug - Total Monthly Co-termed:", total_monthly_co_termed)
-        st.write("Debug - Total First Month:", total_first_month)
+        # Debug print to verify values
+        st.write("Debug - Total Monthly Co-termed (should be 137.50):", total_monthly_co_termed)
+        st.write("Debug - Total First Month (should be 250.00):", total_first_month)
         
         chart_data = {
-            "coTermedMonthly": total_monthly_co_termed,
-            "newMonthly": total_first_month,
+            "coTermedMonthly": float(total_monthly_co_termed),
+            "newMonthly": float(total_first_month),
             "subscription": float(total_subscription_term_fee)
         }
     elif billing_term == 'Annual':
