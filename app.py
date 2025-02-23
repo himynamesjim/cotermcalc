@@ -286,15 +286,22 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     
     columns_to_drop = []
-    if billing_term == 'Monthly':
+if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
-        # Get values from the Total Services Cost row
-        total_monthly_co_termed = float(data.loc[data['Cloud Service Description'] == 'Total Services Cost', 'Monthly Co-Termed Cost'].iloc[0])
-        total_first_month = float(data.loc[data['Cloud Service Description'] == 'Total Services Cost', 'First Month Co-Termed Cost'].iloc[0])
+        # Get totals specifically from the "Total Services Cost" row
+        total_row = data[data['Cloud Service Description'] == 'Total Services Cost'].iloc[0]
+        total_monthly_co_termed = total_row['Monthly Co-Termed Cost']
+        total_first_month = total_row['First Month Co-Termed Cost']
         
-        st.write("Debug - Monthly Co-termed:", total_monthly_co_termed)
-        st.write("Debug - First Month:", total_first_month)
+        # Convert string values to float if they're formatted as currency
+        if isinstance(total_monthly_co_termed, str):
+            total_monthly_co_termed = float(total_monthly_co_termed.replace('$', '').replace(',', ''))
+        if isinstance(total_first_month, str):
+            total_first_month = float(total_first_month.replace('$', '').replace(',', ''))
+        
+        st.write("Debug - Total Monthly Co-termed:", total_monthly_co_termed)
+        st.write("Debug - Total First Month:", total_first_month)
         
         chart_data = {
             "coTermedMonthly": total_monthly_co_termed,
