@@ -26,24 +26,25 @@ CHART_HTML = """
             let datasets = [];
             
             if (billingTerm === 'Monthly') {
-                datasets = [
-                    {
-                        label: 'Co-Termed Monthly Cost',
-                        data: [data.coTermedMonthly || 0],
-                        backgroundColor: '#8884d8'
-                    },
-                    {
-                        label: 'New Monthly Cost',
-                        data: [data.newMonthly || 0],
-                        backgroundColor: '#82ca9d'
-                    },
-                    {
-                        label: 'Total Subscription Cost',
-                        data: [data.subscription || 0],
-                        backgroundColor: '#ffc658'
-                    }
-                ];
-            } else if (billingTerm === 'Annual') {
+                    datasets = [
+                        {
+                            label: 'First Month Co-Termed Cost',  // Changed from 'Co-Termed Monthly Cost'
+                            data: [data.coTermedMonthly || 0],
+                            backgroundColor: '#8884d8'
+                        },
+                        {
+                            label: 'New Monthly Cost',
+                            data: [data.newMonthly || 0],
+                            backgroundColor: '#82ca9d'
+                        },
+                        {
+                            label: 'Total Subscription Cost',
+                            data: [data.subscription || 0],
+                            backgroundColor: '#ffc658'
+                        }
+                    ];
+                }
+             else if (billingTerm === 'Annual') {
                 datasets = [
                     {
                         label: 'First Year Co-Termed Cost',
