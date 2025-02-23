@@ -342,8 +342,6 @@ if st.button("Calculate Costs"):
             "coTermedPrepaid": float(total_prepaid_cost)
         }
     
-    st.write("Final chart_data being sent:", chart_data)
-
     components.html(
         CHART_HTML + f"""
         <script>
