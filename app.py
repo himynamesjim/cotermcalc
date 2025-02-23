@@ -85,48 +85,61 @@ CHART_HTML = """
                     labels: ['Cost Comparison'],
                     datasets: datasets
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            formatter: function(value) {
-                                return '$' + value.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                });
-                            },
-                            font: {
-                                weight: 'bold',
-                                size: 12
-                            },
-                            offset: 5
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let value = context.raw;
-                                    return `${context.dataset.label}: $${value.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}`;
-                                }
-                            }
+               options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        padding: 20,  // Add padding around the legend
+                        labels: {
+                            padding: 20  // Add padding between legend items
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function(value) {
+                            return '$' + value.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        offset: 10  // Increased offset for data labels
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let value = context.raw;
+                                return `${context.dataset.label}: $${value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}`;
+                            }
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        top: 30,    // Add padding at the top
+                        bottom: 10  // Add padding at the bottom
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
                             }
                         }
                     }
                 }
+            }
             });
         }
     </script>
