@@ -286,13 +286,13 @@ if st.button("Calculate Costs"):
     st.subheader("Detailed Line Items")
     
     columns_to_drop = []
-   if billing_term == 'Monthly':
+    if billing_term == 'Monthly':
         columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
         
         # Calculate the sum of all rows except the Total Services Cost row
         mask = data['Cloud Service Description'] != 'Total Services Cost'
-        total_monthly_co_termed = data[mask]['First Month Co-Termed Cost'].astype(float).sum()  # Swapped this
-        total_first_month = data[mask]['Monthly Co-Termed Cost'].astype(float).sum()  # Swapped this
+        total_monthly_co_termed = data[mask]['First Month Co-Termed Cost'].astype(float).sum()
+        total_first_month = data[mask]['Monthly Co-Termed Cost'].astype(float).sum()
         
         # Debug print to verify values
         st.write("Debug - Total Monthly Co-termed (should be 137.50):", total_monthly_co_termed)
