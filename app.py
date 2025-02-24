@@ -253,24 +253,74 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     w_cost = 35  # Prepaid/Cost columns
     w_total = 40 # Total Service Fee
 
-    # Headers
-    pdf.cell(w_desc, 5, "Cloud Service Description", 1)
-    pdf.cell(w_qty, 5, "Unit Quantity", 1)
-    pdf.cell(w_fee, 5, "Annual Unit Fee", 1)
-    pdf.cell(w_lic, 5, "Additional Licenses", 1)
-    pdf.cell(w_cost, 5, "Prepaid Co-Termed Cost", 1)
-    pdf.cell(w_total, 5, "Subscription Term Total Service Fee", 1)
-    pdf.ln()
+    # Function to create multi-line cell and return height used
+    def create_cell(width, height, text, border=1):
+        pdf.multi_cell(width, height, text, border)
+        return pdf.get_y()
+
+    # Headers - First pass to calculate maximum height
+    pdf.set_font("Arial", "B", 7)
+    start_y = pdf.get_y()
+    x_pos = pdf.get_x()
+    max_height = 0
+
+    # Store current position
+    original_x = pdf.get_x()
+    original_y = pdf.get_y()
+
+    # Calculate maximum height needed
+    headers = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", 
+              "Additional Licenses", "Prepaid Co-Termed Cost", "Subscription Term Total Service Fee"]
+    widths = [w_desc, w_qty, w_fee, w_lic, w_cost, w_total]
+
+    # First pass - measure heights
+    for i, header in enumerate(headers):
+        pdf.set_xy(original_x, original_y)
+        y = create_cell(widths[i], 5, header)
+        max_height = max(max_height, y - original_y)
+        original_x += widths[i]
+
+    # Second pass - actually draw headers
+    pdf.set_xy(pdf.get_x(), start_y)
+    x_pos = pdf.get_x()
+    for i, header in enumerate(headers):
+        pdf.set_xy(x_pos, start_y)
+        pdf.multi_cell(widths[i], max_height, header, 1, 'C')
+        x_pos += widths[i]
 
     # Data rows
+    pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
-        pdf.cell(w_desc, 5, str(row['Cloud Service Description']), 1)
-        pdf.cell(w_qty, 5, str(row['Unit Quantity']), 1)
-        pdf.cell(w_fee, 5, f"${float(row['Annual Unit Fee']):,.2f}", 1)
-        pdf.cell(w_lic, 5, str(row['Additional Licenses']), 1)
-        pdf.cell(w_cost, 5, f"${float(row['Prepaid Co-Termed Cost']):,.2f}", 1)
-        pdf.cell(w_total, 5, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1)
-        pdf.ln()
+        start_y = pdf.get_y()
+        x_pos = pdf.get_x()
+        max_height = 5  # minimum height
+
+        # First pass - measure heights
+        original_x = x_pos
+        original_y = start_y
+        
+        values = [
+            str(row['Cloud Service Description']),
+            str(row['Unit Quantity']),
+            f"${float(row['Annual Unit Fee']):,.2f}",
+            str(row['Additional Licenses']),
+            f"${float(row['Prepaid Co-Termed Cost']):,.2f}",
+            f"${float(row['Subscription Term Total Service Fee']):,.2f}"
+        ]
+
+        # Calculate maximum height needed
+        for i, value in enumerate(values):
+            pdf.set_xy(original_x, original_y)
+            y = create_cell(widths[i], 5, value)
+            max_height = max(max_height, y - original_y)
+            original_x += widths[i]
+
+        # Second pass - actually draw cells
+        x_pos = pdf.get_x()
+        for i, value in enumerate(values):
+            pdf.set_xy(x_pos, start_y)
+            pdf.multi_cell(widths[i], max_height, value, 1, 'C')
+            x_pos += widths[i]
 
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
