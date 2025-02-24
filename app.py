@@ -242,6 +242,13 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     # Print data
     pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
+        if row['Cloud Service Description'] == 'Total Services Cost':
+            pdf.set_font("Arial", "B", 7)
+    
+    pdf.cell(w_desc, 6, str(row['Cloud Service Description']), 1, 0, 'L')
+    pdf.cell(w_qty, 6, str(row['Unit Quantity']), 1, 0, 'C')
+    pdf.cell(w_fee, 6, f"${float(row['Annual Unit Fee']):,.2f}", 1, 0, 'R')
+    pdf.cell(w_lic, 6, str(row['Additional Licenses']), 1, 0, 'C')
     
     # Agreement Information Section
     pdf.set_font("Arial", "B", 12)
@@ -370,17 +377,17 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         pdf.cell(w_lic, 6, str(row['Additional Licenses']), 1, 0, 'C')
         
         # Dynamically select the appropriate cost column
-        if billing_term == 'Monthly':
-            cost_value = row.get('First Month Co-Termed Cost', 0)
-        elif billing_term == 'Annual':
-            cost_value = row.get('First Year Co-Termed Cost', 0)
-        else:  # Prepaid
-            cost_value = row.get('Prepaid Co-Termed Cost', 0)
-        
-        pdf.cell(w_cost, 6, f"${float(cost_value):,.2f}", 1, 0, 'R')
-        pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
-        
-        pdf.set_font("Arial", "", 7)
+    if billing_term == 'Monthly':
+        cost_value = row.get('First Month Co-Termed Cost', 0)
+    elif billing_term == 'Annual':
+        cost_value = row.get('First Year Co-Termed Cost', 0)
+    else:  # Prepaid
+        cost_value = row.get('Prepaid Co-Termed Cost', 0)
+    
+    pdf.cell(w_cost, 6, f"${float(cost_value):,.2f}", 1, 0, 'R')
+    pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
+    
+    pdf.set_font("Arial", "", 7)
 
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
