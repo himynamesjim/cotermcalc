@@ -245,7 +245,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.set_font("Arial", "", 10)
     
     # Dynamically adjust cost summary based on billing term
-   if billing_term == 'Monthly':
+    if billing_term == 'Monthly':
         # Find the first month co-termed cost from the Total Services Cost row
         total_row = data[data['Cloud Service Description'] == 'Total Services Cost']
         first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0])
