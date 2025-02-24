@@ -266,13 +266,12 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         x = pdf.get_x()
         y = pdf.get_y()
         
-        # Use multi_cell with a smaller height and explicit line breaks
-        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'], ln=0)
+        # Remove 'ln' parameter and adjust manually
+        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'])
         
         # Move to next column
         pdf.set_xy(x + col['width'], y)
-
-    # Add a line break after headers
+    
     pdf.ln(4)
 
     # Print data
