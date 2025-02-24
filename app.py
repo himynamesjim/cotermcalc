@@ -326,18 +326,19 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
 
     # Print headers
     pdf.set_font("Arial", "B", 7)
-    for col in columns:
-        x = pdf.get_x()
-        y = pdf.get_y()
-        
-        # Reduce cell height and adjust positioning
-        pdf.multi_cell(col['width'], 5, col['title'], border=1, align=col['align'])
-        
-        # Move to next column without changing vertical position
-        pdf.set_xy(x + col['width'], y)
+    x_start = pdf.get_x()
+    y_start = pdf.get_y()
     
-    # Ensure a small line break after headers
-    pdf.ln(2)
+    # Print headers in a single row using cell method
+    pdf.cell(w_desc, 6, 'Cloud Service Description', 1, 0, 'C')
+    pdf.cell(w_qty, 6, 'Unit Quantity', 1, 0, 'C')
+    pdf.cell(w_fee, 6, 'Annual Unit Fee', 1, 0, 'C')
+    pdf.cell(w_lic, 6, 'Additional Licenses', 1, 0, 'C')
+    pdf.cell(w_cost, 6, columns[-2]['title'], 1, 0, 'C')
+    pdf.cell(w_total, 6, columns[-1]['title'], 1, 1, 'C')
+    
+    # Add a small line break
+    pdf.ln(1)
 
     # Print data
     pdf.set_font("Arial", "", 7)
