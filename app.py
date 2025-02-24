@@ -152,97 +152,7 @@ CHART_HTML = """
 </body>
 </html>
 """
-COTERM_TABLE_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        .coterm-table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
-        }
-        .coterm-table th, .coterm-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        .coterm-table th {
-            background-color: #f8f9fa;
-        }
-        .cost-cell {
-            transition: background-color 0.2s;
-        }
-        .cost-cell:hover {
-            background-color: #e9ecef;
-        }
-    </style>
-</head>
-<body>
-    <div id="coterm-table"></div>
-    
-    <script>
-        function renderCoTermTable(data) {
-            const licenses = [0, 20, 40, 60, 80, 100];
-            const months = [3, 6, 12, 24, 36];
-            
-            // Calculate costs using your actual logic
-            function calculateCosts(licenseCount, monthsRemaining) {
-                const annualUnitFee = data.annualUnitFee;
-                const additionalLicenses = licenseCount;
-                
-                // Monthly co-termed cost calculation
-                const monthlyCoTermedCost = (annualUnitFee / 12) * additionalLicenses;
-                
-                // Subscription term total calculation
-                const annualTotalFee = licenseCount * annualUnitFee;
-                const subscriptionTermFee = ((annualTotalFee * monthsRemaining) / 12) + 
-                    ((additionalLicenses * annualUnitFee * monthsRemaining) / 12);
-                
-                return {
-                    monthly: monthlyCoTermedCost.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'USD'
-                    }),
-                    total: subscriptionTermFee.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'USD'
-                    })
-                };
-            }
-            
-            // Create table HTML
-            let html = '<table class="coterm-table">';
-            
-            // Header row
-            html += '<tr><th>Licenses</th>';
-            months.forEach(month => {
-                html += `<th>${month} Months</th>`;
-            });
-            html += '</tr>';
-            
-            // Data rows
-            licenses.forEach(license => {
-                html += `<tr><td>${license}</td>`;
-                months.forEach(month => {
-                    const costs = calculateCosts(license, month);
-                    html += `
-                        <td class="cost-cell">
-                            Monthly: ${costs.monthly}<br>
-                            Total: ${costs.total}
-                        </td>`;
-                });
-                html += '</tr>';
-            });
-            
-            html += '</table>';
-            
-            document.getElementById('coterm-table').innerHTML = html;
-        }
-    </script>
-</body>
-</html>
-"""
+
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
@@ -467,25 +377,6 @@ if st.button("Calculate Costs"):
         </script>
         """,
         height=500
-    )
-   # In your Streamlit app, update the table rendering:
-    st.write("### Co-Term Cost Table")
-    st.write("Reference table showing actual co-termed costs based on license quantity and months remaining")
-    
-    # Get the actual data needed for calculations
-    current_data = {
-        'annualUnitFee': float(data['Annual Unit Fee'].iloc[0]),
-        'unitQuantity': int(data['Unit Quantity'].iloc[0]),
-        'additionalLicenses': int(data['Additional Licenses'].iloc[0])
-    }
-    
-    components.html(
-        COTERM_TABLE_HTML + f"""
-        <script>
-            renderCoTermTable({current_data});
-        </script>
-        """,
-        height=600
     )
     # Now generate the PDF with all the calculated values
     pdf_path = generate_pdf(
