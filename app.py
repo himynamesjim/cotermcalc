@@ -243,84 +243,41 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     # Detailed Line Items
     pdf.set_font("Arial", "B", 7)
     pdf.cell(200, 5, "Detailed Line Items", ln=True)
-    pdf.set_font("Arial", "", 7)
     
     # Set column widths
-    w_desc = 50  # Cloud Service Description
+    w_desc = 60  # Cloud Service Description
     w_qty = 20   # Unit Quantity
     w_fee = 25   # Annual Unit Fee
-    w_lic = 20   # Additional Licenses
-    w_cost = 35  # Prepaid/Cost columns
-    w_total = 40 # Total Service Fee
+    w_lic = 25   # Additional Licenses
+    w_cost = 30  # Prepaid/Cost columns
+    w_total = 30 # Total Service Fee
 
-    # Function to create multi-line cell and return height used
-    def create_cell(width, height, text, border=1):
-        pdf.multi_cell(width, height, text, border)
-        return pdf.get_y()
-
-    # Headers - First pass to calculate maximum height
+    # Headers
     pdf.set_font("Arial", "B", 7)
-    start_y = pdf.get_y()
-    x_pos = pdf.get_x()
-    max_height = 0
+    headers = {
+        w_desc: "Cloud Service Description",
+        w_qty: "Unit Quantity",
+        w_fee: "Annual Unit Fee",
+        w_lic: "Additional Licenses",
+        w_cost: "Prepaid Co-Termed Cost",
+        w_total: "Subscription Term Total Service Fee"
+    }
 
-    # Store current position
-    original_x = pdf.get_x()
-    original_y = pdf.get_y()
+    # Print headers
+    for width, header in headers.items():
+        pdf.cell(width, 10, header, 1, 0, 'C')
+    pdf.ln()
 
-    # Calculate maximum height needed
-    headers = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", 
-              "Additional Licenses", "Prepaid Co-Termed Cost", "Subscription Term Total Service Fee"]
-    widths = [w_desc, w_qty, w_fee, w_lic, w_cost, w_total]
-
-    # First pass - measure heights
-    for i, header in enumerate(headers):
-        pdf.set_xy(original_x, original_y)
-        y = create_cell(widths[i], 5, header)
-        max_height = max(max_height, y - original_y)
-        original_x += widths[i]
-
-    # Second pass - actually draw headers
-    pdf.set_xy(pdf.get_x(), start_y)
-    x_pos = pdf.get_x()
-    for i, header in enumerate(headers):
-        pdf.set_xy(x_pos, start_y)
-        pdf.multi_cell(widths[i], max_height, header, 1, 'C')
-        x_pos += widths[i]
-
-    # Data rows
+    # Print data
     pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
-        start_y = pdf.get_y()
-        x_pos = pdf.get_x()
-        max_height = 5  # minimum height
-
-        # First pass - measure heights
-        original_x = x_pos
-        original_y = start_y
-        
-        values = [
-            str(row['Cloud Service Description']),
-            str(row['Unit Quantity']),
-            f"${float(row['Annual Unit Fee']):,.2f}",
-            str(row['Additional Licenses']),
-            f"${float(row['Prepaid Co-Termed Cost']):,.2f}",
-            f"${float(row['Subscription Term Total Service Fee']):,.2f}"
-        ]
-
-        # Calculate maximum height needed
-        for i, value in enumerate(values):
-            pdf.set_xy(original_x, original_y)
-            y = create_cell(widths[i], 5, value)
-            max_height = max(max_height, y - original_y)
-            original_x += widths[i]
-
-        # Second pass - actually draw cells
-        x_pos = pdf.get_x()
-        for i, value in enumerate(values):
-            pdf.set_xy(x_pos, start_y)
-            pdf.multi_cell(widths[i], max_height, value, 1, 'C')
-            x_pos += widths[i]
+        pdf.cell(w_desc, 6, str(row['Cloud Service Description']), 1, 0, 'L')
+        pdf.cell(w_qty, 6, str(row['Unit Quantity']), 1, 0, 'C')
+        pdf.cell(w_fee, 6, f"${float(row['Annual Unit Fee']):,.2f}", 1, 0, 'R')
+        pdf.cell(w_lic, 6, str(row['Additional Licenses']), 1, 0, 'C')
+        pdf.cell(w_cost, 6, f"${float(row['Prepaid Co-Termed Cost']):,.2f}", 1, 0, 'R')
+        pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 0, 'R')
+        pdf.ln()
 
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
