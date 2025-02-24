@@ -219,48 +219,118 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
 
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
 def generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
-    pdf = FPDF()
+    class PDF(FPDF):
+        def header(self):
+            # Logo (replace 'logo.png' with your actual logo path)
+            self.image('logo.png', 10, 8, 33)  # x, y, width
+            self.ln(40)  # Space after logo
+
+        def footer(self):
+            # Position at 1.5 cm from bottom
+            self.set_y(-15)
+            self.set_font('Arial', 'I', 8)
+            # Page number
+            self.cell(0, 10, f'Page {str(self.page_no())}', 0, 0, 'C')
+
+    # Create PDF object
+    pdf = PDF()
     pdf.add_page()
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(200, 8, "Co-Terming Cost Report", ln=True, align="C")
-    pdf.ln(4)
     
+    # Title section
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, "Co-Terming Cost Report", 0, 1, 'C')
+    pdf.ln(10)
+
+    # Agreement Information Section
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Agreement Information", 0, 1, 'L')
+    pdf.set_font("Arial", "", 10)
+    
+    # Create two columns for agreement info
+    col_width = pdf.w / 2 - 20
+    y_position = pdf.get_y()
+    
+    # Left column
+    pdf.set_xy(10, y_position)
+    pdf.multi_cell(col_width, 6, 
+        f"Date: {datetime.today().strftime('%Y-%m-%d')}\n"
+        f"Customer Name: {customer_name}\n"
+        f"Billing Term: {billing_term}",
+        0, 'L')
+    
+    # Right column
+    pdf.set_xy(10 + col_width + 20, y_position)
+    pdf.multi_cell(col_width, 6,
+        f"Agreement Term: {months_remaining:.2f} months\n"
+        f"Extension Period: {extension_months} months\n"
+        f"Total Term: {months_remaining + extension_months:.2f} months",
+        0, 'L')
+    
+    pdf.ln(10)
+
+    # Cost Summary Section
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Cost Summary", 0, 1, 'L')
+    pdf.set_font("Arial", "", 10)
+    
+    # Format cost summary in two columns
+    y_position = pdf.get_y()
+    
+    # Left column costs
+    pdf.set_xy(10, y_position)
+    pdf.multi_cell(col_width, 6,
+        f"Total Pre-Paid Cost: ${total_prepaid_cost:,.2f}\n"
+        f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}",
+        0, 'L')
+    
+    # Right column costs
+    pdf.set_xy(10 + col_width + 20, y_position)
+    pdf.multi_cell(col_width, 6,
+        f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}\n"
+        f"Subscription Term Total: ${total_subscription_term_fee:,.2f}",
+        0, 'L')
+    
+    pdf.ln(15)
+
+    # Detailed Line Items Section
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Detailed Line Items", 0, 1, 'L')
     pdf.set_font("Arial", "", 8)
-    pdf.cell(200, 5, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=True)
-    pdf.cell(200, 5, f"Customer Name: {customer_name}", ln=True)
-    pdf.cell(200, 5, f"Billing Term: {billing_term}", ln=True)
-    pdf.cell(200, 5, f"Original Remaining Months: {months_remaining:.2f}", ln=True)
-    if extension_months > 0:
-        pdf.cell(200, 5, f"Extension Period: {extension_months} months", ln=True)
-        pdf.cell(200, 5, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
-    pdf.cell(200, 5, f"Total Pre-Paid Cost: ${total_prepaid_cost:,.2f}", ln=True)
-    pdf.cell(200, 5, f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}", ln=True)
-    pdf.cell(200, 5, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
-    pdf.cell(200, 5, f"Subscription Term Total Service Fee: ${total_subscription_term_fee:,.2f}", ln=True)
-    pdf.ln(5)
     
-    pdf.set_font("Arial", "B", 7)
-    pdf.cell(200, 5, "Detailed Line Items", ln=True)
-    pdf.set_font("Arial", "", 5)
-    
+    # Table headers
     headers = list(data.columns)
-    col_widths = [35, 15, 20, 15, 25, 25, 25, 25, 25, 25]  # Adjust these widths as needed
+    col_widths = []
+    table_width = pdf.w - 20  # Total width minus margins
     
+    # Calculate column widths based on content
+    for header in headers:
+        if 'Description' in header:
+            col_widths.append(table_width * 0.25)  # 25% for description
+        elif 'Cost' in header or 'Fee' in header:
+            col_widths.append(table_width * 0.12)  # 12% for cost columns
+        else:
+            col_widths.append(table_width * 0.08)  # 8% for other columns
+
     # Print headers
     for i, header in enumerate(headers):
-        if i < len(col_widths):  # Only print if we have a defined width
-            pdf.cell(col_widths[i], 4, header, border=1, align="C")
+        pdf.cell(col_widths[i], 7, header, 1, 0, 'C')
     pdf.ln()
-    
+
     # Print data rows
-    pdf.set_font("Arial", "", 5)
+    pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
         for i, col in enumerate(headers):
-            if i < len(col_widths):  # Only print if we have a defined width
-                text = str(row[col])
-                pdf.cell(col_widths[i], 4, text, border=1, align="C")
+            value = str(row[col])
+            if 'Cost' in col or 'Fee' in col:
+                # Format currency values
+                try:
+                    value = f"${float(value):,.2f}"
+                except:
+                    pass
+            pdf.cell(col_widths[i], 6, value, 1, 0, 'C')
         pdf.ln()
-    
+
+    # Save the PDF
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
     return pdf_filename
