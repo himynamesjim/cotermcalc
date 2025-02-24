@@ -152,7 +152,77 @@ CHART_HTML = """
 </body>
 </html>
 """
-
+COTERM_TABLE_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .coterm-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .coterm-table th, .coterm-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .coterm-table th {
+            background-color: #f8f9fa;
+        }
+        .cost-cell {
+            transition: background-color 0.2s;
+        }
+        .cost-cell:hover {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div id="coterm-table"></div>
+    
+    <script>
+        function renderCoTermTable(annualUnitFee) {
+            const licenses = [0, 20, 40, 60, 80, 100];
+            const months = [3, 6, 12, 24, 36];
+            
+            // Calculate monthly cost for given licenses and months
+            function calculateCost(licenseCount, monthsRemaining) {
+                const monthlyFee = annualUnitFee / 12;
+                const cost = licenseCount * monthlyFee;
+                return cost.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                });
+            }
+            
+            // Create table HTML
+            let html = '<table class="coterm-table">';
+            
+            // Header row with months
+            html += '<tr><th>Licenses</th>';
+            months.forEach(month => {
+                html += `<th>${month} Months</th>`;
+            });
+            html += '</tr>';
+            
+            // Data rows
+            licenses.forEach(license => {
+                html += `<tr><td>${license}</td>`;
+                months.forEach(month => {
+                    html += `<td class="cost-cell">${calculateCost(license, month)}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            
+            document.getElementById('coterm-table').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
+"""
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
@@ -377,6 +447,21 @@ if st.button("Calculate Costs"):
         </script>
         """,
         height=500
+    )
+    # Add Co-Term Cost Table
+    st.write("### Co-Term Cost Table")
+    st.write("Reference table showing estimated costs based on license quantity and months remaining")
+    
+    # Get the first annual unit fee from the data for the example
+    sample_fee = data['Annual Unit Fee'].iloc[0]
+    
+    components.html(
+        COTERM_TABLE_HTML + f"""
+        <script>
+            renderCoTermTable({sample_fee});
+        </script>
+        """,
+        height=400
     )
     # Now generate the PDF with all the calculated values
     pdf_path = generate_pdf(
