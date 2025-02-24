@@ -229,13 +229,13 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     
     # Left side of header
     pdf.cell(100, 6, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=False)
-    pdf.cell(0, 6, f"Agreement Term: {agreement_term:.2f} months", ln=True)  # Changed from months_remaining to agreement_term
+    pdf.cell(0, 6, f"Original Agreement Term: {agreement_term:.2f} months", ln=True)  # Changed from months_remaining to agreement_term
     
     pdf.cell(100, 6, f"Customer Name: {customer_name}", ln=False)
     pdf.cell(0, 6, f"Extension Period: {extension_months} months", ln=True)
     
     pdf.cell(100, 6, f"Billing Term: {billing_term}", ln=False)
-    pdf.cell(0, 6, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
+    pdf.cell(0, 6, f"Remaining Term: {months_remaining + extension_months:.2f} months", ln=True)
     
     pdf.ln(10)  # Add some space
     
