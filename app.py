@@ -244,12 +244,10 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     for _, row in data.iterrows():
     
     # Agreement Information Section
+    pdf.set_font("Arial", "B", 12)
     pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
     pdf.set_font("Arial", "", 10)
     
-    # Agreement Information Section
-    pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
-    pdf.set_font("Arial", "", 10)
     
     # Left side of header
     pdf.cell(100, 6, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=False)
@@ -353,9 +351,12 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     for col in columns:
         x = pdf.get_x()
         y = pdf.get_y()
-        pdf.multi_cell(col['width'], 5, col['title'], border=1, align=col['align'])
+        
+        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'], ln=0)
+        
         pdf.set_xy(x + col['width'], y)
-    pdf.ln()
+
+    pdf.ln(4)
 
     # Print data
     pdf.set_font("Arial", "", 7)
