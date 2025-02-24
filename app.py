@@ -244,14 +244,33 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.cell(0, 10, "Cost Summary", ln=True, align="L")
     pdf.set_font("Arial", "", 10)
     
+    # Dynamically adjust cost summary based on billing term
+    if billing_term == 'Monthly':
+        first_cost_label = "First Month Co-Termed Cost"
+        first_cost_value = total_first_year_cost  # This should be the first month's co-termed cost
+        second_cost_label = "Subscription Term Total"
+        second_cost_value = total_subscription_term_fee
+    elif billing_term == 'Annual':
+        first_cost_label = "First Year Co-Termed Cost"
+        first_cost_value = total_first_year_cost
+        second_cost_label = "Updated Annual Cost"
+        second_cost_value = total_updated_annual_cost
+    else:  # Prepaid
+        first_cost_label = "Total Pre-Paid Cost"
+        first_cost_value = total_prepaid_cost
+        second_cost_label = "Subscription Term Total"
+        second_cost_value = total_subscription_term_fee
+    
     # Left side of cost summary
-    pdf.cell(100, 6, f"Total Pre-Paid Cost: ${total_prepaid_cost:,.2f}", ln=False)
-    pdf.cell(0, 6, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
+    pdf.cell(100, 6, f"{first_cost_label}: ${first_cost_value:,.2f}", ln=False)
+    pdf.cell(0, 6, f"{second_cost_label}: ${second_cost_value:,.2f}", ln=True)
     
-    pdf.cell(100, 6, f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}", ln=False)
-    pdf.cell(0, 6, f"Subscription Term Total: ${total_subscription_term_fee:,.2f}", ln=True)
+    # For Monthly and Prepaid, show updated annual cost if non-zero
+    if billing_term in ['Monthly', 'Prepaid'] and total_updated_annual_cost > 0:
+        pdf.cell(100, 6, "Updated Annual Cost: $0.00", ln=False)
+        pdf.cell(0, 6, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
     
-    pdf.ln(10)  # Add some space before detailed line items
+    pdf.ln(10)
     
     # Detailed Line Items
     pdf.set_font("Arial", "B", 7)
