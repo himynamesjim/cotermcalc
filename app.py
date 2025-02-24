@@ -224,7 +224,17 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
 
     pdf.add_page()
     
-    # Set column widths
+      # Add logo to the top left
+    try:
+        # Adjust x, y, and width as needed
+        pdf.image('logo.png', x=10, y=10, w=50)  # x=10, y=10 positions it near the top left, w=50 sets width
+    except Exception as e:
+        print(f"Could not add logo: {e}")
+    
+    # Move content down to make room for logo
+    pdf.set_y(25)
+    
+    # Adjust column widths for landscape
     w_desc = 100  # Wider description column
     w_qty = 30    # Narrower other columns
     w_fee = 30
