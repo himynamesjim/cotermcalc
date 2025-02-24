@@ -355,6 +355,36 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     ]
     
     # Print headers
+    pdf.set_font("Arial", "B", 7)
+    
+    # Single row with multi-line headers
+    def print_multiline_header(pdf, width, lines, border=1, align='C'):
+        # Store current position
+        x = pdf.get_x()
+        y = pdf.get_y()
+        
+        # Calculate max height needed
+        max_height = 6  # Base height
+        
+        # Print each line
+        for i, line in enumerate(lines):
+            pdf.set_xy(x, y + (i * 3))  # Slight vertical offset between lines
+            pdf.cell(width, 3, line, border=(border if i == len(lines)-1 else 0), align=align)
+        
+        # Move to next column
+        pdf.set_xy(x + width, y)
+    
+    # Prepare multi-line headers
+    headers = [
+        ['Cloud Service\nDescription'],
+        ['Unit\nQuantity'],
+        ['Annual\nUnit Fee'],
+        ['Additional\nLicenses'],
+        ['First Year\nCo-Termed\nCost'],
+        ['Subscription Term\nTotal\nService Fee']
+    ]
+    
+    # Print headers
     for header in headers:
         print_multiline_header(pdf, w_desc if header[0] == 'Cloud Service\nDescription' else w_qty, header[0])
     
