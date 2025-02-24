@@ -326,42 +326,21 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
 
 
     
-     # Print headers
-    pdf.set_font("Arial", "B", 7)
-    
-    # Single row with multi-line headers
-    def print_multiline_header(pdf, width, lines, border=1, align='C'):
-        # Store current position
-        x = pdf.get_x()
-        y = pdf.get_y()
-        
-        # Calculate max height needed
-        max_height = 6  # Base height
-        
-        # Print each line
-        for i, line in enumerate(lines):
-            pdf.set_xy(x, y + (i * 3))  # Slight vertical offset between lines
-            pdf.cell(width, 3, line, border=(border if i == len(lines)-1 else 0), align=align)
-        
-        # Move to next column
-        pdf.set_xy(x + width, y)
-    
-    # Prepare multi-line headers
-    headers = [
-        ['Cloud Service\nDescription'],
-        ['Unit\nQuantity'],
-        ['Annual\nUnit Fee'],
-        ['Additional\nLicenses'],
-        ['First Year\nCo-Termed\nCost'],
-        ['Subscription Term\nTotal\nService Fee']
-    ]
-    
     # Print headers
-    for header in headers:
-        print_multiline_header(pdf, w_desc if header[0] == 'Cloud Service\nDescription' else w_qty, header[0])
+    pdf.set_font("Arial", "B", 7)
+    x_start = pdf.get_x()
+    y_start = pdf.get_y()
     
-    # Move to next line
-    pdf.ln(6)
+    # Print headers in a single row using cell method
+    pdf.cell(w_desc, 6, 'Cloud Service Description', 1, 0, 'C')
+    pdf.cell(w_qty, 6, 'Unit Quantity', 1, 0, 'C')
+    pdf.cell(w_fee, 6, 'Annual Unit Fee', 1, 0, 'C')
+    pdf.cell(w_lic, 6, 'Additional Licenses', 1, 0, 'C')
+    pdf.cell(w_cost, 6, columns[-2]['title'], 1, 0, 'C')
+    pdf.cell(w_total, 6, columns[-1]['title'], 1, 1, 'C')
+    
+    # Add a small line break
+    pdf.ln(1)
 
     # Print data
     pdf.set_font("Arial", "", 7)
