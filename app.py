@@ -245,7 +245,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.set_font("Arial", "", 10)
     
     # Dynamically adjust cost summary based on billing term
-    if billing_term == 'Monthly':
+   if billing_term == 'Monthly':
         # Find the first month co-termed cost from the Total Services Cost row
         total_row = data[data['Cloud Service Description'] == 'Total Services Cost']
         first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0])
@@ -259,6 +259,10 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         first_cost_value = total_first_year_cost
         second_cost_label = "Updated Annual Cost"
         second_cost_value = total_updated_annual_cost
+        
+        # Add a third line for Subscription Term Total
+        third_cost_label = "Subscription Term Total"
+        third_cost_value = total_subscription_term_fee
     else:  # Prepaid
         first_cost_label = "Total Pre-Paid Cost"
         first_cost_value = total_prepaid_cost
@@ -268,6 +272,12 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     # Left side of cost summary
     pdf.cell(100, 6, f"{first_cost_label}: ${first_cost_value:,.2f}", ln=False)
     pdf.cell(0, 6, f"{second_cost_label}: ${second_cost_value:,.2f}", ln=True)
+    
+    
+    # For Annual billing, add Subscription Term Total
+    if billing_term == 'Annual':
+        pdf.cell(100, 6, "", ln=False)  # Empty left column
+        pdf.cell(0, 6, f"{third_cost_label}: ${third_cost_value:,.2f}", ln=True)
     
     # For Monthly and Prepaid, show updated annual cost if non-zero
     if billing_term in ['Monthly', 'Prepaid'] and total_updated_annual_cost > 0:
