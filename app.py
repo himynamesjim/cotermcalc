@@ -326,42 +326,39 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
 
     # Print headers
     pdf.set_font("Arial", "B", 7)
-    x_start = pdf.get_x()
-    y_start = pdf.get_y()
     
-    # Adjusted cell method with word wrapping
-    def wrapped_cell(pdf, width, height, text, border=0, align='L', fill=False, split_only=False):
-        # Split long words to prevent overflow
-        words = text.split()
-        lines = []
-        current_line = []
+    # Single row with multi-line headers
+    def print_multiline_header(pdf, width, lines, border=1, align='C'):
+        # Store current position
+        x = pdf.get_x()
+        y = pdf.get_y()
         
-        for word in words:
-            test_line = ' '.join(current_line + [word])
-            # If adding this word would exceed width, start a new line
-            if pdf.get_string_width(test_line) > width:
-                lines.append(' '.join(current_line))
-                current_line = [word]
-            else:
-                current_line.append(word)
+        # Calculate max height needed
+        max_height = 6  # Base height
         
-        # Add last line
-        if current_line:
-            lines.append(' '.join(current_line))
+        # Print each line
+        for i, line in enumerate(lines):
+            pdf.set_xy(x, y + (i * 3))  # Slight vertical offset between lines
+            pdf.cell(width, 3, line, border=(border if i == len(lines)-1 else 0), align=align)
         
-        # Use multi_cell for wrapping
-        for line in lines:
-            pdf.multi_cell(width, height, line, border=border, align=align, fill=fill)
+        # Move to next column
+        pdf.set_xy(x + width, y)
     
-    # Headers with word wrapping
-    wrapped_cell(pdf, w_desc, 6, 'Cloud Service Description', 1, 'C')
-    wrapped_cell(pdf, w_qty, 6, 'Unit Quantity', 1, 'C')
-    wrapped_cell(pdf, w_fee, 6, 'Annual Unit Fee', 1, 'C')
-    wrapped_cell(pdf, w_lic, 6, 'Additional Licenses', 1, 'C')
-    wrapped_cell(pdf, w_cost, 6, columns[-2]['title'], 1, 'C')
-    wrapped_cell(pdf, w_total, 6, columns[-1]['title'], 1, 'C')
+    # Prepare multi-line headers
+    headers = [
+        ['Cloud Service\nDescription'],
+        ['Unit\nQuantity'],
+        ['Annual\nUnit Fee'],
+        ['Additional\nLicenses'],
+        ['First Year\nCo-Termed\nCost'],
+        ['Subscription Term\nTotal\nService Fee']
+    ]
     
-    # Move to next line after headers
+    # Print headers
+    for header in headers:
+        print_multiline_header(pdf, w_desc if header[0] == 'Cloud Service\nDescription' else w_qty, header[0])
+    
+    # Move to next line
     pdf.ln(6)
 
     # Print data
