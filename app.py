@@ -480,6 +480,5 @@ if st.button("Calculate Costs"):
         data,
         agreement_term  # Add this parameter
     )
-    )
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
