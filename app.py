@@ -218,7 +218,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Services Cost', 'Subscription Term Total Service Fee'].sum()
 
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
-def generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
+def generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", "B", 12)
@@ -229,7 +229,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     
     # Left side of header
     pdf.cell(100, 6, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=False)
-    pdf.cell(0, 6, f"Agreement Term: {months_remaining:.2f} months", ln=True)
+    pdf.cell(0, 6, f"Agreement Term: {agreement_term:.2f} months", ln=True)  # Changed from months_remaining to agreement_term
     
     pdf.cell(100, 6, f"Customer Name: {customer_name}", ln=False)
     pdf.cell(0, 6, f"Extension Period: {extension_months} months", ln=True)
@@ -477,7 +477,9 @@ if st.button("Calculate Costs"):
         total_first_year_cost,
         total_updated_annual_cost,
         total_subscription_term_fee,
-        data
+        data,
+        agreement_term  # Add this parameter
+    )
     )
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
