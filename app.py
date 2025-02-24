@@ -232,7 +232,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         print(f"Could not add logo: {e}")
     
     # Move content down to make room for logo
-    pdf.set_y(25)
+    pdf.set_y(50)
     
     # Adjust column widths for landscape
     w_desc = 100  # Wider description column
