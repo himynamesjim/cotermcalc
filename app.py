@@ -246,51 +246,29 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     
     # Set column widths
     w_desc = 65  # Cloud Service Description
-    w_qty = 20   # Unit Quantity
+    w_qty = 25   # Unit Quantity
     w_fee = 25   # Annual Unit Fee
     w_lic = 25   # Additional Licenses
     w_cost = 30  # Prepaid Cost
     w_total = 30 # Total Service Fee
 
-    def multi_cell_with_border(w, h, txt, border=1, align='C'):
-        """Helper function to create multi-line cells with proper height"""
+    # Column headers and their widths
+    columns = [
+        {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
+        {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
+        {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
+        {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
+        {'width': w_cost, 'title': 'Prepaid Co-Termed Cost', 'align': 'C'},
+        {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
+    ]
+
+    # Print headers
+    pdf.set_font("Arial", "B", 7)
+    for col in columns:
         x = pdf.get_x()
         y = pdf.get_y()
-        # Write text without border first to get height
-        pdf.multi_cell(w, h, txt, 0, align)
-        height = pdf.get_y() - y
-        # Reset position and write with border
-        pdf.set_xy(x, y)
-        pdf.multi_cell(w, height/2, txt, border, align)
-        pdf.set_xy(x + w, y)
-        return height
-
-    # Print headers with proper wrapping
-    pdf.set_font("Arial", "B", 7)
-    start_y = pdf.get_y()
-    headers = [
-        "Cloud Service Description",
-        "Unit Quantity",
-        "Annual Unit Fee",
-        "Additional Licenses",
-        "Prepaid Co-Termed Cost",
-        "Subscription Term Total Service Fee"
-    ]
-    widths = [w_desc, w_qty, w_fee, w_lic, w_cost, w_total]
-    
-    # First calculate max height
-    max_height = 0
-    x = pdf.get_x()
-    y = pdf.get_y()
-    for i, header in enumerate(headers):
-        pdf.set_xy(x + sum(widths[:i]), y)
-        height = multi_cell_with_border(widths[i], 5, header, 0)
-        max_height = max(max_height, height)
-    
-    # Now print headers with consistent height
-    pdf.set_xy(x, y)
-    for i, header in enumerate(headers):
-        pdf.cell(widths[i], max_height, header, 1, 0, 'C')
+        pdf.multi_cell(col['width'], 5, col['title'], border=1, align=col['align'])
+        pdf.set_xy(x + col['width'], y)
     pdf.ln()
 
     # Print data
@@ -298,7 +276,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     for _, row in data.iterrows():
         if row['Cloud Service Description'] == 'Total Services Cost':
             pdf.set_font("Arial", "B", 7)
-        
+            
         pdf.cell(w_desc, 6, str(row['Cloud Service Description']), 1, 0, 'L')
         pdf.cell(w_qty, 6, str(row['Unit Quantity']), 1, 0, 'C')
         pdf.cell(w_fee, 6, f"${float(row['Annual Unit Fee']):,.2f}", 1, 0, 'R')
