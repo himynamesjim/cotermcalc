@@ -222,7 +222,43 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf = FPDF()
     pdf.add_page()
     
-    # Rest of the existing code...
+    # Set column widths
+    w_desc = 65  # Cloud Service Description
+    w_qty = 25   # Unit Quantity
+    w_fee = 25   # Annual Unit Fee
+    w_lic = 25   # Additional Licenses
+    w_cost = 30  # Cost column
+    w_total = 30 # Total Service Fee
+
+    # Dynamically adjust columns based on billing term
+    if billing_term == 'Monthly':
+        columns = [
+            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
+            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
+            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
+            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
+            {'width': w_cost, 'title': 'First Month Co-Termed Cost', 'align': 'C'},
+            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
+        ]
+    elif billing_term == 'Annual':
+        columns = [
+            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
+            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
+            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
+            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
+            {'width': w_cost, 'title': 'First Year Co-Termed Cost', 'align': 'C'},
+            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
+        ]
+    else:  # Prepaid
+        columns = [
+            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
+            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
+            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
+            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
+            {'width': w_cost, 'title': 'Prepaid Co-Termed Cost', 'align': 'C'},
+            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
+        ]
+    
 
     # Print headers
     pdf.set_font("Arial", "B", 7)
