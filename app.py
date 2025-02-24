@@ -330,13 +330,14 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         x = pdf.get_x()
         y = pdf.get_y()
         
-        # Remove the ln parameter
-        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'])
+        # Reduce cell height and adjust positioning
+        pdf.multi_cell(col['width'], 3, col['title'], border=1, align=col['align'])
         
-        # Manually move to next column
+        # Move to next column without changing vertical position
         pdf.set_xy(x + col['width'], y)
-
-    pdf.ln(4)
+    
+    # Ensure a small line break after headers
+    pdf.ln(2)
 
     # Print data
     pdf.set_font("Arial", "", 7)
