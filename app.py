@@ -182,24 +182,39 @@ COTERM_TABLE_HTML = """
     <div id="coterm-table"></div>
     
     <script>
-        function renderCoTermTable(annualUnitFee) {
+        function renderCoTermTable(data) {
             const licenses = [0, 20, 40, 60, 80, 100];
             const months = [3, 6, 12, 24, 36];
             
-            // Calculate monthly cost for given licenses and months
-            function calculateCost(licenseCount, monthsRemaining) {
-                const monthlyFee = annualUnitFee / 12;
-                const cost = licenseCount * monthlyFee;
-                return cost.toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: 'USD'
-                });
+            // Calculate costs using your actual logic
+            function calculateCosts(licenseCount, monthsRemaining) {
+                const annualUnitFee = data.annualUnitFee;
+                const additionalLicenses = licenseCount;
+                
+                // Monthly co-termed cost calculation
+                const monthlyCoTermedCost = (annualUnitFee / 12) * additionalLicenses;
+                
+                // Subscription term total calculation
+                const annualTotalFee = licenseCount * annualUnitFee;
+                const subscriptionTermFee = ((annualTotalFee * monthsRemaining) / 12) + 
+                    ((additionalLicenses * annualUnitFee * monthsRemaining) / 12);
+                
+                return {
+                    monthly: monthlyCoTermedCost.toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD'
+                    }),
+                    total: subscriptionTermFee.toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD'
+                    })
+                };
             }
             
             // Create table HTML
             let html = '<table class="coterm-table">';
             
-            // Header row with months
+            // Header row
             html += '<tr><th>Licenses</th>';
             months.forEach(month => {
                 html += `<th>${month} Months</th>`;
@@ -210,7 +225,12 @@ COTERM_TABLE_HTML = """
             licenses.forEach(license => {
                 html += `<tr><td>${license}</td>`;
                 months.forEach(month => {
-                    html += `<td class="cost-cell">${calculateCost(license, month)}</td>`;
+                    const costs = calculateCosts(license, month);
+                    html += `
+                        <td class="cost-cell">
+                            Monthly: ${costs.monthly}<br>
+                            Total: ${costs.total}
+                        </td>`;
                 });
                 html += '</tr>';
             });
@@ -448,20 +468,24 @@ if st.button("Calculate Costs"):
         """,
         height=500
     )
-    # Add Co-Term Cost Table
+   # In your Streamlit app, update the table rendering:
     st.write("### Co-Term Cost Table")
-    st.write("Reference table showing estimated costs based on license quantity and months remaining")
+    st.write("Reference table showing actual co-termed costs based on license quantity and months remaining")
     
-    # Get the first annual unit fee from the data for the example
-    sample_fee = data['Annual Unit Fee'].iloc[0]
+    # Get the actual data needed for calculations
+    current_data = {
+        'annualUnitFee': float(data['Annual Unit Fee'].iloc[0]),
+        'unitQuantity': int(data['Unit Quantity'].iloc[0]),
+        'additionalLicenses': int(data['Additional Licenses'].iloc[0])
+    }
     
     components.html(
         COTERM_TABLE_HTML + f"""
         <script>
-            renderCoTermTable({sample_fee});
+            renderCoTermTable({current_data});
         </script>
         """,
-        height=400
+        height=600
     )
     # Now generate the PDF with all the calculated values
     pdf_path = generate_pdf(
