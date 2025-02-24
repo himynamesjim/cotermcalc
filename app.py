@@ -221,24 +221,37 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
 def generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(200, 8, "Co-Terming Cost Report", ln=True, align="C")
-    pdf.ln(4)
+    pdf.set_font("Arial", "B", 12)
     
-    # Agreement Info
-    pdf.set_font("Arial", "", 8)
-    pdf.cell(200, 5, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=True)
-    pdf.cell(200, 5, f"Customer Name: {customer_name}", ln=True)
-    pdf.cell(200, 5, f"Billing Term: {billing_term}", ln=True)
-    pdf.cell(200, 5, f"Original Remaining Months: {months_remaining:.2f}", ln=True)
-    if extension_months > 0:
-        pdf.cell(200, 5, f"Extension Period: {extension_months} months", ln=True)
-        pdf.cell(200, 5, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
-    pdf.cell(200, 5, f"Total Pre-Paid Cost: ${total_prepaid_cost:,.2f}", ln=True)
-    pdf.cell(200, 5, f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}", ln=True)
-    pdf.cell(200, 5, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
-    pdf.cell(200, 5, f"Subscription Term Total Service Fee: ${total_subscription_term_fee:,.2f}", ln=True)
-    pdf.ln(5)
+    # Agreement Information Section
+    pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
+    pdf.set_font("Arial", "", 10)
+    
+    # Left side of header
+    pdf.cell(100, 6, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=False)
+    pdf.cell(0, 6, f"Agreement Term: {months_remaining:.2f} months", ln=True)
+    
+    pdf.cell(100, 6, f"Customer Name: {customer_name}", ln=False)
+    pdf.cell(0, 6, f"Extension Period: {extension_months} months", ln=True)
+    
+    pdf.cell(100, 6, f"Billing Term: {billing_term}", ln=False)
+    pdf.cell(0, 6, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
+    
+    pdf.ln(10)  # Add some space
+    
+    # Cost Summary Section
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Cost Summary", ln=True, align="L")
+    pdf.set_font("Arial", "", 10)
+    
+    # Left side of cost summary
+    pdf.cell(100, 6, f"Total Pre-Paid Cost: ${total_prepaid_cost:,.2f}", ln=False)
+    pdf.cell(0, 6, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
+    
+    pdf.cell(100, 6, f"First Year Co-Termed Cost: ${total_first_year_cost:,.2f}", ln=False)
+    pdf.cell(0, 6, f"Subscription Term Total: ${total_subscription_term_fee:,.2f}", ln=True)
+    
+    pdf.ln(10)  # Add some space before detailed line items
     
     # Detailed Line Items
     pdf.set_font("Arial", "B", 7)
