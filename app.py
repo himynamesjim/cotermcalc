@@ -329,16 +329,40 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     x_start = pdf.get_x()
     y_start = pdf.get_y()
     
-    # Print headers in a single row using cell method
-    pdf.cell(w_desc, 6, 'Cloud Service Description', 1, 0, 'C')
-    pdf.cell(w_qty, 6, 'Unit Quantity', 1, 0, 'C')
-    pdf.cell(w_fee, 6, 'Annual Unit Fee', 1, 0, 'C')
-    pdf.cell(w_lic, 6, 'Additional Licenses', 1, 0, 'C')
-    pdf.cell(w_cost, 6, columns[-2]['title'], 1, 0, 'C')
-    pdf.cell(w_total, 6, columns[-1]['title'], 1, 1, 'C')
+    # Adjusted cell method with word wrapping
+    def wrapped_cell(pdf, width, height, text, border=0, align='L', fill=False, split_only=False):
+        # Split long words to prevent overflow
+        words = text.split()
+        lines = []
+        current_line = []
+        
+        for word in words:
+            test_line = ' '.join(current_line + [word])
+            # If adding this word would exceed width, start a new line
+            if pdf.get_string_width(test_line) > width:
+                lines.append(' '.join(current_line))
+                current_line = [word]
+            else:
+                current_line.append(word)
+        
+        # Add last line
+        if current_line:
+            lines.append(' '.join(current_line))
+        
+        # Use multi_cell for wrapping
+        for line in lines:
+            pdf.multi_cell(width, height, line, border=border, align=align, fill=fill)
     
-    # Add a small line break
-    pdf.ln(1)
+    # Headers with word wrapping
+    wrapped_cell(pdf, w_desc, 6, 'Cloud Service Description', 1, 'C')
+    wrapped_cell(pdf, w_qty, 6, 'Unit Quantity', 1, 'C')
+    wrapped_cell(pdf, w_fee, 6, 'Annual Unit Fee', 1, 'C')
+    wrapped_cell(pdf, w_lic, 6, 'Additional Licenses', 1, 'C')
+    wrapped_cell(pdf, w_cost, 6, columns[-2]['title'], 1, 'C')
+    wrapped_cell(pdf, w_total, 6, columns[-1]['title'], 1, 'C')
+    
+    # Move to next line after headers
+    pdf.ln(6)
 
     # Print data
     pdf.set_font("Arial", "", 7)
