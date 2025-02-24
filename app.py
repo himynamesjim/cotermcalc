@@ -331,7 +331,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         y = pdf.get_y()
         
         # Reduce cell height and adjust positioning
-        pdf.multi_cell(col['width'], 3, col['title'], border=1, align=col['align'])
+        pdf.multi_cell(col['width'], 5, col['title'], border=1, align=col['align'])
         
         # Move to next column without changing vertical position
         pdf.set_xy(x + col['width'], y)
