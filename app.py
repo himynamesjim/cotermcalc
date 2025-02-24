@@ -423,6 +423,7 @@ customer_name = st.text_input("Customer Name:")
 billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid", "Monthly"])
 agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
 months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
+
 # Add extension period option
 add_extension = st.checkbox("Add Agreement Extension?")
 if add_extension:
@@ -432,6 +433,7 @@ if add_extension:
 else:
     extension_months = 0
     total_term = months_remaining
+
 num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
 st.subheader("Enter License Information")
