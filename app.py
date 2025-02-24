@@ -152,6 +152,134 @@ CHART_HTML = """
 </body>
 </html>
 """
+TREND_CHART_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="trendChart" style="width: 100%; height: 400px;"></canvas>
+    
+    <script>
+        function renderTrendChart(data, billingTerm, months) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            // Generate monthly data points
+            const labels = Array.from({length: months}, (_, i) => `Month ${i + 1}`);
+            let datasets = [];
+            
+            if (billingTerm === 'Monthly') {
+                datasets = [
+                    {
+                        label: 'First Month Co-Termed Cost',
+                        data: new Array(months).fill(data.coTermedMonthly),
+                        borderColor: '#8884d8',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'New Monthly Cost',
+                        data: new Array(months).fill(data.newMonthly),
+                        borderColor: '#82ca9d',
+                        tension: 0.1
+                    }
+                ];
+            } else if (billingTerm === 'Annual') {
+                datasets = [
+                    {
+                        label: 'First Year Co-Termed Cost',
+                        data: new Array(months).fill(data.firstYearCoTerm / 12),
+                        borderColor: '#8884d8',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'New Annual Cost',
+                        data: new Array(months).fill(data.newAnnual / 12),
+                        borderColor: '#82ca9d',
+                        tension: 0.1
+                    }
+                ];
+            } else if (billingTerm === 'Prepaid') {
+                datasets = [
+                    {
+                        label: 'Monthly Prepaid Cost',
+                        data: new Array(months).fill(data.coTermedPrepaid / months),
+                        borderColor: '#8884d8',
+                        tension: 0.1
+                    }
+                ];
+            }
+            
+            // Add cumulative cost
+            const cumulativeData = Array.from({length: months}, (_, i) => {
+                const monthlyTotal = datasets.reduce((sum, dataset) => sum + dataset.data[0], 0);
+                return monthlyTotal * (i + 1);
+            });
+            
+            datasets.push({
+                label: 'Cumulative Cost',
+                data: cumulativeData,
+                borderColor: '#ffc658',
+                tension: 0.1,
+                borderDash: [5, 5]
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Cost Trend Analysis',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw;
+                                    return `${context.dataset.label}: $${value.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Cost ($)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Agreement Period'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+"""
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
@@ -373,6 +501,18 @@ if st.button("Calculate Costs"):
         CHART_HTML + f"""
         <script>
             renderChart({chart_data}, '{billing_term}');
+        </script>
+        """,
+        height=500
+    )
+    # Add trend analysis chart
+    st.write("### Cost Trend Analysis")
+    total_months = months_remaining + extension_months
+    
+    components.html(
+        TREND_CHART_HTML + f"""
+        <script>
+            renderTrendChart({chart_data}, '{billing_term}', {total_months});
         </script>
         """,
         height=500
