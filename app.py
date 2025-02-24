@@ -222,30 +222,26 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf = FPDF()
     pdf.add_page()
     
-    # Add logo
-    try:
-        # Adjust the path as needed
-        pdf.image('logo.png', x=10, y=10, w=30)  # x and y position, w is width (height will scale proportionally)
-    except Exception as e:
-        # Optional: print a warning if logo can't be added
-        print(f"Could not add logo: {e}")
-    
-    # Move down the content to make room for the logo
-    pdf.set_y(30)
-    
- pdf.set_font("Arial", "B", 7)
- for col in columns:
-    x = pdf.get_x()
-    y = pdf.get_y()
-    
-    # Use multi_cell with a smaller height and explicit line breaks
-    pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'], ln=0)
-    
-    # Move to next column
-    pdf.set_xy(x + col['width'], y)
+    # Rest of the existing code...
 
-# Add a line break after headers
-pdf.ln(4)
+    # Print headers
+    pdf.set_font("Arial", "B", 7)
+    for col in columns:
+        x = pdf.get_x()
+        y = pdf.get_y()
+        
+        # Use multi_cell with a smaller height and explicit line breaks
+        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'], ln=0)
+        
+        # Move to next column
+        pdf.set_xy(x + col['width'], y)
+
+    # Add a line break after headers
+    pdf.ln(4)
+
+    # Print data
+    pdf.set_font("Arial", "", 7)
+    for _, row in data.iterrows():
     
     # Agreement Information Section
     pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
