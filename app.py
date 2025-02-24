@@ -245,39 +245,37 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.cell(200, 5, "Detailed Line Items", ln=True)
     
     # Set column widths
-    w_desc = 60  # Cloud Service Description
-    w_qty = 20   # Unit Quantity
+    w_desc = 70  # Cloud Service Description
+    w_qty = 25   # Unit Quantity
     w_fee = 25   # Annual Unit Fee
     w_lic = 25   # Additional Licenses
-    w_cost = 30  # Prepaid/Cost columns
-    w_total = 30 # Total Service Fee
-
-    # Headers
-    pdf.set_font("Arial", "B", 7)
-    headers = {
-        w_desc: "Cloud Service Description",
-        w_qty: "Unit Quantity",
-        w_fee: "Annual Unit Fee",
-        w_lic: "Additional Licenses",
-        w_cost: "Prepaid Co-Termed Cost",
-        w_total: "Subscription Term Total Service Fee"
-    }
+    w_cost = 25  # Prepaid Co-Termed Cost
+    w_total = 25 # Total Service Fee
 
     # Print headers
-    for width, header in headers.items():
-        pdf.cell(width, 10, header, 1, 0, 'C')
-    pdf.ln()
+    pdf.set_font("Arial", "B", 7)
+    pdf.cell(w_desc, 10, "Cloud Service Description", 1, 0, 'C')
+    pdf.cell(w_qty, 10, "Unit Quantity", 1, 0, 'C')
+    pdf.cell(w_fee, 10, "Annual Unit Fee", 1, 0, 'C')
+    pdf.cell(w_lic, 10, "Additional Licenses", 1, 0, 'C')
+    pdf.cell(w_cost, 10, "Prepaid Co-Termed Cost", 1, 0, 'C')
+    pdf.cell(w_total, 10, "Subscription Term Total Service Fee", 1, 1, 'C')
 
     # Print data
     pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
+        # Check if this is the total row
+        if row['Cloud Service Description'] == 'Total Services Cost':
+            pdf.set_font("Arial", "B", 7)
+        else:
+            pdf.set_font("Arial", "", 7)
+            
         pdf.cell(w_desc, 6, str(row['Cloud Service Description']), 1, 0, 'L')
         pdf.cell(w_qty, 6, str(row['Unit Quantity']), 1, 0, 'C')
         pdf.cell(w_fee, 6, f"${float(row['Annual Unit Fee']):,.2f}", 1, 0, 'R')
         pdf.cell(w_lic, 6, str(row['Additional Licenses']), 1, 0, 'C')
         pdf.cell(w_cost, 6, f"${float(row['Prepaid Co-Termed Cost']):,.2f}", 1, 0, 'R')
-        pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 0, 'R')
-        pdf.ln()
+        pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
 
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
