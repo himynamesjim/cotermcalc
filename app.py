@@ -220,15 +220,17 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
 def generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term):
     pdf = FPDF()
+    pdf = FPDF(orientation='L', format='A4')
+
     pdf.add_page()
     
     # Set column widths
-    w_desc = 65  # Cloud Service Description
-    w_qty = 25   # Unit Quantity
-    w_fee = 25   # Annual Unit Fee
-    w_lic = 25   # Additional Licenses
-    w_cost = 30  # Cost column
-    w_total = 30 # Total Service Fee
+    w_desc = 100  # Wider description column
+    w_qty = 30    # Narrower other columns
+    w_fee = 30
+    w_lic = 30
+    w_cost = 40
+    w_total = 40
 
     # Agreement Information Section
     pdf.set_font("Arial", "B", 12)
