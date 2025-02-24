@@ -233,7 +233,19 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     # Move down the content to make room for the logo
     pdf.set_y(30)
     
-    pdf.set_font("Arial", "B", 12)
+ pdf.set_font("Arial", "B", 7)
+ for col in columns:
+    x = pdf.get_x()
+    y = pdf.get_y()
+    
+    # Use multi_cell with a smaller height and explicit line breaks
+    pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'], ln=0)
+    
+    # Move to next column
+    pdf.set_xy(x + col['width'], y)
+
+# Add a line break after headers
+pdf.ln(4)
     
     # Agreement Information Section
     pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
