@@ -588,36 +588,3 @@ if st.button("Calculate Costs"):
     )
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
-
-# After calculating costs
-if st.button("Download Email Template"):
-    # Determine the first cost based on billing term
-    if billing_term == 'Annual':
-        first_cost = total_first_year_cost
-    elif billing_term == 'Prepaid':
-        first_cost = total_prepaid_cost
-    else:  # Monthly
-        first_row = data[data['Cloud Service Description'] == 'Total Services Cost']
-        first_cost = float(first_row['First Month Co-Termed Cost'].iloc[0])
-    
-    # Generate email template
-    email_content = generate_email_template(
-        billing_term, 
-        customer_name, 
-        first_cost,
-        total_subscription_term_fee,
-        total_updated_annual_cost
-    )
-    
-    # Create a text file with the email template
-    with open("email_template.txt", "w") as f:
-        f.write(email_content)
-    
-    # Add a download button
-    with open("email_template.txt", "rb") as file:
-        st.download_button(
-            label="Download Email Template",
-            data=file,
-            file_name="email_template.txt",
-            mime="text/plain"
-        )
