@@ -221,7 +221,23 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
 def generate_pdf(customer_name, billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term):
     pdf = FPDF()
     pdf.add_page()
+    
+    # Add logo
+    try:
+        # Adjust the path as needed
+        pdf.image('logo.png', x=10, y=10, w=30)  # x and y position, w is width (height will scale proportionally)
+    except Exception as e:
+        # Optional: print a warning if logo can't be added
+        print(f"Could not add logo: {e}")
+    
+    # Move down the content to make room for the logo
+    pdf.set_y(30)
+    
     pdf.set_font("Arial", "B", 12)
+    
+    # Agreement Information Section
+    pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
+    pdf.set_font("Arial", "", 10)
     
     # Agreement Information Section
     pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
