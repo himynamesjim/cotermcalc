@@ -297,37 +297,47 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.cell(0, 10, "Detailed Line Items", 0, 1, 'L')
     pdf.set_font("Arial", "", 8)
     
-    # Table headers
-    headers = list(data.columns)
-    col_widths = []
-    table_width = pdf.w - 20  # Total width minus margins
+    # Define specific column widths (total should be less than page width which is 210mm)
+    col_widths = [60, 20, 25, 25, 35, 35]  # Widths in mm
     
-    # Calculate column widths based on content
-    for header in headers:
-        if 'Description' in header:
-            col_widths.append(table_width * 0.25)  # 25% for description
-        elif 'Cost' in header or 'Fee' in header:
-            col_widths.append(table_width * 0.12)  # 12% for cost columns
-        else:
-            col_widths.append(table_width * 0.08)  # 8% for other columns
-
-    # Print headers
+    # Table headers
+    headers = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", 
+              "Additional Licenses", "Prepaid Co-Termed Cost", "Subscription Term Total Service Fee"]
+    
+    # Print headers with word wrapping
     for i, header in enumerate(headers):
-        pdf.cell(col_widths[i], 7, header, 1, 0, 'C')
+        pdf.multi_cell(col_widths[i], 5, header, 1, 'C', fill=False)
+        # Move back up and right for next cell
+        pdf.set_xy(pdf.get_x() + col_widths[i], pdf.get_y() - 5)
     pdf.ln()
 
     # Print data rows
-    pdf.set_font("Arial", "", 7)
+    pdf.set_font("Arial", "", 8)
     for _, row in data.iterrows():
+        x_position = pdf.get_x()
+        max_height = 5  # minimum height
+        
+        # First pass: calculate required height
         for i, col in enumerate(headers):
             value = str(row[col])
-            if 'Cost' in col or 'Fee' in col:
-                # Format currency values
-                try:
-                    value = f"${float(value):,.2f}"
-                except:
-                    pass
-            pdf.cell(col_widths[i], 6, value, 1, 0, 'C')
+            if 'Cost' in col or 'Fee' in col and isinstance(row[col], (int, float)):
+                value = f"${float(row[col]):,.2f}"
+            # Calculate height needed for this cell
+            pdf.multi_cell(col_widths[i], 5, value, 1)
+            height = pdf.get_y() - pdf.get_y()
+            max_height = max(max_height, height)
+            pdf.set_xy(x_position, pdf.get_y() - height)
+            x_position += col_widths[i]
+        
+        # Second pass: print with consistent height
+        x_position = pdf.get_x()
+        for i, col in enumerate(headers):
+            value = str(row[col])
+            if 'Cost' in col or 'Fee' in col and isinstance(row[col], (int, float)):
+                value = f"${float(row[col]):,.2f}"
+            pdf.multi_cell(col_widths[i], max_height, value, 1, 'C')
+            pdf.set_xy(x_position + col_widths[i], pdf.get_y() - max_height)
+            x_position += col_widths[i]
         pdf.ln()
 
     # Save the PDF
