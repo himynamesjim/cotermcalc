@@ -330,8 +330,10 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         x = pdf.get_x()
         y = pdf.get_y()
         
-        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'], ln=0)
+        # Remove the ln parameter
+        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'])
         
+        # Manually move to next column
         pdf.set_xy(x + col['width'], y)
 
     pdf.ln(4)
