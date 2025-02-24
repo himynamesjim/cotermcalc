@@ -382,38 +382,82 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.output(pdf_filename)
     return pdf_filename
 
-# After calculating costs
-if st.button("Download Email Template"):
-    # Determine the first cost based on billing term
-    if billing_term == 'Annual':
-        first_cost = total_first_year_cost
-    elif billing_term == 'Prepaid':
-        first_cost = total_prepaid_cost
-    else:  # Monthly
-        first_row = data[data['Cloud Service Description'] == 'Total Services Cost']
-        first_cost = float(first_row['First Month Co-Termed Cost'].iloc[0])
+def generate_email_template(billing_term, customer_name, first_cost, total_subscription_cost, updated_annual_cost=0):
+    # Base template with placeholders for dynamic content
+    email_templates = {
+        'Monthly': f"""Dear {customer_name},
+
+We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.
+
+Cost Summary:
+- First Month Co-Termed Cost: ${first_cost:,.2f}
+- Total Subscription Cost: ${total_subscription_cost:,.2f}
+{'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
+
+Key Details:
+- The first month's co-termed cost reflects your current service adjustments.
+- Your total subscription cost covers the entire term of the agreement.
+
+Next Steps:
+1. Please carefully review the cost breakdown above.
+2. If you approve these terms, kindly reply to this email with your confirmation.
+3. If you have any questions or concerns, please contact our sales team.
+
+We appreciate your continued business and look forward to your approval.
+
+Best regards,
+[Your Company Name] Sales Team""",
+
+        'Annual': f"""Dear {customer_name},
+
+We are writing to inform you about the updated co-terming cost for your annual billing arrangement.
+
+Cost Summary:
+- First Year Co-Termed Cost: ${first_cost:,.2f}
+- Updated Annual Cost: ${updated_annual_cost:,.2f}
+- Total Subscription Cost: ${total_subscription_cost:,.2f}
+
+Key Details:
+- The first year's co-termed cost reflects your current service adjustments.
+- Your total subscription cost covers the entire term of the agreement.
+
+Next Steps:
+1. Please carefully review the cost breakdown above.
+2. If you approve these terms, kindly reply to this email with your confirmation.
+3. If you have any questions or concerns, please contact our sales team.
+
+We appreciate your continued business and look forward to your approval.
+
+Best regards,
+[Your Company Name] Sales Team""",
+
+        'Prepaid': f"""Dear {customer_name},
+
+We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.
+
+Cost Summary:
+- Total Pre-Paid Cost: ${first_cost:,.2f}
+- Total Subscription Cost: ${total_subscription_cost:,.2f}
+{'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
+
+Key Details:
+- The pre-paid cost covers your entire service term.
+- Your total subscription cost reflects the full agreement period.
+
+Next Steps:
+1. Please carefully review the cost breakdown above.
+2. If you approve these terms, kindly reply to this email with your confirmation.
+3. If you have any questions or concerns, please contact our sales team.
+
+We appreciate your continued business and look forward to your approval.
+
+Best regards,
+[Your Company Name] Sales Team"""
+    }
     
-    # Generate email template
-    email_content = generate_email_template(
-        billing_term, 
-        customer_name, 
-        first_cost,
-        total_subscription_term_fee,
-        total_updated_annual_cost
-    )
+    # Return the appropriate template based on billing term
+    return email_templates.get(billing_term, "Invalid billing term")
     
-    # Create a text file with the email template
-    with open("email_template.txt", "w") as f:
-        f.write(email_content)
-    
-    # Add a download button
-    with open("email_template.txt", "rb") as file:
-        st.download_button(
-            label="Download Email Template",
-            data=file,
-            file_name="email_template.txt",
-            mime="text/plain"
-        )
 st.title("Co-Terming Cost Calculator")
 
 st.subheader("Input Form")
@@ -544,3 +588,36 @@ if st.button("Calculate Costs"):
     )
     with open(pdf_path, "rb") as file:
         st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
+
+# After calculating costs
+if st.button("Download Email Template"):
+    # Determine the first cost based on billing term
+    if billing_term == 'Annual':
+        first_cost = total_first_year_cost
+    elif billing_term == 'Prepaid':
+        first_cost = total_prepaid_cost
+    else:  # Monthly
+        first_row = data[data['Cloud Service Description'] == 'Total Services Cost']
+        first_cost = float(first_row['First Month Co-Termed Cost'].iloc[0])
+    
+    # Generate email template
+    email_content = generate_email_template(
+        billing_term, 
+        customer_name, 
+        first_cost,
+        total_subscription_term_fee,
+        total_updated_annual_cost
+    )
+    
+    # Create a text file with the email template
+    with open("email_template.txt", "w") as f:
+        f.write(email_content)
+    
+    # Add a download button
+    with open("email_template.txt", "rb") as file:
+        st.download_button(
+            label="Download Email Template",
+            data=file,
+            file_name="email_template.txt",
+            mime="text/plain"
+        )
