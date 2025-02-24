@@ -230,6 +230,28 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     w_cost = 30  # Cost column
     w_total = 30 # Total Service Fee
 
+    # Agreement Information Section
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
+    pdf.set_font("Arial", "", 10)
+    
+    # Left side of header
+    pdf.cell(100, 6, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=False)
+    pdf.cell(0, 6, f"Agreement Term: {agreement_term:.2f} months", ln=True)
+    
+    pdf.cell(100, 6, f"Customer Name: {customer_name}", ln=False)
+    pdf.cell(0, 6, f"Extension Period: {extension_months} months", ln=True)
+    
+    pdf.cell(100, 6, f"Billing Term: {billing_term}", ln=False)
+    pdf.cell(0, 6, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
+    
+    pdf.ln(10)  # Add some space
+    
+    # Cost Summary Section
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Cost Summary", ln=True, align="L")
+    pdf.set_font("Arial", "", 10)
+    
     # Dynamically adjust columns based on billing term
     if billing_term == 'Monthly':
         columns = [
@@ -258,55 +280,6 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
             {'width': w_cost, 'title': 'Prepaid Co-Termed Cost', 'align': 'C'},
             {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
         ]
-    
-
-    # Print headers
-    pdf.set_font("Arial", "B", 7)
-    for col in columns:
-        x = pdf.get_x()
-        y = pdf.get_y()
-        
-        # Remove 'ln' parameter and adjust manually
-        pdf.multi_cell(col['width'], 4, col['title'], border=1, align=col['align'])
-        
-        # Move to next column
-        pdf.set_xy(x + col['width'], y)
-    
-    pdf.ln(4)
-
-    # Print data
-    pdf.set_font("Arial", "", 7)
-    for _, row in data.iterrows():
-        if row['Cloud Service Description'] == 'Total Services Cost':
-            pdf.set_font("Arial", "B", 7)
-    
-    pdf.cell(w_desc, 6, str(row['Cloud Service Description']), 1, 0, 'L')
-    pdf.cell(w_qty, 6, str(row['Unit Quantity']), 1, 0, 'C')
-    pdf.cell(w_fee, 6, f"${float(row['Annual Unit Fee']):,.2f}", 1, 0, 'R')
-    pdf.cell(w_lic, 6, str(row['Additional Licenses']), 1, 0, 'C')
-    
-    # Agreement Information Section
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
-    pdf.set_font("Arial", "", 10)
-    
-    
-    # Left side of header
-    pdf.cell(100, 6, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=False)
-    pdf.cell(0, 6, f"Agreement Term: {agreement_term:.2f} months", ln=True)
-    
-    pdf.cell(100, 6, f"Customer Name: {customer_name}", ln=False)
-    pdf.cell(0, 6, f"Extension Period: {extension_months} months", ln=True)
-    
-    pdf.cell(100, 6, f"Billing Term: {billing_term}", ln=False)
-    pdf.cell(0, 6, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
-    
-    pdf.ln(10)  # Add some space
-    
-    # Cost Summary Section
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, "Cost Summary", ln=True, align="L")
-    pdf.set_font("Arial", "", 10)
     
     # Dynamically adjust cost summary based on billing term
     if billing_term == 'Monthly':
@@ -350,43 +323,6 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     # Detailed Line Items
     pdf.set_font("Arial", "B", 7)
     pdf.cell(200, 5, "Detailed Line Items", ln=True)
-    
-    # Set column widths
-    w_desc = 65  # Cloud Service Description
-    w_qty = 25   # Unit Quantity
-    w_fee = 25   # Annual Unit Fee
-    w_lic = 25   # Additional Licenses
-    w_cost = 30  # Cost column
-    w_total = 30 # Total Service Fee
-
-    # Dynamically adjust columns based on billing term
-    if billing_term == 'Monthly':
-        columns = [
-            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
-            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
-            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
-            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
-            {'width': w_cost, 'title': 'First Month Co-Termed Cost', 'align': 'C'},
-            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
-        ]
-    elif billing_term == 'Annual':
-        columns = [
-            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
-            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
-            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
-            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
-            {'width': w_cost, 'title': 'First Year Co-Termed Cost', 'align': 'C'},
-            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
-        ]
-    else:  # Prepaid
-        columns = [
-            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
-            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
-            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
-            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
-            {'width': w_cost, 'title': 'Prepaid Co-Termed Cost', 'align': 'C'},
-            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
-        ]
 
     # Print headers
     pdf.set_font("Arial", "B", 7)
@@ -412,17 +348,17 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         pdf.cell(w_lic, 6, str(row['Additional Licenses']), 1, 0, 'C')
         
         # Dynamically select the appropriate cost column
-    if billing_term == 'Monthly':
-        cost_value = row.get('First Month Co-Termed Cost', 0)
-    elif billing_term == 'Annual':
-        cost_value = row.get('First Year Co-Termed Cost', 0)
-    else:  # Prepaid
-        cost_value = row.get('Prepaid Co-Termed Cost', 0)
-    
-    pdf.cell(w_cost, 6, f"${float(cost_value):,.2f}", 1, 0, 'R')
-    pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
-    
-    pdf.set_font("Arial", "", 7)
+        if billing_term == 'Monthly':
+            cost_value = row.get('First Month Co-Termed Cost', 0)
+        elif billing_term == 'Annual':
+            cost_value = row.get('First Year Co-Termed Cost', 0)
+        else:  # Prepaid
+            cost_value = row.get('Prepaid Co-Termed Cost', 0)
+        
+        pdf.cell(w_cost, 6, f"${float(cost_value):,.2f}", 1, 0, 'R')
+        pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
+        
+        pdf.set_font("Arial", "", 7)
 
     pdf_filename = "coterming_report.pdf"
     pdf.output(pdf_filename)
