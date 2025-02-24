@@ -229,13 +229,13 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     
     # Left side of header
     pdf.cell(100, 6, f"Date: {datetime.today().strftime('%Y-%m-%d')}", ln=False)
-    pdf.cell(0, 6, f"Original Agreement Term: {agreement_term:.2f} months", ln=True)  # Changed from months_remaining to agreement_term
+    pdf.cell(0, 6, f"Agreement Term: {agreement_term:.2f} months", ln=True)
     
     pdf.cell(100, 6, f"Customer Name: {customer_name}", ln=False)
     pdf.cell(0, 6, f"Extension Period: {extension_months} months", ln=True)
     
     pdf.cell(100, 6, f"Billing Term: {billing_term}", ln=False)
-    pdf.cell(0, 6, f"Remaining Term: {months_remaining + extension_months:.2f} months", ln=True)
+    pdf.cell(0, 6, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
     
     pdf.ln(10)  # Add some space
     
@@ -245,7 +245,7 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     pdf.set_font("Arial", "", 10)
     
     # Dynamically adjust cost summary based on billing term
-   if billing_term == 'Monthly':
+    if billing_term == 'Monthly':
         # Find the first month co-termed cost from the Total Services Cost row
         total_row = data[data['Cloud Service Description'] == 'Total Services Cost']
         first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0])
@@ -259,8 +259,6 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
         first_cost_value = total_first_year_cost
         second_cost_label = "Updated Annual Cost"
         second_cost_value = total_updated_annual_cost
-        
-        # Add a third line for Subscription Term Total
         third_cost_label = "Subscription Term Total"
         third_cost_value = total_subscription_term_fee
     else:  # Prepaid
@@ -272,7 +270,6 @@ def generate_pdf(customer_name, billing_term, months_remaining, extension_months
     # Left side of cost summary
     pdf.cell(100, 6, f"{first_cost_label}: ${first_cost_value:,.2f}", ln=False)
     pdf.cell(0, 6, f"{second_cost_label}: ${second_cost_value:,.2f}", ln=True)
-    
     
     # For Annual billing, add Subscription Term Total
     if billing_term == 'Annual':
