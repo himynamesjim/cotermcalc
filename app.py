@@ -940,8 +940,11 @@ if st.session_state.active_tab == 'calculator':
                     monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
                     first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
                     
+                    # Current monthly cost
+                    current_monthly = total_current_cost / 12
+                    
                     chart_data = {
-                        "currentCost": float(total_current_cost),
+                        "currentCost": float(current_monthly),
                         "coTermedMonthly": first_month_co_termed,
                         "newMonthly": monthly_co_termed,
                         "subscription": float(total_subscription_term_fee)
@@ -960,7 +963,7 @@ if st.session_state.active_tab == 'calculator':
                         "subscription": float(total_subscription_term_fee)
                     }
                 
-                # Render chart
+                # Now generate the chart using the updated chart data
                 components.html(
                     CHART_HTML + f"""
                     <script>
