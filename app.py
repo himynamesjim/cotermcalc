@@ -220,10 +220,9 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
 def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term):
     pdf = FPDF(orientation='L')
-    pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", "B", 10)
-    pdf.cell(200, 8, "Co-Terming Cost Report", ln=True, align="C")
+    pdf.cell(280, 8, "Co-Terming Cost Report", ln=True, align="C")  # Wider cell for landscape
     pdf.ln(4)
     
       # Add logo to the top left
