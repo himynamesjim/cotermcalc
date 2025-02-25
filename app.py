@@ -250,26 +250,32 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
         subscription_term_total_fee = ((annual_total_fee * total_term) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
         co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12 if billing_term == 'Prepaid' else 0
-        co_termed_prepaid_additional_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12 if billing_term == 'Prepaid' else 0
         co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12 if billing_term == 'Annual' else 0
         updated_annual_cost = annual_total_fee + (row['Additional Licenses'] * row['Annual Unit Fee']) if billing_term == 'Annual' else 0
 
-        # Store calculated values in the dataframe
-        df.at[index, 'Current Monthly Cost'] = current_monthly_cost
-        df.at[index, 'Current Annual Cost'] = current_annual_cost
-        df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
-        df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
-        df.at[index, 'Updated Annual Cost'] = updated_annual_cost
+        # Store calculated values in the dataframe based on billing term
+        if billing_term == 'Monthly':
+            df.at[index, 'Current Monthly Cost'] = current_monthly_cost
+            df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
+            df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
+        elif billing_term == 'Annual':
+            df.at[index, 'Current Annual Cost'] = current_annual_cost
+            df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
+            df.at[index, 'Updated Annual Cost'] = updated_annual_cost
+        else:  # Prepaid
+            df.at[index, 'Current Annual Cost'] = current_annual_cost
+            df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
+            
+        # Always add the subscription term total
         df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
-        df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
-        df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
 
-    # Convert numeric columns to float
+    # Convert numeric columns to float - only convert columns that exist
     numeric_cols = [
         "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
         "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
         "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
     ]
+    
     for col in numeric_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
@@ -805,14 +811,14 @@ if st.session_state.active_tab == 'calculator':
             with results_placeholder.container():
                 st.subheader("Detailed Line Items")
                 
-                # Handle column dropping first
+                # Handle column dropping more thoroughly
                 columns_to_drop = []
                 if billing_term == 'Monthly':
-                    columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+                    columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Current Annual Cost']
                 elif billing_term == 'Annual':
-                    columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
+                    columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'Current Monthly Cost']
                 elif billing_term == 'Prepaid':
-                    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+                    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Current Monthly Cost']
                 
                 # Only drop columns that exist in the dataframe
                 displayed_data = processed_data.copy()
