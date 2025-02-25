@@ -840,11 +840,13 @@ if st.session_state.active_tab == 'calculator':
                 
                 # Show current cost summary
                 st.markdown("### Current Agreement Cost")
-                st.markdown(f"**Current Annual Cost:** ${total_current_cost:,.2f}")
                 
-                # Calculate monthly equivalent for comparison
-                current_monthly = total_current_cost / 12
-                st.markdown(f"**Current Monthly Cost:** ${current_monthly:,.2f}")
+                if billing_term == 'Monthly':
+                    # Calculate monthly equivalent for comparison
+                    current_monthly = total_current_cost / 12
+                    st.markdown(f"**Current Monthly Cost:** ${current_monthly:,.2f}")
+                else:
+                    st.markdown(f"**Current Annual Cost:** ${total_current_cost:,.2f}")
                 
                 # Calculate total licenses (current + additional)
                 total_current_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Services Cost']['Unit Quantity'].sum()
@@ -870,29 +872,57 @@ if st.session_state.active_tab == 'calculator':
                     st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
                 
                 with st.expander("Current vs. New Cost Summary", expanded=True):
-                    # Create a comparison table
-                    comparison_data = {
-                        "Cost Type": ["Current Annual Cost", "New Annual Cost", "Difference", "Percentage Change"],
-                        "Amount": [
-                            f"${total_current_cost:,.2f}",
-                            f"${total_updated_annual_cost:,.2f}",
-                            f"${total_updated_annual_cost - total_current_cost:,.2f}",
-                            f"{((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0:,.2f}%"
-                        ]
-                    }
-                    
-                    comparison_df = pd.DataFrame(comparison_data)
-                    st.table(comparison_df)
-                    
-                    # Add insight about the cost change
-                    if total_updated_annual_cost > total_current_cost:
-                        change_pct = ((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
-                        st.info(f"The new annual cost represents a {change_pct:.1f}% increase from the current cost.")
-                    elif total_updated_annual_cost < total_current_cost:
-                        change_pct = ((total_current_cost - total_updated_annual_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
-                        st.success(f"The new annual cost represents a {change_pct:.1f}% decrease from the current cost.")
+                    # Create a comparison table with billing term-specific labels
+                    if billing_term == 'Monthly':
+                        current_cost_monthly = total_current_cost / 12
+                        new_cost_monthly = total_updated_annual_cost / 12
+                        
+                        comparison_data = {
+                            "Cost Type": ["Current Monthly Cost", "New Monthly Cost", "Difference", "Percentage Change"],
+                            "Amount": [
+                                f"${current_cost_monthly:,.2f}",
+                                f"${new_cost_monthly:,.2f}",
+                                f"${new_cost_monthly - current_cost_monthly:,.2f}",
+                                f"{((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0:,.2f}%"
+                            ]
+                        }
+                        
+                        comparison_df = pd.DataFrame(comparison_data)
+                        st.table(comparison_df)
+                        
+                        # Add insight about the cost change
+                        if new_cost_monthly > current_cost_monthly:
+                            change_pct = ((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
+                            st.info(f"The new monthly cost represents a {change_pct:.1f}% increase from the current cost.")
+                        elif new_cost_monthly < current_cost_monthly:
+                            change_pct = ((current_cost_monthly - new_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
+                            st.success(f"The new monthly cost represents a {change_pct:.1f}% decrease from the current cost.")
+                        else:
+                            st.info("The new monthly cost is identical to the current cost.")
                     else:
-                        st.info("The new annual cost is identical to the current cost.")
+                        # For Annual and Prepaid, show annual costs
+                        comparison_data = {
+                            "Cost Type": ["Current Annual Cost", "New Annual Cost", "Difference", "Percentage Change"],
+                            "Amount": [
+                                f"${total_current_cost:,.2f}",
+                                f"${total_updated_annual_cost:,.2f}",
+                                f"${total_updated_annual_cost - total_current_cost:,.2f}",
+                                f"{((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0:,.2f}%"
+                            ]
+                        }
+                        
+                        comparison_df = pd.DataFrame(comparison_data)
+                        st.table(comparison_df)
+                        
+                        # Add insight about the cost change
+                        if total_updated_annual_cost > total_current_cost:
+                            change_pct = ((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
+                            st.info(f"The new annual cost represents a {change_pct:.1f}% increase from the current cost.")
+                        elif total_updated_annual_cost < total_current_cost:
+                            change_pct = ((total_current_cost - total_updated_annual_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
+                            st.success(f"The new annual cost represents a {change_pct:.1f}% decrease from the current cost.")
+                        else:
+                            st.info("The new annual cost is identical to the current cost.")
                 
                 st.markdown("### Cost Comparison")
                 
