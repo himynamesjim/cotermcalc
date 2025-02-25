@@ -573,7 +573,6 @@ if st.button("Calculate Costs"):
     )
     # Now generate the PDF with all the calculated values
     pdf_path = generate_pdf(
-        customer_name,
         billing_term,
         months_remaining,
         extension_months,
