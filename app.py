@@ -964,14 +964,38 @@ if st.session_state.active_tab == 'calculator':
                     }
                 
                 # Now generate the chart using the updated chart data
-                components.html(
-                    CHART_HTML + f"""
-                    <script>
-                        renderChart({chart_data}, '{billing_term}', '{st.session_state.theme}');
-                    </script>
-                    """,
-                    height=500
-                )
+                try:
+                    # Convert all values to float and ensure they're not None
+                    for key in chart_data:
+                        if chart_data[key] is None:
+                            chart_data[key] = 0.0
+                        else:
+                            chart_data[key] = float(chart_data[key])
+                    
+                    # Add debug info
+                    st.write(f"Debug - Chart data: {chart_data}")
+                    
+                    # Render chart with safety measures
+                    components.html(
+                        CHART_HTML + f"""
+                        <script>
+                            console.log("Starting chart rendering...");
+                            try {{
+                                const chartData = {chart_data};
+                                console.log("Chart data:", JSON.stringify(chartData));
+                                renderChart(chartData, '{billing_term}', '{st.session_state.theme}');
+                                console.log("Chart rendering complete");
+                            }} catch (e) {{
+                                console.error("Error rendering chart:", e);
+                                document.write("<div style='color:red'>Error rendering chart: " + e.message + "</div>");
+                            }}
+                        </script>
+                        """,
+                        height=500
+                    )
+                except Exception as e:
+                    st.error(f"Error generating chart: {str(e)}")
+                    st.warning("Please try recalculating costs or refreshing the page.")
                 
                 # Generate PDF
                 st.subheader("Report Generation")
