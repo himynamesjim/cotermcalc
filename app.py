@@ -838,14 +838,15 @@ if st.session_state.active_tab == 'calculator':
                     "First Month Co-Termed Cost": "${:,.2f}"
                 }).set_properties(**{"white-space": "normal"}))
                 
-                # Show current cost summary
+                # Show current cost summary based on billing term
                 st.markdown("### Current Agreement Cost")
                 
                 if billing_term == 'Monthly':
-                    # Calculate monthly equivalent for comparison
+                    # Show only monthly cost for Monthly billing term
                     current_monthly = total_current_cost / 12
                     st.markdown(f"**Current Monthly Cost:** ${current_monthly:,.2f}")
                 else:
+                    # Show only annual cost for Annual and Prepaid billing terms
                     st.markdown(f"**Current Annual Cost:** ${total_current_cost:,.2f}")
                 
                 # Calculate total licenses (current + additional)
