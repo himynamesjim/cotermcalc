@@ -236,12 +236,12 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid
     pdf.set_y(50)
     
     # Adjust column widths for landscape
-    w_desc = 100  # Wider description column
+    w_desc = 75  # Wider description column
     w_qty = 30    # Narrower other columns
     w_fee = 30
     w_lic = 30
     w_cost = 40
-    w_total = 40
+    w_total = 60
 
     # Agreement Information Section
     pdf.set_font("Arial", "B", 12)
