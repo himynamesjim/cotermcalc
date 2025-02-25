@@ -2,11 +2,97 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from fpdf import FPDF
-
-# At the top of your file with other imports
 import streamlit.components.v1 as components
+import base64
+import io
+import os
 
-# After your imports, add this constant for the chart HTML/JS
+# Set page configuration and theme options
+st.set_page_config(
+    page_title="Co-Terming Cost Calculator",
+    page_icon="💰",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Initialize session state variables if they don't exist
+if 'theme' not in st.session_state:
+    st.session_state.theme = 'light'
+    
+if 'active_tab' not in st.session_state:
+    st.session_state.active_tab = 'calculator'
+
+# Custom CSS for styling
+def local_css():
+    # Define CSS based on current theme
+    if st.session_state.theme == 'dark':
+        bg_color = "#0e1117"
+        text_color = "#ffffff"
+        accent_color = "#4b8bbe"
+        secondary_bg = "#262730"
+    else:
+        bg_color = "#ffffff"
+        text_color = "#31333F"
+        accent_color = "#2E86C1"
+        secondary_bg = "#f0f2f6"
+    
+    return f"""
+    <style>
+    .main-header {{
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: {text_color};
+        margin-bottom: 1rem;
+        text-align: center;
+        background-color: {secondary_bg};
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }}
+    .sub-header {{
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: {accent_color};
+        margin: 1rem 0;
+        padding-top: 1rem;
+        border-top: 1px solid {secondary_bg};
+    }}
+    .info-box {{
+        background-color: {secondary_bg};
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }}
+    .highlight {{
+        color: {accent_color};
+        font-weight: bold;
+    }}
+    .customer-section {{
+        background-color: {secondary_bg};
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }}
+    .email-template {{
+        background-color: {secondary_bg};
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        white-space: pre-wrap;
+        font-family: monospace;
+    }}
+    .footer {{
+        margin-top: 3rem;
+        text-align: center;
+        color: gray;
+        font-size: 0.8rem;
+    }}
+    </style>
+    """
+
+# Apply CSS
+st.markdown(local_css(), unsafe_allow_html=True)
+
+# Chart HTML/JS with dynamic theme support
 CHART_HTML = """
 <!DOCTYPE html>
 <html>
@@ -20,64 +106,76 @@ CHART_HTML = """
     <script>
         Chart.register(ChartDataLabels);
         
-        function renderChart(data, billingTerm) {
+        function renderChart(data, billingTerm, theme) {
             const ctx = document.getElementById('costChart').getContext('2d');
+            
+            // Theme colors
+            const colors = theme === 'dark' ? {
+                backgroundColor: '#1e1e1e',
+                textColor: '#ffffff',
+                gridColor: 'rgba(255, 255, 255, 0.1)',
+                barColors: ['#8884d8', '#82ca9d', '#ffc658']
+            } : {
+                backgroundColor: '#ffffff',
+                textColor: '#31333F',
+                gridColor: 'rgba(0, 0, 0, 0.1)',
+                barColors: ['#8884d8', '#82ca9d', '#ffc658']
+            };
             
             let datasets = [];
             
             if (billingTerm === 'Monthly') {
-                    datasets = [
-                        {
-                            label: 'First Month Co-Termed Cost',  // Changed from 'Co-Termed Monthly Cost'
-                            data: [data.coTermedMonthly || 0],
-                            backgroundColor: '#8884d8'
-                        },
-                        {
-                            label: 'New Monthly Cost',
-                            data: [data.newMonthly || 0],
-                            backgroundColor: '#82ca9d'
-                        },
-                        {
-                            label: 'Total Subscription Cost',
-                            data: [data.subscription || 0],
-                            backgroundColor: '#ffc658'
-                        }
-                    ];
-                }
-             else if (billingTerm === 'Annual') {
+                datasets = [
+                    {
+                        label: 'First Month Co-Termed Cost',
+                        data: [data.coTermedMonthly || 0],
+                        backgroundColor: colors.barColors[0]
+                    },
+                    {
+                        label: 'New Monthly Cost',
+                        data: [data.newMonthly || 0],
+                        backgroundColor: colors.barColors[1]
+                    },
+                    {
+                        label: 'Total Subscription Cost',
+                        data: [data.subscription || 0],
+                        backgroundColor: colors.barColors[2]
+                    }
+                ];
+            }
+            else if (billingTerm === 'Annual') {
                 datasets = [
                     {
                         label: 'First Year Co-Termed Cost',
                         data: [data.firstYearCoTerm],
-                        backgroundColor: '#8884d8'
+                        backgroundColor: colors.barColors[0]
                     },
                     {
                         label: 'New Annual Cost',
                         data: [data.newAnnual],
-                        backgroundColor: '#82ca9d'
+                        backgroundColor: colors.barColors[1]
                     },
                     {
                         label: 'Total Subscription Cost',
                         data: [data.subscription],
-                        backgroundColor: '#ffc658'
+                        backgroundColor: colors.barColors[2]
                     }
                 ];
-                }
+            }
             else if (billingTerm === 'Prepaid') {
-                    console.log('Prepaid data:', data);  // Debug log
-                    datasets = [
-                        {
-                            label: 'Co-Termed Prepaid Cost',
-                            data: [data.coTermedPrepaid || 0],
-                            backgroundColor: '#8884d8'
-                        },
-                        {
-                            label: 'Total Subscription Cost',
-                            data: [data.subscription || 0],
-                            backgroundColor: '#ffc658'
-                        }
-                    ];
-                }
+                datasets = [
+                    {
+                        label: 'Co-Termed Prepaid Cost',
+                        data: [data.coTermedPrepaid || 0],
+                        backgroundColor: colors.barColors[0]
+                    },
+                    {
+                        label: 'Total Subscription Cost',
+                        data: [data.subscription || 0],
+                        backgroundColor: colors.barColors[2]
+                    }
+                ];
+            }
 
             new Chart(ctx, {
                 type: 'bar',
@@ -85,74 +183,87 @@ CHART_HTML = """
                     labels: ['Cost Comparison'],
                     datasets: datasets
                 },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: false  // Remove title padding
-                    },
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            padding: 15,  // Padding between legend items
-                            font: {
-                                size: 12  // Adjust font size if needed
-                            }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
                         },
-                        margin: 0  // Remove extra margin
-                    },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        formatter: function(value) {
-                            return '$' + value.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            });
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                },
+                                color: colors.textColor
+                            },
+                            margin: 0
                         },
-                        font: {
-                            weight: 'bold',
-                            size: 12
-                        },
-                        offset: 8
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let value = context.raw;
-                                return `${context.dataset.label}: $${value.toLocaleString(undefined, {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: function(value) {
+                                return '$' + value.toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2
-                                })}`;
+                                });
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
+                            color: colors.textColor,
+                            offset: 8
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw;
+                                    return `${context.dataset.label}: $${value.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}`;
+                                }
                             }
                         }
-                    }
-                },
-                layout: {
-                    padding: {
-                        top: 10,    // Reduced top padding
-                        bottom: 10
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor,
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor
                             }
                         }
                     }
                 }
-            }
             });
         }
     </script>
 </body>
 </html>
 """
-
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
@@ -218,31 +329,49 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Services Cost', 'Subscription Term Total Service Fee'].sum()
 
     return df, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
-def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term):
+
+def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid_cost, total_first_year_cost, 
+                total_updated_annual_cost, total_subscription_term_fee, data, agreement_term, 
+                customer_name="", customer_email="", account_manager="", company_name="", logo_path=None):
     pdf = FPDF(orientation='L')
     pdf.add_page()
     pdf.set_font("Arial", "B", 10)
-    pdf.cell(280, 8, "Co-Terming Cost Report", ln=True, align="C")  # Wider cell for landscape
+    
+    # Add logo if provided
+    if logo_path and os.path.exists(logo_path):
+        try:
+            pdf.image(logo_path, x=10, y=10, w=50)
+        except Exception as e:
+            print(f"Could not add logo: {e}")
+    
+    # Add title
+    pdf.cell(280, 8, "Co-Terming Cost Report", ln=True, align="C")
     pdf.ln(4)
     
-      # Add logo to the top left
-    try:
-        # Adjust x, y, and width as needed
-        pdf.image('logo.png', x=10, y=10, w=50)  # x=10, y=10 positions it near the top left, w=50 sets width
-    except Exception as e:
-        print(f"Could not add logo: {e}")
-    
-    # Move content down to make room for logo
+    # Move content down to make room for logo if needed
     pdf.set_y(50)
     
     # Adjust column widths for landscape
-    w_desc = 75  # Wider description column
-    w_qty = 30    # Narrower other columns
+    w_desc = 75
+    w_qty = 30
     w_fee = 30
     w_lic = 30
     w_cost = 40
     w_total = 60
 
+    # Customer Information Section
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Customer Information", ln=True, align="L")
+    pdf.set_font("Arial", "", 10)
+    
+    pdf.cell(100, 6, f"Customer: {customer_name}", ln=False)
+    pdf.cell(0, 6, f"Contact Email: {customer_email}", ln=True)
+    
+    pdf.cell(100, 6, f"Account Manager: {account_manager}", ln=False)
+    pdf.cell(0, 6, f"Company: {company_name}", ln=True)
+    
+    pdf.ln(5)
+    
     # Agreement Information Section
     pdf.set_font("Arial", "B", 12)
     pdf.cell(0, 10, "Agreement Information", ln=True, align="L")
@@ -257,7 +386,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid
     pdf.cell(100, 6, f"Billing Term: {billing_term}", ln=False)
     pdf.cell(0, 6, f"Total Term: {months_remaining + extension_months:.2f} months", ln=True)
     
-    pdf.ln(10)  # Add some space
+    pdf.ln(10)
     
     # Cost Summary Section
     pdf.set_font("Arial", "B", 12)
@@ -327,7 +456,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid
     
     # For Monthly and Prepaid, show updated annual cost if non-zero
     if billing_term in ['Monthly', 'Prepaid'] and total_updated_annual_cost > 0:
-        pdf.cell(100, 6, "Updated Annual Cost: $0.00", ln=False)
+        pdf.cell(100, 6, "", ln=False)  # Empty left column
         pdf.cell(0, 6, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
     
     pdf.ln(10)
@@ -335,13 +464,9 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid
     # Detailed Line Items
     pdf.set_font("Arial", "B", 7)
     pdf.cell(200, 5, "Detailed Line Items", ln=True)
-
-
     
     # Print headers
     pdf.set_font("Arial", "B", 7)
-    x_start = pdf.get_x()
-    y_start = pdf.get_y()
     
     # Print headers in a single row using cell method
     pdf.cell(w_desc, 6, 'Cloud Service Description', 1, 0, 'C')
@@ -377,12 +502,19 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_prepaid
         pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
         
         pdf.set_font("Arial", "", 7)
+    
+    # Add footer with company information
+    pdf.ln(10)
+    pdf.set_font("Arial", "I", 8)
+    pdf.cell(0, 6, f"Generated by {company_name}", 0, 0, 'C')
 
-    pdf_filename = "coterming_report.pdf"
-    pdf.output(pdf_filename)
-    return pdf_filename
+    pdf_buffer = io.BytesIO()
+    pdf.output(pdf_buffer)
+    pdf_buffer.seek(0)
+    
+    return pdf_buffer
 
-def generate_email_template(billing_term, customer_name, first_cost, total_subscription_cost, updated_annual_cost=0):
+def generate_email_template(billing_term, customer_name, first_cost, total_subscription_cost, company_name, account_manager, updated_annual_cost=0):
     # Base template with placeholders for dynamic content
     email_templates = {
         'Monthly': f"""Dear {customer_name},
@@ -406,7 +538,8 @@ Next Steps:
 We appreciate your continued business and look forward to your approval.
 
 Best regards,
-[Your Company Name] Sales Team""",
+{account_manager}
+{company_name} Sales Team""",
 
         'Annual': f"""Dear {customer_name},
 
@@ -429,7 +562,8 @@ Next Steps:
 We appreciate your continued business and look forward to your approval.
 
 Best regards,
-[Your Company Name] Sales Team""",
+{account_manager}
+{company_name} Sales Team""",
 
         'Prepaid': f"""Dear {customer_name},
 
@@ -452,137 +586,473 @@ Next Steps:
 We appreciate your continued business and look forward to your approval.
 
 Best regards,
-[Your Company Name] Sales Team"""
+{account_manager}
+{company_name} Sales Team"""
     }
     
     # Return the appropriate template based on billing term
     return email_templates.get(billing_term, "Invalid billing term")
+
+def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
+    # Create a unique key for this button
+    button_id = f"copy_button_{hash(text)}"
     
-st.title("Co-Terming Cost Calculator")
-
-st.subheader("Input Form")
-current_date = datetime.today().strftime('%Y-%m-%d')
-st.text(f"Date: {current_date}")
-billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid", "Monthly"])
-agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
-months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
-
-# Add extension period option
-add_extension = st.checkbox("Add Agreement Extension?")
-if add_extension:
-    extension_months = st.number_input("Extension Period (Months):", min_value=1, value=12, step=1, format="%d")
-    total_term = months_remaining + extension_months
-    st.info(f"Total Term: {total_term:.2f} months")
-else:
-    extension_months = 0
-    total_term = months_remaining
-
-num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
-
-st.subheader("Enter License Information")
-columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
-data = pd.DataFrame(columns=columns)
-
-for i in range(num_items):
-    row_data = {}
-    st.markdown(f"**Item {i+1}**")
-    col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-    row_data["Cloud Service Description"] = col1.text_input(f"Service {i+1}", key=f"service_{i}")
-    row_data["Unit Quantity"] = col2.number_input(f"Qty {i+1}", min_value=0, value=0, step=1, format="%d", key=f"qty_{i}")
-    row_data["Annual Unit Fee"] = col3.number_input(f"Fee {i+1} ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=f"fee_{i}")
-    row_data["Additional Licenses"] = col4.number_input(f"Add Licenses {i+1}", min_value=0, value=0, step=1, format="%d", key=f"add_lic_{i}")
-    
-    new_row = pd.DataFrame([row_data])
-    data = pd.concat([data, new_row], ignore_index=True)
-
-st.subheader("Results")
-if st.button("Calculate Costs"):
-    data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
-        data, 
-        agreement_term, 
-        months_remaining, 
-        extension_months, 
-        billing_term
-    )
-    
-    st.subheader("Detailed Line Items")
-    
-   # Handle column dropping first
-    columns_to_drop = []
-    if billing_term == 'Monthly':
-        columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-    elif billing_term == 'Annual':
-        columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
-    elif billing_term == 'Prepaid':
-        columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
-
-    # Only drop columns that exist in the dataframe
-    existing_columns_to_drop = [col for col in columns_to_drop if col in data.columns]
-    if existing_columns_to_drop:
-        data = data.drop(columns=existing_columns_to_drop)
+    # JavaScript function to copy text to clipboard
+    js_code = f"""
+    <script>
+    function copyToClipboard_{button_id}() {{
+        const el = document.createElement('textarea');
+        el.value = `{text.replace('`', '\\`')}`;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
         
-    data = data.copy()
-    for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "Prepaid Additional Licenses Co-Termed Cost", 
-                "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee", 
-                "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]:
-        if col in data.columns:
-            data[col] = pd.to_numeric(data[col], errors='coerce')
+        // Change button text temporarily
+        const btn = document.getElementById('{button_id}');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Copied!';
+        setTimeout(() => {{
+            btn.innerHTML = originalText;
+        }}, 2000);
+    }}
+    </script>
+    """
     
-    st.dataframe(data.style.format({
-        "Annual Unit Fee": "${:,.2f}",
-        "Prepaid Co-Termed Cost": "${:,.2f}",
-        "First Year Co-Termed Cost": "${:,.2f}",
-        "Updated Annual Cost": "${:,.2f}",
-        "Subscription Term Total Service Fee": "${:,.2f}",
-        "Monthly Co-Termed Cost": "${:,.2f}",
-        "First Month Co-Termed Cost": "${:,.2f}"
-    }).set_properties(**{"white-space": "normal"}))
+    # HTML button that calls the JavaScript function
+    html_button = f"""
+    {js_code}
+    <button id="{button_id}" onclick="copyToClipboard_{button_id}()" 
+    style="background-color: #4CAF50; color: white; padding: 10px 15px; 
+    border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+    {button_text}
+    </button>
+    """
+    
+    return html_button
 
-    st.write("### Cost Comparison")
+# Sidebar for navigation and settings
+with st.sidebar:
+    st.image("https://via.placeholder.com/150x50.png?text=Your+Logo", width=150)
+    st.title("Navigation")
     
-    # Prepare chart data based on billing term
-    if billing_term == 'Monthly':
-        # Get values from the Total Services Cost row
-        total_row = data[data['Cloud Service Description'] == 'Total Services Cost']
-        monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0])      # Will be 250.00
-        first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0])  # Will be 137.50
+    # Navigation menu
+    nav_options = ["Calculator", "Help & Documentation", "About"]
+    nav_selection = st.radio("Go to:", nav_options)
+    
+    # Set the active tab based on navigation selection
+    st.session_state.active_tab = nav_selection.lower().replace(" & ", "_").replace(" ", "_")
+    
+    st.markdown("---")
+    
+    # Theme toggle
+    st.subheader("Settings")
+    theme_options = ["Light", "Dark"]
+    selected_theme = st.radio("Theme:", theme_options, index=0 if st.session_state.theme == 'light' else 1)
+    st.session_state.theme = selected_theme.lower()
+    
+    st.markdown("---")
+    
+    # Uploader for logo
+    st.subheader("Company Logo")
+    uploaded_logo = st.file_uploader("Upload your logo for PDF reports", type=["png", "jpg", "jpeg"])
+    if uploaded_logo:
+        # Save the uploaded file
+        logo_path = "logo.png"
+        with open(logo_path, "wb") as f:
+            f.write(uploaded_logo.getbuffer())
+        st.success("Logo uploaded successfully!")
+    else:
+        logo_path = None
+    
+    st.markdown("---")
+    
+    # App info
+    st.markdown("##### Co-Terming Calculator v1.1")
+    st.markdown("© 2024 Your Company")
+
+# Main content area
+if st.session_state.active_tab == 'calculator':
+    # Custom HTML header
+    st.markdown('<div class="main-header">Co-Terming Cost Calculator</div>', unsafe_allow_html=True)
+    
+    # Create tabs for different sections of the calculator
+    tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
+    
+    with tabs[0]:
+        st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
         
-        chart_data = {
-            "coTermedMonthly": first_month_co_termed,  # This will be 137.50
-            "newMonthly": monthly_co_termed,           # This will be 250.00
-            "subscription": float(total_subscription_term_fee)
-        }
-    elif billing_term == 'Annual':
-        chart_data = {
-            "firstYearCoTerm": float(total_first_year_cost),
-            "newAnnual": float(total_updated_annual_cost),
-            "subscription": float(total_subscription_term_fee)
-        }
-    elif billing_term == 'Prepaid':
-        chart_data = {
-            "coTermedPrepaid": float(total_prepaid_cost),
-            "subscription": float(total_subscription_term_fee)  # Added this line
-        }
+        col1, col2 = st.columns(2)
+        with col1:
+            current_date = datetime.today().strftime('%Y-%m-%d')
+            st.text(f"Date: {current_date}")
+            billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid", "Monthly"])
+        
+        with col2:
+            agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
+            months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
+        
+        # Add extension period option
+        add_extension = st.checkbox("Add Agreement Extension?")
+        if add_extension:
+            extension_months = st.number_input("Extension Period (Months):", min_value=1, value=12, step=1, format="%d")
+            total_term = months_remaining + extension_months
+            st.info(f"Total Term: {total_term:.2f} months")
+        else:
+            extension_months = 0
+            total_term = months_remaining
+            
+    with tabs[1]:
+        st.markdown('<div class="sub-header">Customer Information</div>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
+            customer_email = st.text_input("Customer Email:", placeholder="Enter customer email")
+        
+        with col2:
+            account_manager = st.text_input("Account Manager:", placeholder="Enter account manager name")
+            company_name = st.text_input("Your Company:", value="Your Company Name", placeholder="Enter your company name")
+            
+    with tabs[2]:
+        st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+        
+        num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
+        
+        columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
+                  "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", 
+                  "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
+        data = pd.DataFrame(columns=columns)
+        
+        # Create a container for the line items
+        line_items_container = st.container()
+        
+        with line_items_container:
+            for i in range(num_items):
+                st.markdown(f"**Item {i+1}**")
+                col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+                
+                # Use a unique key for each input to avoid conflicts
+                service_key = f"service_{i}"
+                qty_key = f"qty_{i}"
+                fee_key = f"fee_{i}"
+                add_lic_key = f"add_lic_{i}"
+                
+                # Create input fields for each row
+                service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
+                qty = col2.number_input("Quantity", min_value=0, value=0, step=1, format="%d", key=qty_key)
+                fee = col3.number_input("Annual Fee ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f", key=fee_key)
+                add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=add_lic_key)
+                
+                # Add the row data to our dataframe
+                row_data = {
+                    "Cloud Service Description": service,
+                    "Unit Quantity": qty,
+                    "Annual Unit Fee": fee,
+                    "Additional Licenses": add_lic,
+                }
+                
+                # Append to the dataframe
+                new_row = pd.DataFrame([row_data])
+                data = pd.concat([data, new_row], ignore_index=True)
+        
+        # Add validation for empty service descriptions
+        empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
+        if empty_services.any():
+            st.warning("⚠️ Please enter a description for all services.")
+            
+    with tabs[3]:
+        st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
+        
+        # Check if we have valid data before calculating
+        valid_data = not empty_services.any() and len(data) > 0
+        
+        # Create a placeholder for calculation results
+        results_placeholder = st.empty()
+        
+        # Calculate button
+        calculate_button = st.button("Calculate Costs", disabled=not valid_data, 
+                                     help="Enter all required information to enable calculations")
+        
+        # Store calculation results in session state
+        if "calculation_results" not in st.session_state:
+            st.session_state.calculation_results = None
+            
+        if calculate_button and valid_data:
+            with st.spinner("Calculating costs..."):
+                # Calculate costs
+                processed_data, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
+                    data,
+                    agreement_term,
+                    months_remaining,
+                    extension_months,
+                    billing_term
+                )
+                
+                # Store results in session state
+                st.session_state.calculation_results = {
+                    "processed_data": processed_data,
+                    "total_prepaid_cost": total_prepaid_cost,
+                    "total_first_year_cost": total_first_year_cost,
+                    "total_updated_annual_cost": total_updated_annual_cost,
+                    "total_subscription_term_fee": total_subscription_term_fee
+                }
+                
+            st.success("Calculations completed successfully!")
+            
+        # Display results if available
+        if st.session_state.calculation_results:
+            results = st.session_state.calculation_results
+            processed_data = results["processed_data"]
+            total_prepaid_cost = results["total_prepaid_cost"]
+            total_first_year_cost = results["total_first_year_cost"]
+            total_updated_annual_cost = results["total_updated_annual_cost"]
+            total_subscription_term_fee = results["total_subscription_term_fee"]
+            
+            with results_placeholder.container():
+                st.subheader("Detailed Line Items")
+                
+                # Handle column dropping first
+                columns_to_drop = []
+                if billing_term == 'Monthly':
+                    columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+                elif billing_term == 'Annual':
+                    columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost']
+                elif billing_term == 'Prepaid':
+                    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost']
+                
+                # Only drop columns that exist in the dataframe
+                displayed_data = processed_data.copy()
+                existing_columns_to_drop = [col for col in columns_to_drop if col in displayed_data.columns]
+                if existing_columns_to_drop:
+                    displayed_data = displayed_data.drop(columns=existing_columns_to_drop)
+                
+                # Format numeric columns
+                for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", 
+                            "Updated Annual Cost", "Subscription Term Total Service Fee", 
+                            "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]:
+                    if col in displayed_data.columns:
+                        displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
+                
+                # Display the dataframe with formatting
+                st.dataframe(displayed_data.style.format({
+                    "Annual Unit Fee": "${:,.2f}",
+                    "Prepaid Co-Termed Cost": "${:,.2f}",
+                    "First Year Co-Termed Cost": "${:,.2f}",
+                    "Updated Annual Cost": "${:,.2f}",
+                    "Subscription Term Total Service Fee": "${:,.2f}",
+                    "Monthly Co-Termed Cost": "${:,.2f}",
+                    "First Month Co-Termed Cost": "${:,.2f}"
+                }).set_properties(**{"white-space": "normal"}))
+                
+                st.markdown("### Cost Comparison")
+                
+                # Prepare chart data based on billing term
+                if billing_term == 'Monthly':
+                    # Get values from the Total Services Cost row
+                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Services Cost']
+                    monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
+                    first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
+                    
+                    chart_data = {
+                        "coTermedMonthly": first_month_co_termed,
+                        "newMonthly": monthly_co_termed,
+                        "subscription": float(total_subscription_term_fee)
+                    }
+                elif billing_term == 'Annual':
+                    chart_data = {
+                        "firstYearCoTerm": float(total_first_year_cost),
+                        "newAnnual": float(total_updated_annual_cost),
+                        "subscription": float(total_subscription_term_fee)
+                    }
+                elif billing_term == 'Prepaid':
+                    chart_data = {
+                        "coTermedPrepaid": float(total_prepaid_cost),
+                        "subscription": float(total_subscription_term_fee)
+                    }
+                
+                # Render chart
+                components.html(
+                    CHART_HTML + f"""
+                    <script>
+                        renderChart({chart_data}, '{billing_term}', '{st.session_state.theme}');
+                    </script>
+                    """,
+                    height=500
+                )
+                
+                # Generate PDF
+                st.subheader("Report Generation")
+                
+                # Create columns for download options
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("##### PDF Report")
+                    pdf_buffer = generate_pdf(
+                        billing_term,
+                        months_remaining,
+                        extension_months,
+                        total_prepaid_cost,
+                        total_first_year_cost,
+                        total_updated_annual_cost,
+                        total_subscription_term_fee,
+                        processed_data,
+                        agreement_term,
+                        customer_name,
+                        customer_email,
+                        account_manager,
+                        company_name,
+                        logo_path
+                    )
+                    
+                    st.download_button(
+                        label="Download PDF Report",
+                        data=pdf_buffer,
+                        file_name=f"{customer_name.replace(' ', '_')}_coterming_report.pdf" if customer_name else "coterming_report.pdf",
+                        mime="application/pdf",
+                        key="pdf_download"
+                    )
+            
+    with tabs[4]:
+        st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
+        
+        # Check if we have calculation results
+        if st.session_state.calculation_results:
+            results = st.session_state.calculation_results
+            total_prepaid_cost = results["total_prepaid_cost"]
+            total_first_year_cost = results["total_first_year_cost"]
+            total_updated_annual_cost = results["total_updated_annual_cost"] 
+            total_subscription_term_fee = results["total_subscription_term_fee"]
+            
+            # Determine which cost value to use based on billing term
+            if billing_term == 'Monthly':
+                first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Services Cost']['First Month Co-Termed Cost'].iloc[0]
+            elif billing_term == 'Annual':
+                first_cost = total_first_year_cost
+            else:  # Prepaid
+                first_cost = total_prepaid_cost
+            
+            # Generate email template
+            email_content = generate_email_template(
+                billing_term,
+                customer_name if customer_name else "[Customer Name]",
+                first_cost,
+                total_subscription_term_fee,
+                company_name if company_name else "[Your Company]",
+                account_manager if account_manager else "[Account Manager]",
+                total_updated_annual_cost
+            )
+            
+            # Display email template with copy button
+            st.markdown("### Email Template Preview")
+            st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
+            
+            # Add copy to clipboard button
+            st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
+            
+            # Email subject suggestion
+            st.markdown("### Suggested Email Subject")
+            email_subject = f"Co-Terming Cost Proposal - {customer_name if customer_name else '[Customer Name]'}"
+            st.text_input("Subject Line:", value=email_subject, key="email_subject")
+            
+            # Add copy button for subject line
+            st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
+        else:
+            st.info("Please calculate costs first to generate an email template.")
+
+elif st.session_state.active_tab == 'help_documentation':
+    st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
     
-    components.html(
-        CHART_HTML + f"""
-        <script>
-            renderChart({chart_data}, '{billing_term}');
-        </script>
-        """,
-        height=500
-    )
-    # Now generate the PDF with all the calculated values
-    pdf_path = generate_pdf(
-        billing_term,
-        months_remaining,
-        extension_months,
-        total_prepaid_cost,
-        total_first_year_cost,
-        total_updated_annual_cost,
-        total_subscription_term_fee,
-        data,
-        agreement_term  # Add this parameter
-    )
-    with open(pdf_path, "rb") as file:
-        st.download_button(label="Download PDF", data=file, file_name="coterming_report.pdf", mime="application/pdf")
+    # Create an accordion for different help topics
+    with st.expander("How to Use This Calculator", expanded=True):
+        st.markdown("""
+        ### Basic Usage
+        
+        1. **Agreement Information**: Enter the basic details of the agreement, including billing term, agreement duration, and months remaining.
+        
+        2. **Customer Information**: Enter the customer details to personalize the report and email template.
+        
+        3. **Service Information**: Add the services that are part of the agreement, including quantities and fees.
+        
+        4. **Calculate Costs**: Click the 'Calculate Costs' button to generate the results.
+        
+        5. **Generate Reports**: After calculation, you can download a PDF report or use the generated email template.
+        """)
+    
+    with st.expander("Understanding Billing Terms"):
+        st.markdown("""
+        ### Billing Terms Explained
+        
+        - **Annual**: Billing occurs once per year. The calculator shows the first year co-termed cost and the updated annual cost.
+        
+        - **Monthly**: Billing occurs monthly. The calculator shows the first month co-termed cost and the monthly recurring cost.
+        
+        - **Prepaid**: The entire subscription period is paid upfront. The calculator shows the total prepaid cost.
+        """)
+    
+    with st.expander("Calculation Methodology"):
+        st.markdown("""
+        ### How Costs Are Calculated
+        
+        - **First Month Co-Termed Cost**: For monthly billing, this represents the prorated cost for the first month based on the remaining fraction of the month.
+        
+        - **First Year Co-Termed Cost**: For annual billing, this represents the prorated cost for the first year based on the remaining months in the year.
+        
+        - **Updated Annual Cost**: This is the new annual cost after adding the additional licenses.
+        
+        - **Subscription Term Total Service Fee**: This is the total cost over the entire subscription period, including the extension if applicable.
+        """)
+    
+    with st.expander("Customizing Reports and Emails"):
+        st.markdown("""
+        ### Customization Options
+        
+        - **Company Logo**: Upload your company logo in the sidebar to include it in the PDF report.
+        
+        - **Theme**: Switch between light and dark themes in the sidebar.
+        
+        - **Email Template**: The email template is automatically generated based on the calculation results and customer information. You can copy and customize it as needed.
+        """)
+
+elif st.session_state.active_tab == 'about':
+    st.markdown('<div class="main-header">About This Application</div>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    ### Co-Terming Cost Calculator
+    
+    This application helps sales teams calculate and communicate the costs of co-terming subscription services. It supports various billing terms and provides detailed reports and email templates.
+    
+    ### Features
+    
+    - Support for Annual, Monthly, and Prepaid billing terms
+    - Customizable service line items
+    - Detailed cost breakdown and visualizations
+    - PDF report generation
+    - Email template generation
+    - Light and dark themes
+    - Company logo customization
+    
+    ### Version History
+    
+    - **v1.1** (Current): Added customer information, email templates, and theme options
+    - **v1.0**: Initial release with basic calculation features
+    
+    ### Contact
+    
+    For support or feature requests, please contact your application administrator.
+    """)
+    
+    # Footer with a credit note
+    st.markdown("""
+    <div class="footer">
+    © 2024 Your Company. All rights reserved.
+    </div>
+    """, unsafe_allow_html=True)
+
+# Add a footer to the main application
+st.markdown("""
+<div class="footer">
+Co-Terming Cost Calculator v1.1 | Developed by Your Team
+</div>
+""", unsafe_allow_html=True)
