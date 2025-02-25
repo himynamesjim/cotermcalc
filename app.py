@@ -846,28 +846,28 @@ if st.session_state.active_tab == 'calculator':
                 current_monthly = total_current_cost / 12
                 st.markdown(f"**Current Monthly Cost:** ${current_monthly:,.2f}")
                 
-                    # Calculate total licenses (current + additional)
-                    total_current_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Services Cost']['Unit Quantity'].sum()
-                    total_additional_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Services Cost']['Additional Licenses'].sum()
-                    total_licenses = total_current_licenses + total_additional_licenses
-                    
-                    # Display license summary
-                    st.markdown("### License Summary")
-                    license_data = {
-                        "License Type": ["Current Licenses", "Additional Licenses", "Total Licenses"],
-                        "Count": [
-                            f"{int(total_current_licenses)}",
-                            f"{int(total_additional_licenses)}",
-                            f"{int(total_licenses)}"
-                        ]
-                    }
-                    
-                    license_df = pd.DataFrame(license_data)
-                    st.table(license_df)
-                    
-                    if total_additional_licenses > 0:
-                        increase_pct = (total_additional_licenses / total_current_licenses * 100) if total_current_licenses > 0 else 0
-                        st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
+                # Calculate total licenses (current + additional)
+                total_current_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Services Cost']['Unit Quantity'].sum()
+                total_additional_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Services Cost']['Additional Licenses'].sum()
+                total_licenses = total_current_licenses + total_additional_licenses
+                
+                # Display license summary
+                st.markdown("### License Summary")
+                license_data = {
+                    "License Type": ["Current Licenses", "Additional Licenses", "Total Licenses"],
+                    "Count": [
+                        f"{int(total_current_licenses)}",
+                        f"{int(total_additional_licenses)}",
+                        f"{int(total_licenses)}"
+                    ]
+                }
+                
+                license_df = pd.DataFrame(license_data)
+                st.table(license_df)
+                
+                if total_additional_licenses > 0:
+                    increase_pct = (total_additional_licenses / total_current_licenses * 100) if total_current_licenses > 0 else 0
+                    st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
                 
                 with st.expander("Current vs. New Cost Summary", expanded=True):
                     # Create a comparison table
