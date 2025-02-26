@@ -652,14 +652,14 @@ def nav_buttons(current_tab_idx, total_tabs):
             back_button = st.button("← Back", key=f"back_button_{current_tab_idx}")
             if back_button:
                 change_tab(current_tab_idx - 1)
-                st.experimental_rerun()
+                st.rerun()
     
     with col2:
         if current_tab_idx < total_tabs - 1:
             next_button = st.button("Next →", key=f"next_button_{current_tab_idx}")
             if next_button:
                 change_tab(current_tab_idx + 1)
-                st.experimental_rerun()
+                st.rerun()
 
 # Sidebar for navigation and settings
 with st.sidebar:
