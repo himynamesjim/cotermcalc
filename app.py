@@ -514,7 +514,7 @@ Current Agreement:
 Updated Cost Summary:
 - First Month Co-Termed Cost: ${first_cost:,.2f}
 - Total Subscription Cost: ${total_subscription_cost:,.2f}
-{'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
+{f'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
 
 Key Details:
 - The first month's co-termed cost reflects your current service adjustments.
@@ -568,7 +568,7 @@ Current Agreement:
 Updated Cost Summary:
 - Total Pre-Paid Cost: ${first_cost:,.2f}
 - Total Subscription Cost: ${total_subscription_cost:,.2f}
-{'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
+{f'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
 
 Key Details:
 - The pre-paid cost covers your entire service term.
