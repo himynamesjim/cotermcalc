@@ -675,6 +675,14 @@ if st.session_state.active_tab == 'calculator':
     
     # Create tabs for different sections of the calculator
     tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
+elif st.session_state.active_tab == 'results':
+    # If coming from services tab, automatically select the results tab
+    st.markdown('<div class="main-header">Co-Terming Cost Calculator</div>', unsafe_allow_html=True)
+    
+    # Create tabs with Results selected
+    tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
+    # Set the active tab to Results (index 3)
+    tabs[3].markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
     
     with tabs[0]:
         st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
@@ -761,13 +769,18 @@ if st.session_state.active_tab == 'calculator':
     with tabs[3]:
         st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
         
-        # Check if we have valid data before calculating
-        valid_data = not empty_services.any() and len(data) > 0
+        # Check if we have service data in session state from the Services tab
+        if 'service_data' in st.session_state:
+            data = st.session_state.service_data
+            valid_data = True
+        else:
+            # Check if we have valid data before calculating
+            valid_data = not empty_services.any() and len(data) > 0
         
         # Create a placeholder for calculation results
         results_placeholder = st.empty()
         
-        # Calculate button
+        # Calculate button on the results page
         calculate_button = st.button("Calculate Costs", disabled=not valid_data, 
                                      help="Enter all required information to enable calculations")
         
