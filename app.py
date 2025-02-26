@@ -436,7 +436,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
 
     # Create Total Services Cost row
     total_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Services Cost"],
+        "Cloud Service Description": ["Total Licensing Cost"],
         "Unit Quantity": ["-"],
         "Additional Licenses": ["-"],
     })
@@ -447,22 +447,22 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             total_row[col] = df[col].sum()
 
     # Remove any existing total row to prevent duplicates
-    df = df[df["Cloud Service Description"] != "Total Services Cost"]
+    df = df[df["Cloud Service Description"] != "Total Licensing Cost"]
 
     # Concatenate the total row
     df = pd.concat([df, total_row], ignore_index=True)
 
     # Calculate the final totals for the PDF
     if 'Current Annual Cost' in df.columns:
-        total_current_cost = df.loc[df['Cloud Service Description'] != 'Total Services Cost', 'Current Annual Cost'].sum()
+        total_current_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Current Annual Cost'].sum()
     if 'Prepaid Co-Termed Cost' in df.columns:
-        total_prepaid_cost = df.loc[df['Cloud Service Description'] != 'Total Services Cost', 'Prepaid Co-Termed Cost'].sum()
+        total_prepaid_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Prepaid Co-Termed Cost'].sum()
     if 'First Year Co-Termed Cost' in df.columns:
-        total_first_year_cost = df.loc[df['Cloud Service Description'] != 'Total Services Cost', 'First Year Co-Termed Cost'].sum()
+        total_first_year_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'First Year Co-Termed Cost'].sum()
     if 'Updated Annual Cost' in df.columns:
-        total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Services Cost', 'Updated Annual Cost'].sum()
+        total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
     if 'Subscription Term Total Service Fee' in df.columns:
-        total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Services Cost', 'Subscription Term Total Service Fee'].sum()
+        total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
 
     return df, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
 
@@ -554,7 +554,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     # Dynamically adjust cost summary based on billing term
     if billing_term == 'Monthly':
         # Find the first month co-termed cost from the Total Services Cost row
-        total_row = data[data['Cloud Service Description'] == 'Total Services Cost']
+        total_row = data[data['Cloud Service Description'] == 'Total Licensing Cost']
         first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0])
         
         first_cost_label = "First Month Co-Termed Cost"
@@ -611,7 +611,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     # Print data
     pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
-        if row['Cloud Service Description'] == 'Total Services Cost':
+        if row['Cloud Service Description'] == 'Total Licensing Cost':
             pdf.set_font("Arial", "B", 7)
         
         pdf.cell(w_desc, 6, str(row['Cloud Service Description']), 1, 0, 'L')
@@ -792,7 +792,7 @@ if st.session_state.active_tab == 'calculator':
     st.markdown('<div class="main-header">Co-Terming Cost Calculator</div>', unsafe_allow_html=True)
     
     # Create tabs without the Customer Info tab
-    tabs = st.tabs(["Agreement Info", "Services", "Results", "Email Template"])
+    tabs = st.tabs(["Agreement Info", "Licensing", "Results", "Email Template"])
     
     with tabs[0]:
         st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
@@ -903,7 +903,7 @@ if st.session_state.active_tab == 'calculator':
             extension_months = 0
             total_term = months_remaining
             
-    with tabs[1]:  # Services tab (previously tabs[2])
+    with tabs[1]:  # Licensing tab (previously tabs[2])
         st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
         
         num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
@@ -948,7 +948,7 @@ if st.session_state.active_tab == 'calculator':
         # Add validation for empty service descriptions
         empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
         if empty_services.any():
-            st.warning("⚠️ Please enter a description for all services.")
+            st.warning("⚠️ Please enter a description for all licenses.")
         
             
     with tabs[2]:
@@ -1049,8 +1049,8 @@ if st.session_state.active_tab == 'calculator':
                     st.markdown(f"**Current Annual Cost:** ${total_current_cost:,.2f}")
                 
                 # Calculate total licenses (current + additional)
-                total_current_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Services Cost']['Unit Quantity'].sum()
-                total_additional_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Services Cost']['Additional Licenses'].sum()
+                total_current_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Licensing Cost']['Unit Quantity'].sum()
+                total_additional_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Licensing Cost']['Additional Licenses'].sum()
                 total_licenses = total_current_licenses + total_additional_licenses
                 
                 # Display license summary
@@ -1129,7 +1129,7 @@ if st.session_state.active_tab == 'calculator':
                 # Prepare chart data based on billing term
                 if billing_term == 'Monthly':
                     # Get values from the Total Services Cost row
-                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Services Cost']
+                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
                     monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
                     first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
                     
@@ -1230,7 +1230,7 @@ if st.session_state.active_tab == 'calculator':
             
             # Determine which cost value to use based on billing term
             if billing_term == 'Monthly':
-                first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Services Cost']['First Month Co-Termed Cost'].iloc[0]
+                first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
             elif billing_term == 'Annual':
                 first_cost = total_first_year_cost
             else:  # Prepaid
