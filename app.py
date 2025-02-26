@@ -770,7 +770,7 @@ def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
 
 # Sidebar for navigation and settings
 with st.sidebar:
-    st.image("https://via.placeholder.com/150x50.png?text=Your+Logo", width=150)
+    st.image("logo.png", width=150)
     st.title("Navigation")
     
     # Navigation menu
