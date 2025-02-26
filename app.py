@@ -502,16 +502,16 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     return pdf_buffer
 
 def generate_email_template(billing_term, customer_name, current_cost, first_cost, total_subscription_cost, company_name, account_manager, updated_annual_cost=0):
-    # Common parts
-    greeting = "Dear " + str(customer_name) + ",\n\n"
-    footer = "\nWe appreciate your continued business and look forward to your approval.\n\nBest regards,\n" + str(account_manager) + "\n" + str(company_name) + " Sales Team"
-    next_steps = "\nNext Steps:\n1. Please carefully review the cost breakdown above.\n2. If you approve these terms, kindly reply to this email with your confirmation.\n3. If you have any questions or concerns, please contact our sales team."
-    
     # Format currency values
     current_cost_str = "${:,.2f}".format(current_cost)
     first_cost_str = "${:,.2f}".format(first_cost)
     total_subscription_cost_str = "${:,.2f}".format(total_subscription_cost)
     updated_annual_cost_str = "${:,.2f}".format(updated_annual_cost)
+    
+    # Common parts
+    greeting = "Dear " + str(customer_name) + ",\n\n"
+    footer = "\nWe appreciate your continued business and look forward to your approval.\n\nBest regards,\n" + str(account_manager) + "\n" + str(company_name) + " Sales Team"
+    next_steps = "\nNext Steps:\n1. Please carefully review the cost breakdown above.\n2. If you approve these terms, kindly reply to this email with your confirmation.\n3. If you have any questions or concerns, please contact our sales team."
     
     if billing_term == 'Monthly':
         body = "We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.\n\n"
