@@ -22,6 +22,10 @@ if 'theme' not in st.session_state:
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 'calculator'
 
+# For tab navigation
+if 'current_tab' not in st.session_state:
+    st.session_state.current_tab = 0
+
 # Custom CSS for styling
 def local_css():
     # Define CSS based on current theme
@@ -669,20 +673,25 @@ with st.sidebar:
     st.markdown("© 2024 Your Company")
 
 # Main content area
-if st.session_state.active_tab == 'calculator':
+if st.session_state.active_tab in ['calculator', 'results']:
     # Custom HTML header
     st.markdown('<div class="main-header">Co-Terming Cost Calculator</div>', unsafe_allow_html=True)
     
     # Create tabs for different sections of the calculator
-    tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
-elif st.session_state.active_tab == 'results':
-    # If coming from services tab, automatically select the results tab
-    st.markdown('<div class="main-header">Co-Terming Cost Calculator</div>', unsafe_allow_html=True)
+    tab_titles = ["Agreement Info", "Customer Info", "Services", "Results", "Email Template"]
     
-    # Create tabs with Results selected
-    tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
-    # Set the active tab to Results (index 3)
-    tabs[3].markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
+    # Figure out which tab to show by default
+    if st.session_state.active_tab == 'results' and 'current_tab' in st.session_state:
+        # If coming from services page calculation, start on results tab
+        active_tab_index = st.session_state.current_tab
+    else:
+        # Otherwise use the stored tab index or default to 0
+        active_tab_index = st.session_state.current_tab if 'current_tab' in st.session_state else 0
+    
+    tabs = st.tabs(tab_titles)
+    
+    # Use the active tab
+    current_tab = active_tab_index
     
     with tabs[0]:
         st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
