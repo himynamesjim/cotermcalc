@@ -652,7 +652,8 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 
     # Create BytesIO buffer and output PDF to it
     pdf_buffer = io.BytesIO()
-    pdf.output(pdf_buffer)
+    pdf_data = pdf.output(dest='S').encode('latin1')  # Get PDF as string and encode it
+    pdf_buffer.write(pdf_data)
     pdf_buffer.seek(0)
     
     return pdf_buffer
