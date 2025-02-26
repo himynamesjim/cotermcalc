@@ -1232,14 +1232,14 @@ if st.session_state.active_tab == 'calculator':
                     logo_path
                 )
                     
-                    # In the Results tab, update the download button
-                    st.download_button(
-                        label="Download PDF Report",
-                        data=pdf_buffer,
-                        file_name="coterming_report.pdf",
-                        mime="application/pdf",
-                        key="pdf_download"
-                    )
+                # In the Results tab, update the download button
+                st.download_button(
+                    label="Download PDF Report",
+                    data=pdf_buffer,
+                    file_name="coterming_report.pdf",
+                    mime="application/pdf",
+                    key="pdf_download"
+                )
     with tabs[3]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
