@@ -581,7 +581,8 @@ def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     """
     
     # HTML button that calls the JavaScript function
-    html_button = f"""{js_code}
+    html_button = f"""
+    {js_code}
     <button 
         id='{button_id}' 
         onclick='copyToClipboard_{button_id}()' 
