@@ -772,19 +772,31 @@ with st.sidebar:
     st.markdown("##### Co-Terming Calculator v1.1")
     st.markdown("© 2024 Your Company")
 
-# Main content area
-# Main content area
+# Main content area# Main content area
 if st.session_state.active_tab == 'calculator':
     # Custom HTML header
     st.markdown('<div class="main-header">Co-Terming Cost Calculator</div>', unsafe_allow_html=True)
     
-    # Create tabs for different sections of the calculator
-    tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
+    # Create tabs without the Customer Info tab
+    tabs = st.tabs(["Agreement Info", "Services", "Results", "Email Template"])
     
     with tabs[0]:
         st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
         
-        # Create a more visually balanced layout with 2 columns
+        # Create customer info fields at the top of Agreement tab
+        customer_col1, customer_col2 = st.columns(2)
+        with customer_col1:
+            customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
+            account_manager = st.text_input("Account Manager:", placeholder="Enter account manager name")
+        
+        with customer_col2:
+            customer_email = st.text_input("Customer Email:", placeholder="Enter customer email")
+            company_name = st.text_input("Your Company:", value="Your Company Name", placeholder="Enter your company name")
+        
+        # Add a separator
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+        
+        # Agreement info section
         left_col, right_col = st.columns(2)
         
         with left_col:
@@ -887,17 +899,52 @@ if st.session_state.active_tab == 'calculator':
             extension_months = 0
             total_term = months_remaining
             
-    with tabs[1]:
-        st.markdown('<div class="sub-header">Customer Information</div>', unsafe_allow_html=True)
+    with tabs[1]:  # Services tab (previously tabs[2])
+        st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
         
-        col1, col2 = st.columns(2)
-        with col1:
-            customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
-            customer_email = st.text_input("Customer Email:", placeholder="Enter customer email")
+        num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
         
-        with col2:
-            account_manager = st.text_input("Account Manager:", placeholder="Enter account manager name")
-            company_name = st.text_input("Your Company:", value="Your Company Name", placeholder="Enter your company name")
+        columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
+                  "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", 
+                  "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
+        data = pd.DataFrame(columns=columns)
+        
+        # Create a container for the line items
+        line_items_container = st.container()
+        
+        with line_items_container:
+            for i in range(num_items):
+                st.markdown(f"**Item {i+1}**")
+                col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+                
+                # Use a unique key for each input to avoid conflicts
+                service_key = f"service_{i}"
+                qty_key = f"qty_{i}"
+                fee_key = f"fee_{i}"
+                add_lic_key = f"add_lic_{i}"
+                
+                # Create input fields for each row
+                service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
+                qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=qty_key)
+                fee = col3.number_input("Annual Fee ($)", min_value=0.0, value=1000.0, step=100.0, format="%.2f", key=fee_key)
+                add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=add_lic_key)
+                
+                # Add the row data to our dataframe
+                row_data = {
+                    "Cloud Service Description": service,
+                    "Unit Quantity": qty,
+                    "Annual Unit Fee": fee,
+                    "Additional Licenses": add_lic,
+                }
+                
+                # Append to the dataframe
+                new_row = pd.DataFrame([row_data])
+                data = pd.concat([data, new_row], ignore_index=True)
+        
+        # Add validation for empty service descriptions
+        empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
+        if empty_services.any():
+            st.warning("⚠️ Please enter a description for all services.")
             
     with tabs[2]:
         st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
