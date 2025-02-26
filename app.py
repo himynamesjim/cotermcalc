@@ -1218,7 +1218,7 @@ if st.session_state.active_tab == 'calculator':
                 
                 with col1:
                     st.markdown("##### PDF Report")
-                  pdf_buffer = generate_pdf(
+                pdf_buffer = generate_pdf(
                     billing_term,
                     months_remaining,
                     extension_months,
