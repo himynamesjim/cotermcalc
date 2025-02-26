@@ -1049,9 +1049,21 @@ if st.session_state.active_tab == 'calculator':
                     st.markdown(f"**Current Annual Cost:** ${total_current_cost:,.2f}")
                 
                 # Calculate total licenses (current + additional)
-                total_current_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Licensing Cost']['Unit Quantity'].sum()
-                total_additional_licenses = processed_data[processed_data['Cloud Service Description'] != 'Total Licensing Cost']['Additional Licenses'].sum()
+                # Convert columns to numeric values to avoid errors when summing
+                processed_data["Unit Quantity"] = pd.to_numeric(processed_data["Unit Quantity"], errors="coerce").fillna(0)
+                processed_data["Additional Licenses"] = pd.to_numeric(processed_data["Additional Licenses"], errors="coerce").fillna(0)
+                
+                # Now safely calculate the total licenses
+                total_current_licenses = processed_data.loc[
+                    processed_data["Cloud Service Description"] != "Total Licensing Cost", "Unit Quantity"
+                ].sum()
+                
+                total_additional_licenses = processed_data.loc[
+                    processed_data["Cloud Service Description"] != "Total Licensing Cost", "Additional Licenses"
+                ].sum()
+                
                 total_licenses = total_current_licenses + total_additional_licenses
+
                 
                 # Display license summary
                 st.markdown("### License Summary")
