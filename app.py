@@ -782,14 +782,6 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Theme toggle
-    st.subheader("Settings")
-    theme_options = ["Light", "Dark"]
-    selected_theme = st.radio("Theme:", theme_options, index=0 if st.session_state.theme == 'light' else 1)
-    st.session_state.theme = selected_theme.lower()
-    
-    st.markdown("---")
-    
     # Uploader for logo
     st.subheader("Company Logo")
     uploaded_logo = st.file_uploader("Upload your logo for PDF reports", type=["png", "jpg", "jpeg"])
