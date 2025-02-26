@@ -1306,13 +1306,11 @@ elif st.session_state.active_tab == 'help_documentation':
         
         1. **Agreement Information**: Enter the basic details of the agreement, including billing term, agreement duration, and months remaining.
         
-        2. **Customer Information**: Enter the customer details to personalize the report and email template.
+        2. **Service Information**: Add the services that are part of the agreement, including quantities and fees.
         
-        3. **Service Information**: Add the services that are part of the agreement, including quantities and fees.
+        3. **Calculate Costs**: Click the 'Calculate Costs' button to generate the results.
         
-        4. **Calculate Costs**: Click the 'Calculate Costs' button to generate the results.
-        
-        5. **Generate Reports**: After calculation, you can download a PDF report or use the generated email template.
+        4. **Generate Reports**: After calculation, you can download a PDF report or use the generated email template.
         """)
     
     with st.expander("Understanding Billing Terms"):
