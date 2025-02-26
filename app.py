@@ -705,7 +705,7 @@ if st.session_state.active_tab == 'calculator':
     # Create tabs for different sections of the calculator
     tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
     
-   with tabs[0]:
+    with tabs[0]:
     st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
