@@ -715,12 +715,29 @@ if st.session_state.active_tab in ['calculator', 'results']:
         with col2:
             agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
             
-            # Calculate months remaining based on start date and agreement term
+            # Calculate months remaining based on start date and agreement term with day precision
             today = date.today()
-            months_passed = relativedelta(today, agreement_start_date).years * 12 + relativedelta(today, agreement_start_date).months
-            calculated_months_remaining = max(0, agreement_term - months_passed)
             
-            # Display calculated months remaining
+            # Calculate full months passed
+            months_passed = relativedelta(today, agreement_start_date).years * 12 + relativedelta(today, agreement_start_date).months
+            
+            # Calculate the day fraction of the current month
+            # Get days in the current month
+            if today.month == 12:
+                last_day_of_month = date(today.year + 1, 1, 1) - relativedelta(days=1)
+            else:
+                last_day_of_month = date(today.year, today.month + 1, 1) - relativedelta(days=1)
+            
+            days_in_month = last_day_of_month.day
+            day_fraction = (days_in_month - today.day) / days_in_month
+            
+            # Add the day fraction to get precise months passed
+            precise_months_passed = months_passed + (1 - day_fraction)
+            
+            # Calculate remaining months with precision
+            calculated_months_remaining = max(0, agreement_term - precise_months_passed)
+            
+            # Display calculated months remaining with 2 decimal precision
             st.text(f"Calculated Months Remaining: {calculated_months_remaining:.2f}")
             
             # Allow manual override of months remaining
