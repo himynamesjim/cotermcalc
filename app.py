@@ -1201,8 +1201,6 @@ if st.session_state.active_tab == 'calculator':
                         else:
                             chart_data[key] = float(chart_data[key])
                     
-                    # Add debug info
-                    st.write(f"Debug - Chart data: {chart_data}")
                     
                     # Render chart with safety measures
                     components.html(
