@@ -228,7 +228,65 @@ CHART_HTML = """
                             anchor: 'end',
                             align: 'top',
                             formatter: function(value) {
-                                return '
+                                return value.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
+                            color: colors.textColor,
+                            offset: 8
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw;
+                                    return `${context.dataset.label}: ${value.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}`;
+                                }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor,
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: colors.gridColor
+                            },
+                            ticks: {
+                                color: colors.textColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+"""
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
