@@ -1526,105 +1526,64 @@ def generate_email_template(billing_term, customer_name, current_cost, first_cos
     total_cost_fmt = "${:,.2f}".format(total_subscription_cost)
     updated_cost_fmt = "${:,.2f}".format(updated_annual_cost)
     
-    # Monthly template
-    if billing_term == 'Monthly':
-        template = f"""Dear {customer_name},
-
-We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.
-
-Current Agreement:
-- Current Annual Cost: {current_cost_fmt}
-
-Updated Cost Summary:
-- First Month Co-Termed Cost: {first_cost_fmt}
-- Total Subscription Cost: {total_cost_fmt}"""
+    # Start building template
+    template = "Dear " + str(customer_name) + ",\n\n"
+    
+    if billing_term == "Monthly":
+        template += "We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.\n\n"
+        template += "Current Agreement:\n"
+        template += "- Current Annual Cost: " + current_cost_fmt + "\n\n"
+        template += "Updated Cost Summary:\n"
+        template += "- First Month Co-Termed Cost: " + first_cost_fmt + "\n"
+        template += "- Total Subscription Cost: " + total_cost_fmt + "\n"
         
-        # Conditionally add updated annual cost
         if updated_annual_cost > 0:
-            template += f"\n- Updated Annual Cost: {updated_cost_fmt}"
-            
-        template += f"""
-
-Key Details:
-- The first month's co-termed cost reflects your current service adjustments.
-- Your total subscription cost covers the entire term of the agreement.
-
-Next Steps:
-1. Please carefully review the cost breakdown above.
-2. If you approve these terms, kindly reply to this email with your confirmation.
-3. If you have any questions or concerns, please contact our sales team.
-
-We appreciate your continued business and look forward to your approval.
-
-Best regards,
-{account_manager}
-{company_name} Sales Team"""
+            template += "- Updated Annual Cost: " + updated_cost_fmt + "\n"
         
-    # Annual template
-    elif billing_term == 'Annual':
-        template = f"""Dear {customer_name},
-
-We are writing to inform you about the updated co-terming cost for your annual billing arrangement.
-
-Current Agreement:
-- Current Annual Cost: {current_cost_fmt}
-
-Updated Cost Summary:
-- First Year Co-Termed Cost: {first_cost_fmt}
-- Updated Annual Cost: {updated_cost_fmt}
-- Total Subscription Cost: {total_cost_fmt}
-
-Key Details:
-- The first year's co-termed cost reflects your current service adjustments.
-- Your total subscription cost covers the entire term of the agreement.
-
-Next Steps:
-1. Please carefully review the cost breakdown above.
-2. If you approve these terms, kindly reply to this email with your confirmation.
-3. If you have any questions or concerns, please contact our sales team.
-
-We appreciate your continued business and look forward to your approval.
-
-Best regards,
-{account_manager}
-{company_name} Sales Team"""
+        template += "\nKey Details:\n"
+        template += "- The first month's co-termed cost reflects your current service adjustments.\n"
+        template += "- Your total subscription cost covers the entire term of the agreement.\n"
+    
+    elif billing_term == "Annual":
+        template += "We are writing to inform you about the updated co-terming cost for your annual billing arrangement.\n\n"
+        template += "Current Agreement:\n"
+        template += "- Current Annual Cost: " + current_cost_fmt + "\n\n"
+        template += "Updated Cost Summary:\n"
+        template += "- First Year Co-Termed Cost: " + first_cost_fmt + "\n"
+        template += "- Updated Annual Cost: " + updated_cost_fmt + "\n"
+        template += "- Total Subscription Cost: " + total_cost_fmt + "\n"
         
-    # Prepaid template
-    elif billing_term == 'Prepaid':
-        template = f"""Dear {customer_name},
-
-We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.
-
-Current Agreement:
-- Current Annual Cost: {current_cost_fmt}
-
-Updated Cost Summary:
-- Total Pre-Paid Cost: {first_cost_fmt}
-- Total Subscription Cost: {total_cost_fmt}"""
+        template += "\nKey Details:\n"
+        template += "- The first year's co-termed cost reflects your current service adjustments.\n"
+        template += "- Your total subscription cost covers the entire term of the agreement.\n"
+    
+    elif billing_term == "Prepaid":
+        template += "We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.\n\n"
+        template += "Current Agreement:\n"
+        template += "- Current Annual Cost: " + current_cost_fmt + "\n\n"
+        template += "Updated Cost Summary:\n"
+        template += "- Total Pre-Paid Cost: " + first_cost_fmt + "\n"
+        template += "- Total Subscription Cost: " + total_cost_fmt + "\n"
         
-        # Conditionally add updated annual cost
         if updated_annual_cost > 0:
-            template += f"\n- Updated Annual Cost: {updated_cost_fmt}"
-            
-        template += f"""
-
-Key Details:
-- The pre-paid cost covers your entire service term.
-- Your total subscription cost reflects the full agreement period.
-
-Next Steps:
-1. Please carefully review the cost breakdown above.
-2. If you approve these terms, kindly reply to this email with your confirmation.
-3. If you have any questions or concerns, please contact our sales team.
-
-We appreciate your continued business and look forward to your approval.
-
-Best regards,
-{account_manager}
-{company_name} Sales Team"""
+            template += "- Updated Annual Cost: " + updated_cost_fmt + "\n"
+        
+        template += "\nKey Details:\n"
+        template += "- The pre-paid cost covers your entire service term.\n"
+        template += "- Your total subscription cost reflects the full agreement period.\n"
     
     else:
         return "Invalid billing term"
+    
+    # Add common footer sections
+    template += "\nNext Steps:\n"
+    template += "1. Please carefully review the cost breakdown above.\n"
+    template += "2. If you approve these terms, kindly reply to this email with your confirmation.\n"
+    template += "3. If you have any questions or concerns, please contact our sales team.\n\n"
+    template += "We appreciate your continued business and look forward to your approval.\n\n"
+    template += "Best regards,\n"
+    template += str(account_manager) + "\n"
+    template += str(company_name) + " Sales Team"
     
     return template
     
