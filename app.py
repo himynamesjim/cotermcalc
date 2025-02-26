@@ -634,7 +634,32 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
         
         pdf.set_font("Arial", "", 7)
+
+                    # Licensing Summary
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Licensing Summary", ln=True)
+    pdf.set_font("Arial", "", 10)
+    pdf.cell(0, 6, "Total Current Licenses: {}".format(total_current_cost), ln=True)
+    pdf.cell(0, 6, "Total Additional Licenses: {}".format(total_updated_annual_cost), ln=True)
+    pdf.ln(8)
     
+    # Current vs New Cost Summary
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Current vs New Cost Summary", ln=True)
+    pdf.set_font("Arial", "", 10)
+    pdf.cell(0, 6, "Current Annual Cost: ${:,.2f}".format(total_current_cost), ln=True)
+    pdf.cell(0, 6, "Updated Annual Cost: ${:,.2f}".format(total_updated_annual_cost), ln=True)
+    pdf.cell(0, 6, "Total Subscription Term Cost: ${:,.2f}".format(total_subscription_term_fee), ln=True)
+    pdf.ln(8)
+    
+    # Cost Comparison Chart Placeholder
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Cost Comparison Chart", ln=True)
+    pdf.set_font("Arial", "", 10)
+    pdf.cell(0, 6, "(Chart to be generated separately in the app UI)", ln=True)
+    pdf.ln(10)
+    
+    return pdf.output(dest='S').encode('latin1')
     # Add footer with company information
     pdf.ln(10)
     pdf.set_font("Arial", "I", 8)
