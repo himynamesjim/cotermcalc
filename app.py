@@ -1,4 +1,4 @@
-import streamlit as st
+def generate_email_template(billing_term, customer_nameimport streamlit as st
 import pandas as pd
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
@@ -502,114 +502,57 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     return pdf_buffer
 
 def generate_email_template(billing_term, customer_name, current_cost, first_cost, total_subscription_cost, company_name, account_manager, updated_annual_cost=0):
-    # Format values first
-    current_cost_fmt = "${:,.2f}".format(current_cost)
-    first_cost_fmt = "${:,.2f}".format(first_cost)
-    total_subscription_cost_fmt = "${:,.2f}".format(total_subscription_cost)
-    updated_annual_cost_fmt = "${:,.2f}".format(updated_annual_cost)
+    # Common parts
+    greeting = "Dear " + str(customer_name) + ",\n\n"
+    footer = "\nWe appreciate your continued business and look forward to your approval.\n\nBest regards,\n" + str(account_manager) + "\n" + str(company_name) + " Sales Team"
+    next_steps = "\nNext Steps:\n1. Please carefully review the cost breakdown above.\n2. If you approve these terms, kindly reply to this email with your confirmation.\n3. If you have any questions or concerns, please contact our sales team."
     
-    # Monthly template
-    monthly_template = f"""Dear {customer_name},
-
-We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.
-
-Current Agreement:
-- Current Annual Cost: {current_cost_fmt}
-
-Updated Cost Summary:
-- First Month Co-Termed Cost: {first_cost_fmt}
-- Total Subscription Cost: {total_subscription_cost_fmt}
-"""
+    # Format currency values
+    current_cost_str = "${:,.2f}".format(current_cost)
+    first_cost_str = "${:,.2f}".format(first_cost)
+    total_subscription_cost_str = "${:,.2f}".format(total_subscription_cost)
+    updated_annual_cost_str = "${:,.2f}".format(updated_annual_cost)
     
-    # Conditionally add updated annual cost to monthly template
-    if updated_annual_cost > 0:
-        monthly_template += f"- Updated Annual Cost: {updated_annual_cost_fmt}\n"
+    if billing_term == 'Monthly':
+        body = "We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.\n\n"
+        body += "Current Agreement:\n- Current Annual Cost: " + current_cost_str + "\n\n"
+        body += "Updated Cost Summary:\n- First Month Co-Termed Cost: " + first_cost_str + "\n"
+        body += "- Total Subscription Cost: " + total_subscription_cost_str + "\n"
+        
+        if updated_annual_cost > 0:
+            body += "- Updated Annual Cost: " + updated_annual_cost_str + "\n"
+        
+        body += "\nKey Details:\n- The first month's co-termed cost reflects your current service adjustments.\n"
+        body += "- Your total subscription cost covers the entire term of the agreement."
+        
+    elif billing_term == 'Annual':
+        body = "We are writing to inform you about the updated co-terming cost for your annual billing arrangement.\n\n"
+        body += "Current Agreement:\n- Current Annual Cost: " + current_cost_str + "\n\n"
+        body += "Updated Cost Summary:\n- First Year Co-Termed Cost: " + first_cost_str + "\n"
+        body += "- Updated Annual Cost: " + updated_annual_cost_str + "\n"
+        body += "- Total Subscription Cost: " + total_subscription_cost_str + "\n"
+        
+        body += "\nKey Details:\n- The first year's co-termed cost reflects your current service adjustments.\n"
+        body += "- Your total subscription cost covers the entire term of the agreement."
+        
+    elif billing_term == 'Prepaid':
+        body = "We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.\n\n"
+        body += "Current Agreement:\n- Current Annual Cost: " + current_cost_str + "\n\n"
+        body += "Updated Cost Summary:\n- Total Pre-Paid Cost: " + first_cost_str + "\n"
+        body += "- Total Subscription Cost: " + total_subscription_cost_str + "\n"
+        
+        if updated_annual_cost > 0:
+            body += "- Updated Annual Cost: " + updated_annual_cost_str + "\n"
+        
+        body += "\nKey Details:\n- The pre-paid cost covers your entire service term.\n"
+        body += "- Your total subscription cost reflects the full agreement period."
     
-    monthly_template += f"""
-Key Details:
-- The first month's co-termed cost reflects your current service adjustments.
-- Your total subscription cost covers the entire term of the agreement.
-
-Next Steps:
-1. Please carefully review the cost breakdown above.
-2. If you approve these terms, kindly reply to this email with your confirmation.
-3. If you have any questions or concerns, please contact our sales team.
-
-We appreciate your continued business and look forward to your approval.
-
-Best regards,
-{account_manager}
-{company_name} Sales Team"""
-
-    # Annual template
-    annual_template = f"""Dear {customer_name},
-
-We are writing to inform you about the updated co-terming cost for your annual billing arrangement.
-
-Current Agreement:
-- Current Annual Cost: {current_cost_fmt}
-
-Updated Cost Summary:
-- First Year Co-Termed Cost: {first_cost_fmt}
-- Updated Annual Cost: {updated_annual_cost_fmt}
-- Total Subscription Cost: {total_subscription_cost_fmt}
-
-Key Details:
-- The first year's co-termed cost reflects your current service adjustments.
-- Your total subscription cost covers the entire term of the agreement.
-
-Next Steps:
-1. Please carefully review the cost breakdown above.
-2. If you approve these terms, kindly reply to this email with your confirmation.
-3. If you have any questions or concerns, please contact our sales team.
-
-We appreciate your continued business and look forward to your approval.
-
-Best regards,
-{account_manager}
-{company_name} Sales Team"""
-
-    # Prepaid template
-    prepaid_template = f"""Dear {customer_name},
-
-We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.
-
-Current Agreement:
-- Current Annual Cost: {current_cost_fmt}
-
-Updated Cost Summary:
-- Total Pre-Paid Cost: {first_cost_fmt}
-- Total Subscription Cost: {total_subscription_cost_fmt}
-"""
+    else:
+        return "Invalid billing term"
     
-    # Conditionally add updated annual cost to prepaid template
-    if updated_annual_cost > 0:
-        prepaid_template += f"- Updated Annual Cost: {updated_annual_cost_fmt}\n"
-    
-    prepaid_template += f"""
-Key Details:
-- The pre-paid cost covers your entire service term.
-- Your total subscription cost reflects the full agreement period.
-
-Next Steps:
-1. Please carefully review the cost breakdown above.
-2. If you approve these terms, kindly reply to this email with your confirmation.
-3. If you have any questions or concerns, please contact our sales team.
-
-We appreciate your continued business and look forward to your approval.
-
-Best regards,
-{account_manager}
-{company_name} Sales Team"""
-    
-    # Return the appropriate template based on billing term
-    templates = {
-        'Monthly': monthly_template,
-        'Annual': annual_template,
-        'Prepaid': prepaid_template
-    }
-    
-    return templates.get(billing_term, "Invalid billing term")
+    # Combine all parts
+    complete_template = greeting + body + next_steps + footer
+    return complete_template
 
 def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     # Create a unique key for this button
