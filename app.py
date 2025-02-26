@@ -998,24 +998,24 @@ if st.session_state.active_tab in ['calculator', 'results']:
                         else:
                             chart_data[key] = float(chart_data[key])
                     
-                # Render chart with safety measures
-                components.html(
-                    CHART_HTML + textwrap.dedent(f"""
-                        <script>
-                            console.log("Starting chart rendering...");
-                            try {{
-                                const chartData = {chart_data};
-                                console.log("Chart data:", JSON.stringify(chartData));
-                                renderChart(chartData, '{billing_term}', '{st.session_state.theme}');
-                                console.log("Chart rendering complete");
-                            }} catch (e) {{
-                                console.error("Error rendering chart:", e);
-                                document.write("<div style='color:red'>Error rendering chart: " + e.message + "</div>");
-                            }}
-                        </script>
+                    # Render chart with safety measures components.html(
+                        CHART_HTML + textwrap.dedent(f"""\
+                    <script>
+                        console.log("Starting chart rendering...");
+                        try {{
+                            const chartData = {chart_data};
+                            console.log("Chart data:", JSON.stringify(chartData));
+                            renderChart(chartData, '{billing_term}', '{st.session_state.theme}');
+                            console.log("Chart rendering complete");
+                        }} catch (e) {{
+                            console.error("Error rendering chart:", e);
+                            document.write("<div style='color:red'>Error rendering chart: " + e.message + "</div>");
+                        }}
+                    </script>
                     """),
-                    height=500
-                )
+                        height=500
+                    )
+
                 except Exception as e:
                     st.error(f"Error generating chart: {str(e)}")
                     st.warning("Please try recalculating costs or refreshing the page.")
