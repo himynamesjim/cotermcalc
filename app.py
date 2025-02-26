@@ -643,23 +643,8 @@ def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     
     return html_button
 
-# Navigation buttons component
-def nav_buttons(current_tab_idx, total_tabs):
-    col1, col2 = st.columns([1, 1])
-    
-    with col1:
-        if current_tab_idx > 0:
-            back_button = st.button("← Back", key=f"back_button_{current_tab_idx}")
-            if back_button:
-                change_tab(current_tab_idx - 1)
-                st.rerun()
-    
-    with col2:
-        if current_tab_idx < total_tabs - 1:
-            next_button = st.button("Next →", key=f"next_button_{current_tab_idx}")
-            if next_button:
-                change_tab(current_tab_idx + 1)
-                st.rerun()
+# Navigation function remains for potential future use
+# No navigation buttons
 
 # Sidebar for navigation and settings
 with st.sidebar:
@@ -736,8 +721,7 @@ if st.session_state.active_tab in ['calculator', 'results']:
             extension_months = 0
             total_term = months_remaining
         
-        # Add navigation buttons at the bottom of the tab
-        nav_buttons(0, len(tab_titles))
+        # No navigation buttons
             
     with tabs[1]:
         st.markdown('<div class="sub-header">Customer Information</div>', unsafe_allow_html=True)
@@ -751,8 +735,7 @@ if st.session_state.active_tab in ['calculator', 'results']:
             account_manager = st.text_input("Account Manager:", placeholder="Enter account manager name")
             company_name = st.text_input("Your Company:", value="Your Company Name", placeholder="Enter your company name")
         
-        # Add navigation buttons at the bottom of the tab
-        nav_buttons(1, len(tab_titles))
+        # No navigation buttons
             
     with tabs[2]:
         st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
@@ -816,8 +799,7 @@ if st.session_state.active_tab in ['calculator', 'results']:
         # Store service data in session state
         st.session_state.service_data = data
         
-        # Add navigation buttons at the bottom of the tab
-        nav_buttons(2, len(tab_titles))
+        # No navigation buttons
             
     with tabs[3]:
         st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
@@ -1094,8 +1076,7 @@ if st.session_state.active_tab in ['calculator', 'results']:
                         key="pdf_download"
                     )
         
-        # Add navigation buttons at the bottom of the tab
-        nav_buttons(3, len(tab_titles))
+        # No navigation buttons
             
     with tabs[4]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
@@ -1146,8 +1127,7 @@ if st.session_state.active_tab in ['calculator', 'results']:
         else:
             st.info("Please calculate costs first to generate an email template.")
         
-        # Add navigation buttons at the bottom of the tab
-        nav_buttons(4, len(tab_titles))
+        # No navigation buttons
 
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
