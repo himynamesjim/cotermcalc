@@ -1,4 +1,4 @@
-def generate_email_template(billing_term, customer_nameimport streamlit as st
+import streamlit as st
 import pandas as pd
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
