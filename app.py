@@ -558,32 +558,31 @@ def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     # Create a unique key for this button
     button_id = f"copy_button_{hash(text)}"
     
-    # JavaScript function to copy text to clipboard
-    js_code = f"""
-    <script>
-    function copyToClipboard_{button_id}() {{
-        const el = document.createElement('textarea');
-        el.value = `{text.replace('`', '\\`')}`;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        
-        // Change button text temporarily
-        const btn = document.getElementById('{button_id}');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = 'Copied!';
-        setTimeout(() => {{
-            btn.innerHTML = originalText;
-        }}, 2000);
-    }}
-    </script>
-    """
+    # JavaScript function to copy text to clipboard - with no indentation
+    js_code = "<script>\n"
+    js_code += f"function copyToClipboard_{button_id}() {{\n"
+    js_code += "    const el = document.createElement('textarea');\n"
+    js_code += f"    el.value = `{text.replace('`', '\\`')}`;\n"
+    js_code += "    document.body.appendChild(el);\n"
+    js_code += "    el.select();\n"
+    js_code += "    document.execCommand('copy');\n"
+    js_code += "    document.body.removeChild(el);\n"
+    js_code += "    \n"
+    js_code += "    // Change button text temporarily\n"
+    js_code += f"    const btn = document.getElementById('{button_id}');\n"
+    js_code += "    const originalText = btn.innerHTML;\n"
+    js_code += "    btn.innerHTML = 'Copied!';\n"
+    js_code += "    setTimeout(() => {\n"
+    js_code += "        btn.innerHTML = originalText;\n"
+    js_code += "    }, 2000);\n"
+    js_code += "}\n"
+    js_code += "</script>\n"
     
-# Alternative approach - put everything on one line
-html_button = f"""{js_code}<button id='{button_id}' onclick='copyToClipboard_{button_id}()' style='background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;'>{button_text}</button>"""
+    # HTML button - all on one line to avoid indentation issues
+    html_button = f"<button id='{button_id}' onclick='copyToClipboard_{button_id}()' style='background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;'>{button_text}</button>"
     
-    return html_button
+    # Combine JS and HTML
+    return js_code + html_button
 
 # Navigation function remains for potential future use
 # No navigation buttons
