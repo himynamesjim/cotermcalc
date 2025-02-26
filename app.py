@@ -770,113 +770,109 @@ if st.session_state.active_tab == 'calculator':
     # Create tabs for different sections of the calculator
     tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
     
-    with tabs[0]:
-        st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
+   with tabs[0]:
+    st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
     
-    # Create container for the whole form to add consistent styling
-    with st.container():
-        # Use columns for symmetrical layout
-        col1, col2 = st.columns(2)
+    # Create a more visually balanced layout with 2 columns
+    left_col, right_col = st.columns(2)
+    
+    with left_col:
+        # Move agreement start date to top left
+        current_date = datetime.today().strftime('%Y-%m-%d')
+        st.text(f"Today's Date: {current_date}")
         
-        with col1:
-            # Left column - Start Date and Billing Term
-            st.markdown('<p class="label-text">Agreement Start Date:</p>', unsafe_allow_html=True)
-            default_start_date = datetime.today() - pd.DateOffset(months=6)
-            agreement_start_date = st.date_input(
-                "",  # Empty label since we use custom markdown above
-                value=default_start_date,
-                max_value=datetime.today(),
-                key="agreement_start_date",
-                label_visibility="collapsed"  # Hide the default label
-            )
-            
-            st.markdown('<p class="label-text">Billing Term:</p>', unsafe_allow_html=True)
-            billing_term = st.selectbox(
-                "",  # Empty label 
-                ["Annual", "Prepaid", "Monthly"],
-                key="billing_term",
-                label_visibility="collapsed"  # Hide the default label
-            )
+        # Agreement start date picker with better label
+        default_start_date = datetime.today() - pd.DateOffset(months=6)
+        st.markdown("##### Agreement Start Date:")
+        agreement_start_date = st.date_input(
+            "",  # Empty label since we're using markdown above
+            value=default_start_date,
+            max_value=datetime.today(),
+            key="agreement_start_date"
+        )
         
-        with col2:
-            # Right column - Agreement Term and Months Remaining
-            st.markdown('<p class="label-text">Agreement Term (Months):</p>', unsafe_allow_html=True)
-            agreement_term = st.number_input(
-                "",  # Empty label
+        # Billing term below start date
+        st.markdown("##### Billing Term:")
+        billing_term = st.selectbox(
+            "", 
+            ["Annual", "Prepaid", "Monthly"],
+            key="billing_term"
+        )
+    
+    with right_col:
+        # Agreement term
+        st.markdown("##### Agreement Term (Months):")
+        agreement_term = st.number_input(
+            "",
+            min_value=1, 
+            value=36, 
+            step=1, 
+            format="%d",
+            key="agreement_term"
+        )
+        
+        # Convert date_input result to datetime
+        agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
+        
+        # Calculate and display months remaining
+        calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
+        
+        # Option to use calculated months with styled checkbox
+        st.markdown("##### Months Remaining:")
+        use_calculated_months = st.checkbox(
+            "Use calculated months remaining", 
+            value=True,
+            key="use_calculated"
+        )
+        
+        if use_calculated_months:
+            months_remaining = calculated_months_remaining
+            st.markdown(f"""
+            <div style="background-color: rgba(49, 51, 63, 0.7); padding: 10px; border-radius: 5px; margin-top: 8px;">
+                <span style="font-weight: bold;">Calculated Months Remaining:</span> {months_remaining:.2f}
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            months_remaining = st.number_input(
+                "Override Months Remaining:", 
+                min_value=0.01, 
+                max_value=float(agreement_term), 
+                value=calculated_months_remaining,
+                step=0.01, 
+                format="%.2f",
+                key="manual_months"
+            )
+    
+    # Add a separator
+    st.markdown("<hr style='margin: 15px 0; border: none; height: 1px; background-color: rgba(255,255,255,0.2);'>", unsafe_allow_html=True)
+    
+    # Extension option with better styling
+    extension_col1, extension_col2 = st.columns([1, 3])
+    
+    with extension_col1:
+        add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
+    
+    if add_extension:
+        with extension_col2:
+            extension_months = st.number_input(
+                "Extension Period (Months):", 
                 min_value=1, 
-                value=36, 
+                value=12, 
                 step=1, 
                 format="%d",
-                key="agreement_term",
-                label_visibility="collapsed"  # Hide the default label
+                key="extension_months"
             )
+            total_term = months_remaining + extension_months
             
-            # Convert date_input result to datetime
-            agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
-            
-            # Calculate months remaining
-            calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
-            
-            # Months remaining section
-            st.markdown('<p class="label-text">Months Remaining:</p>', unsafe_allow_html=True)
-            use_calculated_months = st.checkbox(
-                "Use calculated months remaining", 
-                value=True,
-                key="use_calculated"
-            )
-            
-            if use_calculated_months:
-                months_remaining = calculated_months_remaining
-                st.markdown(
-                    f'<div class="info-value">Calculated Months Remaining: {months_remaining:.2f}</div>',
-                    unsafe_allow_html=True
-                )
-            else:
-                months_remaining = st.number_input(
-                    "Override Months Remaining:", 
-                    min_value=0.01, 
-                    max_value=float(agreement_term), 
-                    value=calculated_months_remaining,
-                    step=0.01, 
-                    format="%.2f",
-                    key="manual_months",
-                    label_visibility="collapsed"  # Hide the default label
-                )
-        
-        # Add a clean divider
-        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-        
-        # Extension section with better layout
-        ext_col1, ext_col2 = st.columns([1, 3])
-        
-        with ext_col1:
-            add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
-        
-        # Only show extension fields if extension is checked
-        if add_extension:
-            with ext_col2:
-                st.markdown('<p class="label-text">Extension Period (Months):</p>', unsafe_allow_html=True)
-                extension_months = st.number_input(
-                    "",  # Empty label
-                    min_value=1, 
-                    value=12, 
-                    step=1, 
-                    format="%d",
-                    key="extension_months",
-                    label_visibility="collapsed"  # Hide the default label
-                )
-                
-                # Calculate total term
-                total_term = months_remaining + extension_months
-                
-                # Display total term in a consistent style
-                st.markdown(
-                    f'<div class="total-term-value">Total Term: {total_term:.2f} months</div>',
-                    unsafe_allow_html=True
-                )
-        else:
-            extension_months = 0
-            total_term = months_remaining
+            # Display total term with styled info box
+            st.markdown(f"""
+            <div style="background-color: rgba(54, 123, 240, 0.2); padding: 10px; border-radius: 5px; border-left: 4px solid #367bf0; margin-top: 8px;">
+                <span style="font-weight: bold;">Total Term:</span> {total_term:.2f} months
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        extension_months = 0
+        total_term = months_remaining
             
     with tabs[1]:
         st.markdown('<div class="sub-header">Customer Information</div>', unsafe_allow_html=True)
