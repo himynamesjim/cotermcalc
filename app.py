@@ -101,12 +101,8 @@ def local_css():
     """
 
 # Function to navigate between tabs
-def change_tab(direction):
-    current = st.session_state.current_tab
-    if direction == "next" and current < 4:  # 4 is the last tab index (0-indexed)
-        st.session_state.current_tab = current + 1
-    elif direction == "back" and current > 0:
-        st.session_state.current_tab = current - 1
+def change_tab(tab_index):
+    st.session_state.current_tab = tab_index
 
 # Apply CSS
 st.markdown(local_css(), unsafe_allow_html=True)
@@ -655,13 +651,15 @@ def nav_buttons(current_tab_idx, total_tabs):
         if current_tab_idx > 0:
             back_button = st.button("← Back", key=f"back_button_{current_tab_idx}")
             if back_button:
-                change_tab("back")
+                change_tab(current_tab_idx - 1)
+                st.experimental_rerun()
     
     with col2:
         if current_tab_idx < total_tabs - 1:
             next_button = st.button("Next →", key=f"next_button_{current_tab_idx}")
             if next_button:
-                change_tab("next")
+                change_tab(current_tab_idx + 1)
+                st.experimental_rerun()
 
 # Sidebar for navigation and settings
 with st.sidebar:
