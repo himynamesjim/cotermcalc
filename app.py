@@ -778,7 +778,6 @@ if st.session_state.active_tab == 'calculator':
     with left_col:
         # Move agreement start date to top left
         current_date = datetime.today().strftime('%Y-%m-%d')
-        st.text(f"Today's Date: {current_date}")
         
         # Agreement start date picker with better label
         default_start_date = datetime.today() - pd.DateOffset(months=6)
