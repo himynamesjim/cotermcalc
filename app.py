@@ -990,7 +990,7 @@ if st.session_state.active_tab == 'calculator':
             st.warning("⚠️ Please enter a description for all licenses.")
         
             
-    with tabs[2]:
+        with tabs[2]:
         st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
         
         # Check if we have valid data before calculating
@@ -1178,7 +1178,7 @@ if st.session_state.active_tab == 'calculator':
                 st.markdown("### Cost Comparison")
                 
                 # Prepare chart data based on billing term
-               if billing_term == 'Monthly':
+                if billing_term == 'Monthly':
                     # Get values from the Total Services Cost row
                     total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
                     
@@ -1197,6 +1197,9 @@ if st.session_state.active_tab == 'calculator':
                         "newMonthly": float(new_monthly),  # This should match data.newMonthly in JS
                         "subscription": float(total_subscription_term_fee)
                     }
+                    
+                    # Debug for troubleshooting
+                    st.write("Debug - Chart Data:", chart_data)
                     
                 elif billing_term == 'Annual':
                     chart_data = {
@@ -1273,60 +1276,60 @@ if st.session_state.active_tab == 'calculator':
                     mime="application/pdf",
                     key="pdf_download"
                 )
-   with tabs[3]:
-    st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
-    
-    # Customer Information Fields
-    st.markdown("### Customer Information")
-    customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
-    company_name = st.text_input("Company Name:", placeholder="Enter your company name")
-    account_manager = st.text_input("Account Manager:", placeholder="Enter your name")
-    
-    # Check if we have calculation results
-    if st.session_state.calculation_results:
-        results = st.session_state.calculation_results
-        total_current_cost = results["total_current_cost"]
-        total_prepaid_cost = results["total_prepaid_cost"]
-        total_first_year_cost = results["total_first_year_cost"]
-        total_updated_annual_cost = results["total_updated_annual_cost"] 
-        total_subscription_term_fee = results["total_subscription_term_fee"]
+    with tabs[3]:
+        st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
-        # Determine which cost value to use based on billing term
-        if billing_term == 'Monthly':
-            first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
-        elif billing_term == 'Annual':
-            first_cost = total_first_year_cost
-        else:  # Prepaid
-            first_cost = total_prepaid_cost
+        # Customer Information Fields
+        st.markdown("### Customer Information")
+        customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
+        company_name = st.text_input("Company Name:", placeholder="Enter your company name")
+        account_manager = st.text_input("Account Manager:", placeholder="Enter your name")
         
-        # Generate email template
-        email_content = generate_email_template(
-            billing_term,
-            customer_name or "Customer",
-            total_current_cost,
-            first_cost,
-            total_subscription_term_fee,
-            company_name or "Your Company",
-            account_manager or "Account Manager",
-            total_updated_annual_cost
-        )
-        
-        # Display email template with copy button
-        st.markdown("### Email Template Preview")
-        st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
-        
-        # Add copy to clipboard button
-        st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
-        
-        # Email subject suggestion
-        st.markdown("### Suggested Email Subject")
-        email_subject = f"Co-Terming Cost Proposal - {customer_name}" if customer_name else "Co-Terming Cost Proposal"
-        st.text_input("Subject Line:", value=email_subject, key="email_subject")
-        
-        # Add copy button for subject line
-        st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
-    else:
-        st.info("Please calculate costs first to generate an email template.")
+        # Check if we have calculation results
+        if st.session_state.calculation_results:
+            results = st.session_state.calculation_results
+            total_current_cost = results["total_current_cost"]
+            total_prepaid_cost = results["total_prepaid_cost"]
+            total_first_year_cost = results["total_first_year_cost"]
+            total_updated_annual_cost = results["total_updated_annual_cost"] 
+            total_subscription_term_fee = results["total_subscription_term_fee"]
+            
+            # Determine which cost value to use based on billing term
+            if billing_term == 'Monthly':
+                first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
+            elif billing_term == 'Annual':
+                first_cost = total_first_year_cost
+            else:  # Prepaid
+                first_cost = total_prepaid_cost
+            
+            # Generate email template
+            email_content = generate_email_template(
+                billing_term,
+                customer_name or "Customer",
+                total_current_cost,
+                first_cost,
+                total_subscription_term_fee,
+                company_name or "Your Company",
+                account_manager or "Account Manager",
+                total_updated_annual_cost
+            )
+            
+            # Display email template with copy button
+            st.markdown("### Email Template Preview")
+            st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
+            
+            # Add copy to clipboard button
+            st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
+            
+            # Email subject suggestion
+            st.markdown("### Suggested Email Subject")
+            email_subject = f"Co-Terming Cost Proposal - {customer_name}" if customer_name else "Co-Terming Cost Proposal"
+            st.text_input("Subject Line:", value=email_subject, key="email_subject")
+            
+            # Add copy button for subject line
+            st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
+        else:
+            st.info("Please calculate costs first to generate an email template.")
 
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
