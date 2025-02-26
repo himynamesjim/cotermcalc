@@ -783,16 +783,6 @@ if st.session_state.active_tab == 'calculator':
     with tabs[0]:
         st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
         
-        # Create customer info fields at the top of Agreement tab
-        customer_col1, customer_col2 = st.columns(2)
-        with customer_col1:
-            customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
-            account_manager = st.text_input("Account Manager:", placeholder="Enter account manager name")
-        
-        with customer_col2:
-            customer_email = st.text_input("Customer Email:", placeholder="Enter customer email")
-            company_name = st.text_input("Your Company:", value="Your Company Name", placeholder="Enter your company name")
-        
         # Add a separator
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
