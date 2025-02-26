@@ -778,7 +778,7 @@ if st.session_state.active_tab in ['calculator', 'results']:
                 fee_key = f"fee_{i}"
                 add_lic_key = f"add_lic_{i}"
                 
-        # Create input fields for each row
+                        # Create input fields for each row
                 service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
                 qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=qty_key)
                 fee = col3.number_input("Annual Fee ($)", min_value=0.0, value=1000.0, step=100.0, format="%.2f", key=fee_key)
@@ -786,12 +786,17 @@ if st.session_state.active_tab in ['calculator', 'results']:
                 
                 # Add the row data to our dataframe
                 row_data = {
-                    "Cloud Service Description": service,
+                    "Cloud Service Description": service if service else "",
                     "Unit Quantity": qty,
                     "Annual Unit Fee": fee,
                     "Additional Licenses": add_lic,
                 }
                 
+                # Fill in missing columns with empty values or zeros
+                for col in columns:
+                    if col not in row_data:
+                        row_data[col] = 0 if col in numeric_cols else ""
+                        
                 # Append to the dataframe
                 new_row = pd.DataFrame([row_data])
                 data = pd.concat([data, new_row], ignore_index=True)
