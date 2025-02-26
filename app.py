@@ -167,7 +167,7 @@ def local_css():
 # Apply CSS
 st.markdown(local_css(), unsafe_allow_html=True)
 
-# Chart HTML/JS with dynamic theme support
+# Chart HTML/JS with dynamic theme support - FIXED VERSION
 CHART_HTML = """
 <!DOCTYPE html>
 <html>
@@ -197,22 +197,72 @@ CHART_HTML = """
                 barColors: ['#8884d8', '#82ca9d', '#ffc658']
             };
             
- [data.subscription],
+            let datasets = [];
+            
+            if (billingTerm === 'Annual') {
+                datasets = [
+                    {
+                        label: 'Current Annual Cost',
+                        data: [data.currentCost || 0],
+                        backgroundColor: colors.barColors[0]
+                    },
+                    {
+                        label: 'First Year Co-Termed Cost',
+                        data: [data.firstYearCoTerm || 0],
+                        backgroundColor: colors.barColors[1]
+                    },
+                    {
+                        label: 'Updated Annual Cost',
+                        data: [data.newAnnual || 0],
                         backgroundColor: colors.barColors[2]
+                    },
+                    {
+                        label: 'Total Subscription Cost',
+                        data: [data.subscription || 0],
+                        backgroundColor: '#ff7f50'  // Coral color for total subscription
+                    }
+                ];
+            }
+            else if (billingTerm === 'Monthly') {
+                datasets = [
+                    {
+                        label: 'Current Monthly Cost',
+                        data: [data.currentCost || 0],
+                        backgroundColor: colors.barColors[0]
+                    },
+                    {
+                        label: 'First Month Co-Termed Cost',
+                        data: [data.coTermedMonthly || 0],
+                        backgroundColor: colors.barColors[1]
+                    },
+                    {
+                        label: 'New Monthly Cost',
+                        data: [data.newMonthly || 0],
+                        backgroundColor: colors.barColors[2]
+                    },
+                    {
+                        label: 'Total Subscription Cost',
+                        data: [data.subscription || 0],
+                        backgroundColor: '#ff7f50'
                     }
                 ];
             }
             else if (billingTerm === 'Prepaid') {
                 datasets = [
                     {
+                        label: 'Current Annual Cost',
+                        data: [data.currentCost || 0],
+                        backgroundColor: colors.barColors[0]
+                    },
+                    {
                         label: 'Co-Termed Prepaid Cost',
                         data: [data.coTermedPrepaid || 0],
-                        backgroundColor: colors.barColors[0]
+                        backgroundColor: colors.barColors[1]
                     },
                     {
                         label: 'Total Subscription Cost',
                         data: [data.subscription || 0],
-                        backgroundColor: colors.barColors[2]
+                        backgroundColor: '#ff7f50'
                     }
                 ];
             }
