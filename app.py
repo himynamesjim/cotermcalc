@@ -90,8 +90,23 @@ def local_css():
         color: gray;
         font-size: 0.8rem;
     }}
+    .navigation-buttons {{
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid {secondary_bg};
+    }}
     </style>
     """
+
+# Function to navigate between tabs
+def change_tab(direction):
+    current = st.session_state.current_tab
+    if direction == "next" and current < 4:  # 4 is the last tab index (0-indexed)
+        st.session_state.current_tab = current + 1
+    elif direction == "back" and current > 0:
+        st.session_state.current_tab = current - 1
 
 # Apply CSS
 st.markdown(local_css(), unsafe_allow_html=True)
@@ -632,6 +647,22 @@ def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     
     return html_button
 
+# Navigation buttons component
+def nav_buttons(current_tab_idx, total_tabs):
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        if current_tab_idx > 0:
+            back_button = st.button("← Back", key=f"back_button_{current_tab_idx}")
+            if back_button:
+                change_tab("back")
+    
+    with col2:
+        if current_tab_idx < total_tabs - 1:
+            next_button = st.button("Next →", key=f"next_button_{current_tab_idx}")
+            if next_button:
+                change_tab("next")
+
 # Sidebar for navigation and settings
 with st.sidebar:
     st.image("https://via.placeholder.com/150x50.png?text=Your+Logo", width=150)
@@ -680,18 +711,9 @@ if st.session_state.active_tab in ['calculator', 'results']:
     # Create tabs for different sections of the calculator
     tab_titles = ["Agreement Info", "Customer Info", "Services", "Results", "Email Template"]
     
-    # Figure out which tab to show by default
-    if st.session_state.active_tab == 'results' and 'current_tab' in st.session_state:
-        # If coming from services page calculation, start on results tab
-        active_tab_index = st.session_state.current_tab
-    else:
-        # Otherwise use the stored tab index or default to 0
-        active_tab_index = st.session_state.current_tab if 'current_tab' in st.session_state else 0
-    
+    # Set the active tab based on session state
+    active_tab_index = st.session_state.current_tab
     tabs = st.tabs(tab_titles)
-    
-    # Use the active tab
-    current_tab = active_tab_index
     
     with tabs[0]:
         st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
@@ -715,6 +737,9 @@ if st.session_state.active_tab in ['calculator', 'results']:
         else:
             extension_months = 0
             total_term = months_remaining
+        
+        # Add navigation buttons at the bottom of the tab
+        nav_buttons(0, len(tab_titles))
             
     with tabs[1]:
         st.markdown('<div class="sub-header">Customer Information</div>', unsafe_allow_html=True)
@@ -727,6 +752,9 @@ if st.session_state.active_tab in ['calculator', 'results']:
         with col2:
             account_manager = st.text_input("Account Manager:", placeholder="Enter account manager name")
             company_name = st.text_input("Your Company:", value="Your Company Name", placeholder="Enter your company name")
+        
+        # Add navigation buttons at the bottom of the tab
+        nav_buttons(1, len(tab_titles))
             
     with tabs[2]:
         st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
@@ -774,6 +802,12 @@ if st.session_state.active_tab in ['calculator', 'results']:
         empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
         if empty_services.any():
             st.warning("⚠️ Please enter a description for all services.")
+        
+        # Store service data in session state
+        st.session_state.service_data = data
+        
+        # Add navigation buttons at the bottom of the tab
+        nav_buttons(2, len(tab_titles))
             
     with tabs[3]:
         st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
@@ -994,9 +1028,6 @@ if st.session_state.active_tab in ['calculator', 'results']:
                         else:
                             chart_data[key] = float(chart_data[key])
                     
-                    # Add debug info
-                    st.write(f"Debug - Chart data: {chart_data}")
-                    
                     # Render chart with safety measures
                     components.html(
                         CHART_HTML + f"""
@@ -1052,6 +1083,9 @@ if st.session_state.active_tab in ['calculator', 'results']:
                         mime="application/pdf",
                         key="pdf_download"
                     )
+        
+        # Add navigation buttons at the bottom of the tab
+        nav_buttons(3, len(tab_titles))
             
     with tabs[4]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
@@ -1059,6 +1093,7 @@ if st.session_state.active_tab in ['calculator', 'results']:
         # Check if we have calculation results
         if st.session_state.calculation_results:
             results = st.session_state.calculation_results
+            total_current_cost = results["total_current_cost"]
             total_prepaid_cost = results["total_prepaid_cost"]
             total_first_year_cost = results["total_first_year_cost"]
             total_updated_annual_cost = results["total_updated_annual_cost"] 
@@ -1100,6 +1135,9 @@ if st.session_state.active_tab in ['calculator', 'results']:
             st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
         else:
             st.info("Please calculate costs first to generate an email template.")
+        
+        # Add navigation buttons at the bottom of the tab
+        nav_buttons(4, len(tab_titles))
 
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
@@ -1118,6 +1156,8 @@ elif st.session_state.active_tab == 'help_documentation':
         4. **Calculate Costs**: Click the 'Calculate Costs' button to generate the results.
         
         5. **Generate Reports**: After calculation, you can download a PDF report or use the generated email template.
+        
+        6. **Navigation**: Use the 'Next' and 'Back' buttons at the bottom of each page to move between tabs.
         """)
     
     with st.expander("Understanding Billing Terms"):
@@ -1172,10 +1212,12 @@ elif st.session_state.active_tab == 'about':
     - Email template generation
     - Light and dark themes
     - Company logo customization
+    - Easy tab navigation with Next/Back buttons
     
     ### Version History
     
-    - **v1.1** (Current): Added customer information, email templates, and theme options
+    - **v1.2** (Current): Added Next/Back navigation buttons for improved user experience
+    - **v1.1**: Added customer information, email templates, and theme options
     - **v1.0**: Initial release with basic calculation features
     
     ### Contact
@@ -1193,6 +1235,6 @@ elif st.session_state.active_tab == 'about':
 # Add a footer to the main application
 st.markdown("""
 <div class="footer">
-Co-Terming Cost Calculator v1.1 | Developed by Your Team
+Co-Terming Cost Calculator v1.2 | Developed by Your Team
 </div>
 """, unsafe_allow_html=True)
