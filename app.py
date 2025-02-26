@@ -764,6 +764,13 @@ if st.session_state.active_tab in ['calculator', 'results']:
                   "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
         data = pd.DataFrame(columns=columns)
         
+        # Define numeric columns for proper handling
+        numeric_cols = [
+            "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
+            "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
+            "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
+        ]
+        
         # Create a container for the line items
         line_items_container = st.container()
         
