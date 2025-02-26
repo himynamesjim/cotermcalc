@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 from fpdf import FPDF
 import streamlit.components.v1 as components
 import base64
@@ -704,12 +705,31 @@ if st.session_state.active_tab in ['calculator', 'results']:
         col1, col2 = st.columns(2)
         with col1:
             current_date = datetime.today().strftime('%Y-%m-%d')
-            st.text(f"Date: {current_date}")
+            st.text(f"Current Date: {current_date}")
             billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid", "Monthly"])
+            # Add date picker for agreement start date
+            agreement_start_date = st.date_input("Agreement Start Date:", 
+                                               value=date.today() - relativedelta(months=6),
+                                               max_value=date.today())
         
         with col2:
             agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
-            months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
+            
+            # Calculate months remaining based on start date and agreement term
+            today = date.today()
+            months_passed = relativedelta(today, agreement_start_date).years * 12 + relativedelta(today, agreement_start_date).months
+            calculated_months_remaining = max(0, agreement_term - months_passed)
+            
+            # Display calculated months remaining
+            st.text(f"Calculated Months Remaining: {calculated_months_remaining:.2f}")
+            
+            # Allow manual override of months remaining
+            months_remaining = st.number_input("Override Months Remaining (if needed):", 
+                                             min_value=0.0, 
+                                             max_value=float(agreement_term), 
+                                             value=float(calculated_months_remaining), 
+                                             step=0.01, 
+                                             format="%.2f")
         
         # Add extension period option
         add_extension = st.checkbox("Add Agreement Extension?")
