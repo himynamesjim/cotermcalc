@@ -583,9 +583,9 @@ def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     # HTML button that calls the JavaScript function
     html_button = f"""
     {js_code}
-    <button id="{button_id}" onclick="copyToClipboard_{button_id}()" 
-    style="background-color: #4CAF50; color: white; padding: 10px 15px; 
-    border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+    <button id='{button_id}' onclick='copyToClipboard_{button_id}()' 
+    style='background-color: #4CAF50; color: white; padding: 10px 15px; 
+    border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;'>
     {button_text}
     </button>
     """
