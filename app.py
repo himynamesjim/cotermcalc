@@ -1277,7 +1277,6 @@ if st.session_state.active_tab == 'calculator':
             
             # Add copy button for subject line
             st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
-        else:
             st.info("Please calculate costs first to generate an email template.")
 
 elif st.session_state.active_tab == 'help_documentation':
