@@ -22,8 +22,7 @@ if 'theme' not in st.session_state:
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 'calculator'
 
-# Add these styles to your local_css function
-
+# Add this CSS to your local_css function
 def local_css():
     # Define CSS based on current theme
     if st.session_state.theme == 'dark':
@@ -31,20 +30,23 @@ def local_css():
         text_color = "#ffffff"
         accent_color = "#4b8bbe"
         secondary_bg = "#262730"
-        border_color = "rgba(255, 255, 255, 0.2)"
-        info_bg = "rgba(75, 139, 190, 0.2)"
-        success_bg = "rgba(40, 167, 69, 0.2)"
+        input_bg = "#1e1e1e"
+        border_color = "rgba(255, 255, 255, 0.1)"
+        info_bg = "rgba(75, 139, 190, 0.15)"
+        total_bg = "rgba(65, 105, 225, 0.15)"
     else:
         bg_color = "#ffffff"
         text_color = "#31333F"
         accent_color = "#2E86C1"
         secondary_bg = "#f0f2f6"
+        input_bg = "#f8f9fa"
         border_color = "rgba(0, 0, 0, 0.1)"
         info_bg = "rgba(46, 134, 193, 0.1)"
-        success_bg = "rgba(40, 167, 69, 0.1)"
+        total_bg = "rgba(46, 134, 193, 0.15)"
     
     return f"""
     <style>
+    /* Original styles */
     .main-header {{
         font-size: 2.5rem;
         font-weight: 600;
@@ -94,62 +96,70 @@ def local_css():
         font-size: 0.8rem;
     }}
     
-    /* New styles for agreement info section */
-    .stDateInput > div > div > input {{
-        background-color: {secondary_bg};
-        border-radius: 4px;
-        border: 1px solid {border_color};
-        padding: 0.5rem;
+    /* New styles for form elements */
+    /* Standardize input field heights */
+    div.stDateInput > div[data-baseweb="input"] > div,
+    div.stSelectbox > div > div[data-baseweb="select"] > div,
+    div.stNumberInput > div > div[data-baseweb="input"] > div {{
+        height: 40px !important;
+        background-color: {input_bg} !important;
+        border-radius: 4px !important;
+        border: 1px solid {border_color} !important;
     }}
     
-    .stNumberInput > div > div > input {{
-        background-color: {secondary_bg};
-        border-radius: 4px;
-        border: 1px solid {border_color};
+    /* Style number input buttons */
+    div.stNumberInput div[data-baseweb="input"] button {{
+        background-color: transparent !important;
+        border: none !important;
     }}
     
-    .stSelectbox > div > div > div {{
-        background-color: {secondary_bg};
-        border-radius: 4px;
-        border: 1px solid {border_color};
+    /* Add consistent spacing */
+    div.stDateInput, div.stNumberInput, div.stSelectbox {{
+        margin-bottom: 1rem !important;
     }}
     
-    .section-title {{
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: {accent_color};
-        margin-bottom: 0.5rem;
-    }}
-    
-    .calculated-value {{
-        background-color: {info_bg};
-        padding: 0.75rem;
-        border-radius: 4px;
-        border-left: 3px solid {accent_color};
-        margin-top: 0.5rem;
-    }}
-    
-    .total-term {{
-        background-color: {success_bg};
-        padding: 0.75rem;
-        border-radius: 4px;
-        border-left: 3px solid #28a745;
-        margin-top: 0.5rem;
+    /* Field labels */
+    .field-label {{
+        font-size: 0.9rem;
         font-weight: 500;
+        color: {text_color};
+        margin-bottom: 0.3rem;
+        margin-top: 0.7rem;
     }}
     
-    /* Add some spacing between form elements */
-    .stCheckbox {{
+    /* Info display boxes */
+    .info-display {{
+        background-color: {secondary_bg};
+        border-left: 3px solid {accent_color};
+        border-radius: 4px;
+        padding: 0.8rem;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }}
+    
+    .total-display {{
+        background-color: {total_bg};
+        border-left: 3px solid {accent_color};
+        border-radius: 4px;
+        padding: 0.8rem;
         margin-top: 0.5rem;
     }}
     
-    /* Add a subtle hover effect to buttons */
-    button {{
-        transition: all 0.2s ease;
+    .info-label {{
+        font-weight: 600;
     }}
-    button:hover {{
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    
+    /* Section divider */
+    .section-divider {{
+        height: 1px;
+        background-color: {border_color};
+        margin: 1.5rem 0;
+    }}
+    
+    /* Fix checkbox alignment */
+    .stCheckbox > div {{
+        display: flex !important;
+        align-items: center !important;
     }}
     </style>
     """
