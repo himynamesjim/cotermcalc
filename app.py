@@ -1220,7 +1220,7 @@ if st.session_state.active_tab == 'calculator':
                         key="pdf_download"
                     )
             
-    with tabs[4]:
+    with tabs[3]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
         # Check if we have calculation results
