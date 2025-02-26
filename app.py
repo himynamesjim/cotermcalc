@@ -21,6 +21,9 @@ if 'theme' not in st.session_state:
     
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 'calculator'
+    
+# Force dark mode
+st.session_state.theme = 'dark'
 
 # Add this CSS to your local_css function
 def local_css():
