@@ -2234,14 +2234,14 @@ elif st.session_state.active_tab == 'about':
     # Footer with a credit note
     st.markdown("""
     <div class="footer">
-    © 2024 Your Company. All rights reserved.
+    &copy; 2024 Your Company. All rights reserved.
     </div>
     """, unsafe_allow_html=True)
 
 # Add a footer to the main application
 st.markdown("""
 <div class="footer">
-Co-Terming Cost Calculator v1.2 | Developed by Your Team
+Co-Terming Cost Calculator v1.2 | Developed by Jim Hanus 
 </div>
 """, unsafe_allow_html=True)
  + value.toLocaleString();
