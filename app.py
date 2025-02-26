@@ -1243,9 +1243,6 @@ if st.session_state.active_tab == 'calculator':
                         total_subscription_term_fee,
                         processed_data,
                         agreement_term,
-                        customer_email,
-                        account_manager,
-                        company_name,
                         logo_path
                     )
                     
