@@ -652,7 +652,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 
     # Create BytesIO buffer and output PDF to it
     pdf_buffer = io.BytesIO()
-    pdf.output(name=pdf_buffer, dest='F')  # Fixed: Specify dest='F' parameter
+    pdf.output(pdf_buffer)
     pdf_buffer.seek(0)
     
     return pdf_buffer
