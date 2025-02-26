@@ -1341,7 +1341,7 @@ elif st.session_state.active_tab == 'about':
     # Footer with a credit note
     st.markdown("""
     <div class="footer">
-    © 2024 Your Company. All rights reserved.
+    © 2025 CDW. All rights reserved.
     </div>
     """, unsafe_allow_html=True)
 
