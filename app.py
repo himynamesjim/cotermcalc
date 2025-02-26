@@ -1348,6 +1348,6 @@ elif st.session_state.active_tab == 'about':
 # Add a footer to the main application
 st.markdown("""
 <div class="footer">
-Co-Terming Cost Calculator v1.1 | Developed by Your Team
+Co-Terming Cost Calculator v1.1 | Developed Jim Hanus 
 </div>
 """, unsafe_allow_html=True)
