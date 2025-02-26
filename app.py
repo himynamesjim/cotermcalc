@@ -226,7 +226,7 @@ CHART_HTML = """
                     }
                 ];
             }
-            else if (billingTerm === 'Monthly') {
+          else if (billingTerm === 'Monthly') {
                 datasets = [
                     {
                         label: 'Current Monthly Cost',
@@ -402,8 +402,22 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         current_annual_cost = row['Unit Quantity'] * row['Annual Unit Fee']
         
         # Calculate costs with additional licenses
-        first_month_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * (months_remaining % 1) if billing_term == 'Monthly' else 0
-        monthly_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] if billing_term == 'Monthly' else 0
+      # Calculate costs with additional licenses
+        if billing_term == 'Monthly':
+            # Calculate the first month prorated cost more accurately
+            # If months_remaining has a fractional part, use that for the first month
+            # Otherwise use a full month
+            fractional_month = months_remaining % 1
+            first_month_factor = fractional_month if fractional_month > 0 else 1.0
+            
+            first_month_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * first_month_factor
+            monthly_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses']
+            
+            df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
+            df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
+        else:
+            first_month_co_termed_cost = 0
+            monthly_co_termed_cost = 0
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
         subscription_term_total_fee = ((annual_total_fee * total_term) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
         co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12 if billing_term == 'Prepaid' else 0
@@ -681,12 +695,12 @@ def generate_email_template(billing_term, customer_name, current_cost, first_cos
 We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.
 
 Current Agreement:
-- Current Annual Cost: ${current_cost:,.2f}
+- Current Monthly Cost: ${current_cost/12:,.2f}
 
 Updated Cost Summary:
 - First Month Co-Termed Cost: ${first_cost:,.2f}
+- New Monthly Cost: ${updated_annual_cost/12:,.2f}
 - Total Subscription Cost: ${total_subscription_cost:,.2f}
-{'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
 
 Key Details:
 - The first month's co-termed cost reflects your current service adjustments.
@@ -1167,21 +1181,26 @@ if st.session_state.active_tab == 'calculator':
                 st.markdown("### Cost Comparison")
                 
                 # Prepare chart data based on billing term
-                if billing_term == 'Monthly':
+               if billing_term == 'Monthly':
                     # Get values from the Total Services Cost row
                     total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
+                    
+                    # Make sure these columns exist in the dataframe
                     monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
                     first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
                     
                     # Current monthly cost
                     current_monthly = total_current_cost / 12
+                    new_monthly = (total_updated_annual_cost / 12) if total_updated_annual_cost > 0 else 0
                     
+                    # Make sure the key names match exactly what's expected in the JavaScript
                     chart_data = {
                         "currentCost": float(current_monthly),
-                        "coTermedMonthly": first_month_co_termed,
-                        "newMonthly": monthly_co_termed,
+                        "coTermedMonthly": float(first_month_co_termed),  # This should match data.coTermedMonthly in JS
+                        "newMonthly": float(new_monthly),  # This should match data.newMonthly in JS
                         "subscription": float(total_subscription_term_fee)
                     }
+                    
                 elif billing_term == 'Annual':
                     chart_data = {
                         "currentCost": float(total_current_cost),
@@ -1257,44 +1276,60 @@ if st.session_state.active_tab == 'calculator':
                     mime="application/pdf",
                     key="pdf_download"
                 )
-    with tabs[3]:
-        st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
+   with tabs[3]:
+    st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
+    
+    # Customer Information Fields
+    st.markdown("### Customer Information")
+    customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
+    company_name = st.text_input("Company Name:", placeholder="Enter your company name")
+    account_manager = st.text_input("Account Manager:", placeholder="Enter your name")
+    
+    # Check if we have calculation results
+    if st.session_state.calculation_results:
+        results = st.session_state.calculation_results
+        total_current_cost = results["total_current_cost"]
+        total_prepaid_cost = results["total_prepaid_cost"]
+        total_first_year_cost = results["total_first_year_cost"]
+        total_updated_annual_cost = results["total_updated_annual_cost"] 
+        total_subscription_term_fee = results["total_subscription_term_fee"]
         
-        # Check if we have calculation results
-        if st.session_state.calculation_results:
-            results = st.session_state.calculation_results
-            total_prepaid_cost = results["total_prepaid_cost"]
-            total_first_year_cost = results["total_first_year_cost"]
-            total_updated_annual_cost = results["total_updated_annual_cost"] 
-            total_subscription_term_fee = results["total_subscription_term_fee"]
-            
-            # Determine which cost value to use based on billing term
-            if billing_term == 'Monthly':
-                first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
-            elif billing_term == 'Annual':
-                first_cost = total_first_year_cost
-            else:  # Prepaid
-                first_cost = total_prepaid_cost
-            
-            # Generate email template
-        def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0):
-
-            
-            # Display email template with copy button
-            st.markdown("### Email Template Preview")
-            st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
-            
-            # Add copy to clipboard button
-            st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
-            
-            # Email subject suggestion
-            st.markdown("### Suggested Email Subject")
-            email_subject = "Co-Terming Cost Proposal"
-            st.text_input("Subject Line:", value=email_subject, key="email_subject")
-            
-            # Add copy button for subject line
-            st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
-            st.info("Please calculate costs first to generate an email template.")
+        # Determine which cost value to use based on billing term
+        if billing_term == 'Monthly':
+            first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
+        elif billing_term == 'Annual':
+            first_cost = total_first_year_cost
+        else:  # Prepaid
+            first_cost = total_prepaid_cost
+        
+        # Generate email template
+        email_content = generate_email_template(
+            billing_term,
+            customer_name or "Customer",
+            total_current_cost,
+            first_cost,
+            total_subscription_term_fee,
+            company_name or "Your Company",
+            account_manager or "Account Manager",
+            total_updated_annual_cost
+        )
+        
+        # Display email template with copy button
+        st.markdown("### Email Template Preview")
+        st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
+        
+        # Add copy to clipboard button
+        st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
+        
+        # Email subject suggestion
+        st.markdown("### Suggested Email Subject")
+        email_subject = f"Co-Terming Cost Proposal - {customer_name}" if customer_name else "Co-Terming Cost Proposal"
+        st.text_input("Subject Line:", value=email_subject, key="email_subject")
+        
+        # Add copy button for subject line
+        st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
+    else:
+        st.info("Please calculate costs first to generate an email template.")
 
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
