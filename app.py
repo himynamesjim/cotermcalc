@@ -22,7 +22,8 @@ if 'theme' not in st.session_state:
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 'calculator'
 
-# Custom CSS for styling
+# Add these styles to your local_css function
+
 def local_css():
     # Define CSS based on current theme
     if st.session_state.theme == 'dark':
@@ -30,23 +31,20 @@ def local_css():
         text_color = "#ffffff"
         accent_color = "#4b8bbe"
         secondary_bg = "#262730"
-        input_bg = "#1e1e1e"
-        border_color = "rgba(255, 255, 255, 0.1)"
-        info_bg = "rgba(75, 139, 190, 0.15)"
-        total_bg = "rgba(65, 105, 225, 0.15)"
+        border_color = "rgba(255, 255, 255, 0.2)"
+        info_bg = "rgba(75, 139, 190, 0.2)"
+        success_bg = "rgba(40, 167, 69, 0.2)"
     else:
         bg_color = "#ffffff"
         text_color = "#31333F"
         accent_color = "#2E86C1"
         secondary_bg = "#f0f2f6"
-        input_bg = "#f8f9fa"
         border_color = "rgba(0, 0, 0, 0.1)"
         info_bg = "rgba(46, 134, 193, 0.1)"
-        total_bg = "rgba(46, 134, 193, 0.15)"
+        success_bg = "rgba(40, 167, 69, 0.1)"
     
     return f"""
     <style>
-    /* Base styles from your original CSS */
     .main-header {{
         font-size: 2.5rem;
         font-weight: 600;
@@ -65,76 +63,6 @@ def local_css():
         padding-top: 1rem;
         border-top: 1px solid {border_color};
     }}
-    
-    /* Form element styling for consistent appearance */
-    .stDateInput, .stNumberInput, .stSelectbox {{
-        margin-bottom: 1.2rem !important;
-    }}
-    
-    /* Make all input fields same height and style */
-    .stDateInput > div > div > input,
-    .stNumberInput > div > div > input,
-    .stSelectbox > div > div,
-    .stSelectbox > div > div > div {{
-        background-color: {input_bg} !important;
-        border: 1px solid {border_color} !important;
-        border-radius: 5px !important;
-        padding: 0.5rem !important;
-        height: 42px !important;
-        box-sizing: border-box !important;
-        width: 100% !important;
-    }}
-    
-    /* Custom form labels */
-    .label-text {{
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: {text_color};
-        margin-bottom: 0.3rem;
-        margin-top: 0.5rem;
-    }}
-    
-    /* Divider styling */
-    .divider {{
-        height: 1px;
-        background-color: {border_color};
-        margin: 1.5rem 0;
-    }}
-    
-    /* Info and results styling */
-    .info-value {{
-        background-color: {info_bg};
-        border-left: 3px solid {accent_color};
-        border-radius: 4px;
-        padding: 0.8rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        margin: 0.5rem 0 1.2rem 0;
-    }}
-    
-    .total-term-value {{
-        background-color: {total_bg};
-        border-left: 3px solid {accent_color};
-        border-radius: 4px;
-        padding: 0.8rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        margin: 0.5rem 0;
-    }}
-    
-    /* Make checkboxes vertically aligned better */
-    .stCheckbox > div {{
-        display: flex;
-        align-items: center;
-    }}
-    
-    /* Plus/minus button styling for number inputs */
-    .stNumberInput div[data-baseweb="input"] button {{
-        background-color: {secondary_bg} !important;
-        border: 1px solid {border_color} !important;
-    }}
-    
-    /* Keep the rest of your styles */
     .info-box {{
         background-color: {secondary_bg};
         padding: 1rem;
@@ -164,6 +92,64 @@ def local_css():
         text-align: center;
         color: gray;
         font-size: 0.8rem;
+    }}
+    
+    /* New styles for agreement info section */
+    .stDateInput > div > div > input {{
+        background-color: {secondary_bg};
+        border-radius: 4px;
+        border: 1px solid {border_color};
+        padding: 0.5rem;
+    }}
+    
+    .stNumberInput > div > div > input {{
+        background-color: {secondary_bg};
+        border-radius: 4px;
+        border: 1px solid {border_color};
+    }}
+    
+    .stSelectbox > div > div > div {{
+        background-color: {secondary_bg};
+        border-radius: 4px;
+        border: 1px solid {border_color};
+    }}
+    
+    .section-title {{
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: {accent_color};
+        margin-bottom: 0.5rem;
+    }}
+    
+    .calculated-value {{
+        background-color: {info_bg};
+        padding: 0.75rem;
+        border-radius: 4px;
+        border-left: 3px solid {accent_color};
+        margin-top: 0.5rem;
+    }}
+    
+    .total-term {{
+        background-color: {success_bg};
+        padding: 0.75rem;
+        border-radius: 4px;
+        border-left: 3px solid #28a745;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }}
+    
+    /* Add some spacing between form elements */
+    .stCheckbox {{
+        margin-top: 0.5rem;
+    }}
+    
+    /* Add a subtle hover effect to buttons */
+    button {{
+        transition: all 0.2s ease;
+    }}
+    button:hover {{
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }}
     </style>
     """
