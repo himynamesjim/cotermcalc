@@ -7,6 +7,7 @@ import streamlit.components.v1 as components
 import base64
 import io
 import os
+import textwrap
 
 # Set page configuration and theme options
 st.set_page_config(
@@ -997,9 +998,9 @@ if st.session_state.active_tab in ['calculator', 'results']:
                         else:
                             chart_data[key] = float(chart_data[key])
                     
-                    # Render chart with safety measures
-                    components.html(
-                        CHART_HTML + f"""
+                # Render chart with safety measures
+                components.html(
+                    CHART_HTML + textwrap.dedent(f"""
                         <script>
                             console.log("Starting chart rendering...");
                             try {{
@@ -1012,9 +1013,9 @@ if st.session_state.active_tab in ['calculator', 'results']:
                                 document.write("<div style='color:red'>Error rendering chart: " + e.message + "</div>");
                             }}
                         </script>
-                        """,
-                        height=500
-                    )
+                    """),
+                    height=500
+                )
                 except Exception as e:
                     st.error(f"Error generating chart: {str(e)}")
                     st.warning("Please try recalculating costs or refreshing the page.")
