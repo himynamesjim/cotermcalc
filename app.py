@@ -784,7 +784,7 @@ with st.sidebar:
     
     # App info
     st.markdown("##### Co-Terming Calculator v1.1")
-    st.markdown("© 2024 Your Company")
+    st.markdown("© 2025 | CDW")
 
 # Main content area# Main content area
 if st.session_state.active_tab == 'calculator':
