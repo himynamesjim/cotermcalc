@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from fpdf import FPDF
 import streamlit.components.v1 as components
 import base64
@@ -229,7 +229,36 @@ CHART_HTML = """
 </body>
 </html>
 """
-
+# Add this function after the existing imports
+def calculate_months_remaining(start_date, agreement_term):
+    """
+    Calculate months remaining based on agreement start date and term
+    
+    Parameters:
+    start_date (datetime): The start date of the agreement
+    agreement_term (int): The full term of the agreement in months
+    
+    Returns:
+    float: Months remaining with decimal precision
+    """
+    today = datetime.today()
+    
+    # Calculate total days in the agreement
+    end_date = start_date + pd.DateOffset(months=agreement_term)
+    total_days = (end_date - start_date).days
+    
+    # Calculate days remaining
+    days_remaining = (end_date - today).days
+    
+    # If agreement is already expired, return 0
+    if days_remaining <= 0:
+        return 0.0
+    
+    # Convert days remaining to months with decimal precision
+    months_remaining = (days_remaining / total_days) * agreement_term
+    
+    return round(months_remaining, 2)
+    
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
     months_elapsed = agreement_term - months_remaining
@@ -676,28 +705,57 @@ if st.session_state.active_tab == 'calculator':
     # Create tabs for different sections of the calculator
     tabs = st.tabs(["Agreement Info", "Customer Info", "Services", "Results", "Email Template"])
     
-    with tabs[0]:
-        st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
+   with tabs[0]:
+    st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        current_date = datetime.today().strftime('%Y-%m-%d')
+        st.text(f"Date: {current_date}")
+        billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid", "Monthly"])
+    
+    with col2:
+        agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            current_date = datetime.today().strftime('%Y-%m-%d')
-            st.text(f"Date: {current_date}")
-            billing_term = st.selectbox("Billing Term:", ["Annual", "Prepaid", "Monthly"])
+        # Add agreement start date picker
+        default_start_date = datetime.today() - pd.DateOffset(months=6)  # Default to 6 months ago
+        agreement_start_date = st.date_input(
+            "Agreement Start Date:",
+            value=default_start_date,
+            max_value=datetime.today()
+        )
         
-        with col2:
-            agreement_term = st.number_input("Agreement Term (Months):", min_value=1, value=36, step=1, format="%d")
-            months_remaining = st.number_input("Months Remaining:", min_value=0.01, max_value=float(agreement_term), value=30.0, step=0.01, format="%.2f")
+        # Convert date_input result to datetime
+        agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
         
-        # Add extension period option
-        add_extension = st.checkbox("Add Agreement Extension?")
-        if add_extension:
-            extension_months = st.number_input("Extension Period (Months):", min_value=1, value=12, step=1, format="%d")
-            total_term = months_remaining + extension_months
-            st.info(f"Total Term: {total_term:.2f} months")
+        # Calculate and display months remaining
+        calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
+        
+        # Show calculated months remaining with an option to override
+        use_calculated_months = st.checkbox("Use calculated months remaining", value=True)
+        
+        if use_calculated_months:
+            months_remaining = calculated_months_remaining
+            st.info(f"Calculated Months Remaining: {months_remaining:.2f}")
         else:
-            extension_months = 0
-            total_term = months_remaining
+            months_remaining = st.number_input(
+                "Override Months Remaining:", 
+                min_value=0.01, 
+                max_value=float(agreement_term), 
+                value=calculated_months_remaining,
+                step=0.01, 
+                format="%.2f"
+            )
+    
+    # Add extension period option
+    add_extension = st.checkbox("Add Agreement Extension?")
+    if add_extension:
+        extension_months = st.number_input("Extension Period (Months):", min_value=1, value=12, step=1, format="%d")
+        total_term = months_remaining + extension_months
+        st.info(f"Total Term: {total_term:.2f} months")
+    else:
+        extension_months = 0
+        total_term = months_remaining
             
     with tabs[1]:
         st.markdown('<div class="sub-header">Customer Information</div>', unsafe_allow_html=True)
