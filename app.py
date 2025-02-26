@@ -502,20 +502,30 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     return pdf_buffer
 
 def generate_email_template(billing_term, customer_name, current_cost, first_cost, total_subscription_cost, company_name, account_manager, updated_annual_cost=0):
-    # Base template with placeholders for dynamic content
-    email_templates = {
-        'Monthly': f"""Dear {customer_name},
+    # Format values first
+    current_cost_fmt = "${:,.2f}".format(current_cost)
+    first_cost_fmt = "${:,.2f}".format(first_cost)
+    total_subscription_cost_fmt = "${:,.2f}".format(total_subscription_cost)
+    updated_annual_cost_fmt = "${:,.2f}".format(updated_annual_cost)
+    
+    # Monthly template
+    monthly_template = f"""Dear {customer_name},
 
 We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.
 
 Current Agreement:
-- Current Annual Cost: ${current_cost:,.2f}
+- Current Annual Cost: {current_cost_fmt}
 
 Updated Cost Summary:
-- First Month Co-Termed Cost: ${first_cost:,.2f}
-- Total Subscription Cost: ${total_subscription_cost:,.2f}
-{f'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
-
+- First Month Co-Termed Cost: {first_cost_fmt}
+- Total Subscription Cost: {total_subscription_cost_fmt}
+"""
+    
+    # Conditionally add updated annual cost to monthly template
+    if updated_annual_cost > 0:
+        monthly_template += f"- Updated Annual Cost: {updated_annual_cost_fmt}\n"
+    
+    monthly_template += f"""
 Key Details:
 - The first month's co-termed cost reflects your current service adjustments.
 - Your total subscription cost covers the entire term of the agreement.
@@ -529,19 +539,20 @@ We appreciate your continued business and look forward to your approval.
 
 Best regards,
 {account_manager}
-{company_name} Sales Team""",
+{company_name} Sales Team"""
 
-        'Annual': f"""Dear {customer_name},
+    # Annual template
+    annual_template = f"""Dear {customer_name},
 
 We are writing to inform you about the updated co-terming cost for your annual billing arrangement.
 
 Current Agreement:
-- Current Annual Cost: ${current_cost:,.2f}
+- Current Annual Cost: {current_cost_fmt}
 
 Updated Cost Summary:
-- First Year Co-Termed Cost: ${first_cost:,.2f}
-- Updated Annual Cost: ${updated_annual_cost:,.2f}
-- Total Subscription Cost: ${total_subscription_cost:,.2f}
+- First Year Co-Termed Cost: {first_cost_fmt}
+- Updated Annual Cost: {updated_annual_cost_fmt}
+- Total Subscription Cost: {total_subscription_cost_fmt}
 
 Key Details:
 - The first year's co-termed cost reflects your current service adjustments.
@@ -556,20 +567,26 @@ We appreciate your continued business and look forward to your approval.
 
 Best regards,
 {account_manager}
-{company_name} Sales Team""",
+{company_name} Sales Team"""
 
-        'Prepaid': f"""Dear {customer_name},
+    # Prepaid template
+    prepaid_template = f"""Dear {customer_name},
 
 We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.
 
 Current Agreement:
-- Current Annual Cost: ${current_cost:,.2f}
+- Current Annual Cost: {current_cost_fmt}
 
 Updated Cost Summary:
-- Total Pre-Paid Cost: ${first_cost:,.2f}
-- Total Subscription Cost: ${total_subscription_cost:,.2f}
-{f'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
-
+- Total Pre-Paid Cost: {first_cost_fmt}
+- Total Subscription Cost: {total_subscription_cost_fmt}
+"""
+    
+    # Conditionally add updated annual cost to prepaid template
+    if updated_annual_cost > 0:
+        prepaid_template += f"- Updated Annual Cost: {updated_annual_cost_fmt}\n"
+    
+    prepaid_template += f"""
 Key Details:
 - The pre-paid cost covers your entire service term.
 - Your total subscription cost reflects the full agreement period.
@@ -584,10 +601,15 @@ We appreciate your continued business and look forward to your approval.
 Best regards,
 {account_manager}
 {company_name} Sales Team"""
-    }
     
     # Return the appropriate template based on billing term
-    return email_templates.get(billing_term, "Invalid billing term")
+    templates = {
+        'Monthly': monthly_template,
+        'Annual': annual_template,
+        'Prepaid': prepaid_template
+    }
+    
+    return templates.get(billing_term, "Invalid billing term")
 
 def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     # Create a unique key for this button
