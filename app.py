@@ -202,14 +202,14 @@ CHART_HTML = """
             if (billingTerm === 'Annual') {
                 datasets = [
                     {
-                        label: 'Current Annual Cost',
-                        data: [data.currentCost || 0],
-                        backgroundColor: colors.barColors[0]
-                    },
-                    {
                         label: 'First Year Co-Termed Cost',
                         data: [data.firstYearCoTerm || 0],
                         backgroundColor: colors.barColors[1]
+                    },
+                    {
+                        label: 'Current Annual Cost',
+                        data: [data.currentCost || 0],
+                        backgroundColor: colors.barColors[0]
                     },
                     {
                         label: 'Updated Annual Cost',
