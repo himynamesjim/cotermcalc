@@ -990,7 +990,7 @@ if st.session_state.active_tab == 'calculator':
             st.warning("⚠️ Please enter a description for all licenses.")
         
             
-        with tabs[2]:
+    with tabs[2]:
         st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
         
         # Check if we have valid data before calculating
