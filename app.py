@@ -782,20 +782,6 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Uploader for logo
-    st.subheader("Company Logo")
-    uploaded_logo = st.file_uploader("Upload your logo for PDF reports", type=["png", "jpg", "jpeg"])
-    if uploaded_logo:
-        # Save the uploaded file
-        logo_path = "logo.png"
-        with open(logo_path, "wb") as f:
-            f.write(uploaded_logo.getbuffer())
-        st.success("Logo uploaded successfully!")
-    else:
-        logo_path = None
-    
-    st.markdown("---")
-    
     # App info
     st.markdown("##### Co-Terming Calculator v1.1")
     st.markdown("© 2024 Your Company")
