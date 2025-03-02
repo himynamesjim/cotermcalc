@@ -502,7 +502,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_monthly_cost = 0  # Add this line to track monthly cost
     total_updated_monthly_cost = 0  # Add this line to track updated monthly cost
     
-       for index, row in df.iterrows():
+    for index, row in df.iterrows():
         # Calculate current costs (before additional licenses)
         current_monthly_cost = (row['Annual Unit Fee'] / 12) * row['Unit Quantity']
         current_annual_cost = row['Unit Quantity'] * row['Annual Unit Fee']
