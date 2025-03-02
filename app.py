@@ -26,6 +26,25 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
+        /* Style buttons properly for dark mode */
+    button, .stButton>button, [data-testid="baseButton-secondary"] {
+        background-color: #4b8bbe !important;
+        color: white !important;
+        border: none !important;
+    }
+    
+    /* Button hover state */
+    button:hover, .stButton>button:hover, [data-testid="baseButton-secondary"]:hover {
+        background-color: #3a7aad !important;
+        color: white !important;
+    }
+    
+    /* Disabled button state */
+    button:disabled, .stButton>button:disabled, [data-testid="baseButton-secondary"]:disabled {
+        background-color: #2c3e50 !important;
+        color: #95a5a6 !important;
+        opacity: 0.7;
+    }
         /* Make all paragraph and text elements white */
     p, span, label, li, td, div, 
     [data-testid="stMarkdownContainer"] p,
