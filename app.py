@@ -499,41 +499,45 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_updated_annual_cost = 0
     total_subscription_term_fee = 0
     total_current_cost = 0  # Current cost before additional licenses
-
-    for index, row in df.iterrows():
+    total_monthly_cost = 0  # Add this line to track monthly cost
+    total_updated_monthly_cost = 0  # Add this line to track updated monthly cost
+    
+   for index, row in df.iterrows():
         # Calculate current costs (before additional licenses)
         current_monthly_cost = (row['Annual Unit Fee'] / 12) * row['Unit Quantity']
         current_annual_cost = row['Unit Quantity'] * row['Annual Unit Fee']
         
-        # Calculate costs with additional licenses
+        # Always store both monthly and annual costs regardless of billing term
+        df.at[index, 'Current Monthly Cost'] = current_monthly_cost
+        df.at[index, 'Current Annual Cost'] = current_annual_cost
+        
+        # Calculate new costs with additional licenses
+        new_monthly_cost = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
+        new_annual_cost = (row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']
+        
+        # Always set the Updated Annual Cost
+        df.at[index, 'Updated Annual Cost'] = new_annual_cost
+        
+        # Billing term specific calculations
         if billing_term == 'Monthly':
-            # Calculate the first month prorated cost more accurately
-            # If months_remaining has a fractional part, use that for the first month
-            # Otherwise use a full month
+            # Monthly specific calculations...
             fractional_month = months_remaining % 1
             first_month_factor = fractional_month if fractional_month > 0 else 1.0
             
             first_month_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * first_month_factor
             monthly_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses']
             
-            df.at[index, 'Current Monthly Cost'] = current_monthly_cost
             df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
             df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
+            
         elif billing_term == 'Annual':
-            first_month_co_termed_cost = 0
-            monthly_co_termed_cost = 0
+            # Annual specific calculations...
             co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
-            updated_annual_cost = current_annual_cost + (row['Additional Licenses'] * row['Annual Unit Fee'])
-            
-            df.at[index, 'Current Annual Cost'] = current_annual_cost
             df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
-            df.at[index, 'Updated Annual Cost'] = updated_annual_cost
-        else:  # Prepaid
-            first_month_co_termed_cost = 0
-            monthly_co_termed_cost = 0
-            co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
             
-            df.at[index, 'Current Annual Cost'] = current_annual_cost
+        else:  # Prepaid
+            # Prepaid specific calculations...
+            co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
             df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
             
         # Always add the subscription term total
