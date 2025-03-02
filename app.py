@@ -14,13 +14,22 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+# Apply dark theme directly (right after st.set_page_config)
+st.markdown("""
+<script>
+    var observer = new MutationObserver(function(mutations) {
+        document.querySelector('body').classList.add('dark');
+    });
+    observer.observe(document, {childList: true, subtree: true});
+</script>
+""", unsafe_allow_html=True)
 
+# Force dark mode in session state
+st.session_state.theme = 'dark'
     
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 'calculator'
-    
-# Force dark mode
-st.session_state.theme = 'dark'
+
 
 # Add this CSS to your local_css function
 def local_css():
@@ -95,6 +104,7 @@ def local_css():
         color: gray;
         font-size: 0.8rem;
     }}
+    
     
     /* New styles for form elements */
     /* Standardize input field heights */
