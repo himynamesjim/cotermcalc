@@ -26,6 +26,42 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
+     /* Fix button appearance in dark mode */
+    .stButton > button {
+        background-color: #4b8bbe !important;
+        color: white !important;
+        border: 1px solid #366b99 !important;
+    }
+    
+    /* Fix tooltip background color */
+    [data-baseweb="tooltip"], 
+    [data-baseweb="popover"],
+    [data-baseweb="toaster"],
+    [data-baseweb="toast"] {
+        background-color: #262730 !important;
+        color: white !important;
+        border: 1px solid #4b8bbe !important;
+    }
+    
+    /* Make sure dialog boxes and popups are dark too */
+    [role="dialog"],
+    [role="alertdialog"],
+    [role="tooltip"] {
+        background-color: #262730 !important;
+        color: white !important;
+    }
+    
+    /* Fix the card-like white backgrounds */
+    [data-testid="stForm"], 
+    [data-testid="stVirtualDropzone"] {
+        background-color: #262730 !important;
+        border-color: #4b8bbe !important;
+    }
+    
+    /* Make helper text visible */
+    .stHelperText {
+        color: #9ca3af !important;
+    }
         /* Make all paragraph and text elements white */
     p, span, label, li, td, div, 
     [data-testid="stMarkdownContainer"] p,
