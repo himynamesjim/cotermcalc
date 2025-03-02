@@ -41,7 +41,7 @@ st.markdown("""
     /* All inputs, widgets, and controls */
     input, textarea, [role="listbox"], [data-baseweb="input"], [data-baseweb="select"] {
         background-color: rgb(33, 37, 41) !important;
-        color: rgb(250, 250, 250) !important;
+        color: rgb(255, 255, 255) !important;
     }
     
     /* Ensure dark mode persists */
