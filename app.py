@@ -26,41 +26,42 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-     /* Fix button appearance in dark mode */
+ /* Fix buttons - make them blue with white text */
     .stButton > button {
         background-color: #4b8bbe !important;
         color: white !important;
         border: 1px solid #366b99 !important;
+        border-radius: 4px !important;
     }
     
-    /* Fix tooltip background color */
-    [data-baseweb="tooltip"], 
-    [data-baseweb="popover"],
-    [data-baseweb="toaster"],
-    [data-baseweb="toast"] {
+    /* Button hover state */
+    .stButton > button:hover {
+        background-color: #366b99 !important;
+        border-color: #264d73 !important;
+    }
+    
+    /* Button active/clicked state */
+    .stButton > button:active {
+        background-color: #264d73 !important;
+    }
+    
+    /* Disabled button state */
+    .stButton > button:disabled {
+        background-color: #2c3e50 !important;
+        color: #95a5a6 !important;
+        border-color: #2c3e50 !important;
+        opacity: 0.7 !important;
+    }
+    
+    /* Fix form container backgrounds */
+    div[data-testid="stForm"] {
         background-color: #262730 !important;
-        color: white !important;
-        border: 1px solid #4b8bbe !important;
     }
     
-    /* Make sure dialog boxes and popups are dark too */
-    [role="dialog"],
-    [role="alertdialog"],
-    [role="tooltip"] {
+    /* Fix tooltip and helper text */
+    div[data-baseweb="tooltip"] {
         background-color: #262730 !important;
-        color: white !important;
-    }
-    
-    /* Fix the card-like white backgrounds */
-    [data-testid="stForm"], 
-    [data-testid="stVirtualDropzone"] {
-        background-color: #262730 !important;
-        border-color: #4b8bbe !important;
-    }
-    
-    /* Make helper text visible */
-    .stHelperText {
-        color: #9ca3af !important;
+        color: #ffffff !important;
     }
         /* Make all paragraph and text elements white */
     p, span, label, li, td, div, 
