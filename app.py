@@ -21,7 +21,7 @@ st.markdown("""
 <style>
     :root {
         --background-color: rgb(14, 17, 23);
-        --text-color: rgb(250, 250, 250);
+        --text-color: rgb(255, 255, 255);
         
         /* Dark theme styling */
         color-scheme: dark;
