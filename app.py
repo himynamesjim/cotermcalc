@@ -26,6 +26,31 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
+        /* Make all paragraph and text elements white */
+    p, span, label, li, td, div, 
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] span,
+    .stMarkdown, .stText {
+        color: #ffffff !important;
+    }
+    
+    /* Also target specific Streamlit text classes */
+    .st-emotion-cache-ue6h4q, .st-emotion-cache-nahz7x, 
+    .st-emotion-cache-10trblm, .st-emotion-cache-1gulkj5,
+    .st-emotion-cache-1avcm0n {
+        color: #ffffff !important;
+    }
+    
+    /* And any customizable elements that might contain text */
+    .streamlit-expanderHeader, .stTabs [role="tab"], .stRadio label {
+        color: #ffffff !important;
+    }
+    
+    /* Make sure form labels are white too */
+    .stNumberInput label, .stTextInput label, .stDateInput label, 
+    .stTimeInput label, .stSelectbox label, .stMultiselect label {
+        color: #ffffff !important;
+    }
     
     /* Main background */
     .stApp {
