@@ -12,12 +12,11 @@ st.set_page_config(
     page_title="Co-Terming Cost Calculator",
     page_icon="💰",
     layout="wide",
-    initial_sidebar_state="expanded",
-    # Add this parameter:
-    menu_items={
-        'Theme': 'dark'  # Explicitly set theme to dark
-    }
+    initial_sidebar_state="expanded"
 )
+# Force dark mode
+st.session_state.theme = 'dark'
+
 st.markdown("""
 <style>
     :root {
