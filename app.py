@@ -1306,9 +1306,6 @@ if st.session_state.active_tab == 'calculator':
                         "subscription": float(total_subscription_term_fee)
                     }
                     
-                    # Debug for troubleshooting
-                    st.write("Debug - Chart Data:", chart_data)
-                    
                 elif billing_term == 'Annual':
                     chart_data = {
                         "currentCost": float(total_current_cost),
