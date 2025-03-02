@@ -15,9 +15,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Initialize session state variables if they don't exist
-if 'theme' not in st.session_state:
-    st.session_state.theme = 'light'
     
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 'calculator'
