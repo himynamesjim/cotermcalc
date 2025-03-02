@@ -122,7 +122,7 @@ def local_css():
     bg_color = "#0e1117"
     text_color = "#ffffff"
     accent_color = "#4b8bbe"
-    secondary_bg = "#262730"
+    secondary_bg = "#000000"
     input_bg = "#1e1e1e"
     border_color = "rgba(255, 255, 255, 0.1)"
     info_bg = "rgba(75, 139, 190, 0.15)"
