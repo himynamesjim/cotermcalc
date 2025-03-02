@@ -26,7 +26,13 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-    
+        /* Make all paragraph and text elements white */
+    p, span, label, li, td, div, 
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] span,
+    .stMarkdown, .stText {
+        color: #ffffff !important;
+    }
     /* Also target specific Streamlit text classes */
     .st-emotion-cache-ue6h4q, .st-emotion-cache-nahz7x, 
     .st-emotion-cache-10trblm, .st-emotion-cache-1gulkj5,
