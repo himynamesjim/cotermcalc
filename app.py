@@ -18,18 +18,39 @@ st.set_page_config(
         'Theme': 'dark'  # Explicitly set theme to dark
     }
 )
-# Apply dark theme directly (right after st.set_page_config)
 st.markdown("""
-<script>
-    var observer = new MutationObserver(function(mutations) {
-        document.querySelector('body').classList.add('dark');
-    });
-    observer.observe(document, {childList: true, subtree: true});
-</script>
+<style>
+    :root {
+        --background-color: rgb(14, 17, 23);
+        --text-color: rgb(250, 250, 250);
+        
+        /* Dark theme styling */
+        color-scheme: dark;
+    }
+    
+    /* Main background */
+    .stApp {
+        background-color: rgb(14, 17, 23) !important; 
+        color: rgb(250, 250, 250) !important;
+    }
+    
+    /* Sidebar background */
+    [data-testid="stSidebar"] {
+        background-color: rgb(14, 17, 23) !important;
+    }
+    
+    /* All inputs, widgets, and controls */
+    input, textarea, [role="listbox"], [data-baseweb="input"], [data-baseweb="select"] {
+        background-color: rgb(33, 37, 41) !important;
+        color: rgb(250, 250, 250) !important;
+    }
+    
+    /* Ensure dark mode persists */
+    .st-emotion-cache-lrlib {
+        color: rgb(250, 250, 250) !important;
+    }
+</style>
 """, unsafe_allow_html=True)
-
-# Force dark mode in session state
-st.session_state.theme = 'dark'
     
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 'calculator'
@@ -37,29 +58,41 @@ if 'active_tab' not in st.session_state:
 
 # Add this CSS to your local_css function
 def local_css():
-    # Define CSS based on current theme
-    if st.session_state.theme == 'dark':
-        bg_color = "#0e1117"
-        text_color = "#ffffff"
-        accent_color = "#4b8bbe"
-        secondary_bg = "#262730"
-        input_bg = "#1e1e1e"
-        border_color = "rgba(255, 255, 255, 0.1)"
-        info_bg = "rgba(75, 139, 190, 0.15)"
-        total_bg = "rgba(65, 105, 225, 0.15)"
-    else:
-        bg_color = "#ffffff"
-        text_color = "#31333F"
-        accent_color = "#2E86C1"
-        secondary_bg = "#f0f2f6"
-        input_bg = "#f8f9fa"
-        border_color = "rgba(0, 0, 0, 0.1)"
-        info_bg = "rgba(46, 134, 193, 0.1)"
-        total_bg = "rgba(46, 134, 193, 0.15)"
+    # Always use dark mode regardless of session state
+    bg_color = "#0e1117"
+    text_color = "#ffffff"
+    accent_color = "#4b8bbe"
+    secondary_bg = "#262730"
+    input_bg = "#1e1e1e"
+    border_color = "rgba(255, 255, 255, 0.1)"
+    info_bg = "rgba(75, 139, 190, 0.15)"
+    total_bg = "rgba(65, 105, 225, 0.15)"
     
     return f"""
     <style>
     /* Original styles */
+    /* Force dark theme - essential overrides */
+    .stApp, 
+    .main, 
+    [data-testid="stAppViewContainer"],
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"],
+    [data-testid="baseButton-headerNoPadding"],
+    [data-testid="stSidebar"] {{
+        background-color: {bg_color} !important;
+        color: {text_color} !important;
+    }}
+    
+    /* Force inputs to use dark theme */
+    input, 
+    textarea, 
+    [data-baseweb="select"] > div,
+    [data-baseweb="input"] > div {{
+        background-color: {input_bg} !important;
+        color: {text_color} !important;
+        border-color: {border_color} !important;
+    }}
     .main-header {{
         font-size: 2.5rem;
         font-weight: 600;
