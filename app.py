@@ -682,14 +682,13 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
             df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
             
-        else:  # Prepaid
-            # Prepaid specific calculations...
+        elif billing_term == 'Prepaid':
             co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
-            df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost  
-            
-            # Also store the additional prepaid cost
-            additional_licenses_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
-            df.at[index, 'Prepaid Additional Licenses Co-Termed Cost'] = additional_licenses_prepaid_cost  
+            df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
+        
+            additional_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
+            df.at[index, 'Prepaid Additional Licenses Co-Termed Cost'] = additional_prepaid_cost
+
 
             
         # Always add the subscription term total
@@ -1465,28 +1464,29 @@ if st.session_state.active_tab == 'calculator':
                         "newAnnual": float(total_updated_annual_cost),
                         "subscription": float(total_subscription_term_fee)
                     }
-                elif billing_term == 'Prepaid':
-                    # Ensure the column exists before fetching values
+               elif billing_term == 'Prepaid':
+                    # Extract row containing total cost
                     total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
                 
-                    # Default values in case of missing data
+                    # Default values
                     co_termed_prepaid = 0.0
                     additional_prepaid_cost = 0.0
-                    
-                    # Extract values if they exist in the dataframe
+                
+                    # ✅ Ensure column exists before accessing values
                     if 'Prepaid Co-Termed Cost' in total_row.columns and not total_row.empty:
                         co_termed_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0])
-                        
+                
+                    # ✅ Fix: Ensure column exists and has values, otherwise set it to zero
                     if 'Prepaid Additional Licenses Co-Termed Cost' in total_row.columns and not total_row.empty:
-                        additional_prepaid_cost = float(total_row['Prepaid Additional Licenses Co-Termed Cost'].iloc[0])
+                        additional_prepaid_cost = float(total_row['Prepaid Additional Licenses Co-Termed Cost'].fillna(0).iloc[0])
                 
-                    # Create chart data for Prepaid billing
+                    # ✅ Updated Chart Data
                     chart_data = {
-                        "currentCost": float(total_current_cost),  # Current prepaid cost
-                        "coTermedPrepaid": float(additional_prepaid_cost),  # Fix: Show Additional Licenses Prepaid Cost
-                        "subscription": float(total_subscription_term_fee)  # Total subscription cost
+                        "currentCost": float(total_current_cost),
+                        "coTermedPrepaid": float(additional_prepaid_cost),  # Fix: Ensure it's not NaN
+                        "subscription": float(total_subscription_term_fee)
                     }
-                
+
                 # Now generate the chart using the updated chart data
                 try:
                     # Convert all values to float and ensure they're not None
@@ -1496,8 +1496,10 @@ if st.session_state.active_tab == 'calculator':
                         else:
                             chart_data[key] = float(chart_data[key])
                     
-                    st.write("Debug: Prepaid Additional Licenses Cost:", additional_prepaid_cost)
-                    st.write("Debug: Prepaid Co-Termed Cost:", co_termed_prepaid)
+                st.write("Debug: Total Row Data (Prepaid)", total_row)
+                st.write("Debug: Prepaid Additional Licenses Cost:", additional_prepaid_cost)
+                st.write("Debug: Prepaid Co-Termed Cost:", co_termed_prepaid)
+
 
                     # Render chart with safety measures
                     components.html(
