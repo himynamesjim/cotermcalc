@@ -1116,544 +1116,544 @@ if st.session_state.active_tab == 'calculator':
     # Create tabs without the Customer Info tab
     tabs = st.tabs(["Agreement Info", "Licensing", "Results", "Email Template"])
     
-with tabs[0]:
-    st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
-    
-    # Add a separator
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    
-    # Agreement info section
-    left_col, right_col = st.columns(2)
-    
-    with left_col:
-        # Agreement start date with consistent styling
-        st.markdown('<p class="field-label">Agreement Start Date:</p>', unsafe_allow_html=True)
-        default_start_date = datetime.today() - pd.DateOffset(months=6)
-        agreement_start_date = st.date_input(
-            "",  # Empty label since we're using custom styling
-            value=default_start_date,
-            max_value=datetime.today(),
-            key="agreement_start_date",
-            label_visibility="collapsed"
-        )
+    with tabs[0]:
+        st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
         
-        # Billing term with consistent styling
-        st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
-        billing_term = st.selectbox(
-            "", 
-            ["Annual", "Prepaid", "Monthly"],
-            key="billing_term",
-            label_visibility="collapsed"
-        )
-    
-    with right_col:
-        # Agreement term with consistent styling
-        st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
-        agreement_term = st.number_input(
-            "",
-            min_value=1, 
-            value=36, 
-            step=1, 
-            format="%d",
-            key="agreement_term",
-            label_visibility="collapsed"
-        )
+        # Add a separator
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
-        # Convert date_input result to datetime
-        agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
+        # Agreement info section
+        left_col, right_col = st.columns(2)
         
-        # Calculate months remaining
-        calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
-        
-        # Months remaining section with consistent styling
-        st.markdown('<p class="field-label">Months Remaining:</p>', unsafe_allow_html=True)
-        use_calculated_months = st.checkbox(
-            "Use calculated months remaining", 
-            value=True,
-            key="use_calculated"
-        )
-        
-        if use_calculated_months:
-            months_remaining = calculated_months_remaining
-            st.markdown(f"""
-            <div class="info-display">
-                <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            months_remaining = st.number_input(
-                "", 
-                min_value=0.01, 
-                max_value=float(agreement_term), 
-                value=calculated_months_remaining,
-                step=0.01, 
-                format="%.2f",
-                key="manual_months",
+        with left_col:
+            # Agreement start date with consistent styling
+            st.markdown('<p class="field-label">Agreement Start Date:</p>', unsafe_allow_html=True)
+            default_start_date = datetime.today() - pd.DateOffset(months=6)
+            agreement_start_date = st.date_input(
+                "",  # Empty label since we're using custom styling
+                value=default_start_date,
+                max_value=datetime.today(),
+                key="agreement_start_date",
                 label_visibility="collapsed"
             )
-    
-    # Add a separator with consistent styling
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    
-    # Extension option with better styling
-    extension_col1, extension_col2 = st.columns([1, 3])
-    
-    with extension_col1:
-        add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
-    
-    if add_extension:
-        with extension_col2:
-            st.markdown('<p class="field-label">Extension Period (Months):</p>', unsafe_allow_html=True)
-            extension_months = st.number_input(
+            
+            # Billing term with consistent styling
+            st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
+            billing_term = st.selectbox(
                 "", 
+                ["Annual", "Prepaid", "Monthly"],
+                key="billing_term",
+                label_visibility="collapsed"
+            )
+        
+        with right_col:
+            # Agreement term with consistent styling
+            st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
+            agreement_term = st.number_input(
+                "",
                 min_value=1, 
-                value=12, 
+                value=36, 
                 step=1, 
                 format="%d",
-                key="extension_months",
+                key="agreement_term",
                 label_visibility="collapsed"
             )
-            total_term = months_remaining + extension_months
             
-            # Display total term with consistent styling
-            st.markdown(f"""
-            <div class="total-display">
-                <span class="info-label">Total Term:</span> {total_term:.2f} months
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        extension_months = 0
-        total_term = months_remaining
-        
-with tabs[1]:  # Licensing tab (previously tabs[2])
-    st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
-    
-    num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
-    
-    columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
-              "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", 
-              "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
-    data = pd.DataFrame(columns=columns)
-    
-    # Create a container for the line items
-    line_items_container = st.container()
-    
-    with line_items_container:
-        for i in range(num_items):
-            st.markdown(f"**Item {i+1}**")
-            col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+            # Convert date_input result to datetime
+            agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
             
-            # Use a unique key for each input to avoid conflicts
-            service_key = f"service_{i}"
-            qty_key = f"qty_{i}"
-            fee_key = f"fee_{i}"
-            add_lic_key = f"add_lic_{i}"
+            # Calculate months remaining
+            calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
             
-            # Create input fields for each row
-            service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
-            qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=qty_key)
-            fee = col3.number_input("License Cost ($)", min_value=0.0, value=0.00, step=100.0, format="%.2f", key=fee_key)
-            add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=add_lic_key)
-            
-            # Add the row data to our dataframe
-            row_data = {
-                "Cloud Service Description": service,
-                "Unit Quantity": qty,
-                "Annual Unit Fee": fee,
-                "Additional Licenses": add_lic,
-            }
-            
-            # Append to the dataframe
-            new_row = pd.DataFrame([row_data])
-            data = pd.concat([data, new_row], ignore_index=True)
-    
-    # Add validation for empty service descriptions
-    empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
-    if empty_services.any():
-        st.warning("⚠️ Please enter a description for all licenses.")
-    
-        
-    # Inside the results tab, update this section:
-with tabs[2]:
-    st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
-    
-    # Check if we have valid data before calculating
-    valid_data = not empty_services.any() and len(data) > 0
-    
-    # Create a placeholder for calculation results
-    results_placeholder = st.empty()
-    
-    # Calculate button
-    calculate_button = st.button("Calculate Costs", disabled=not valid_data, 
-                                  help="Enter all required information to enable calculations")
-    
-    # Store calculation results in session state
-    if "calculation_results" not in st.session_state:
-        st.session_state.calculation_results = None
-        
-    if calculate_button and valid_data:
-        with st.spinner("Calculating costs..."):
-            # Calculate costs
-            processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, total_current_prepaid_cost, total_new_prepaid_cost = calculate_costs(
-                data,
-                agreement_term,
-                months_remaining,
-                extension_months,
-                billing_term
+            # Months remaining section with consistent styling
+            st.markdown('<p class="field-label">Months Remaining:</p>', unsafe_allow_html=True)
+            use_calculated_months = st.checkbox(
+                "Use calculated months remaining", 
+                value=True,
+                key="use_calculated"
             )
             
-            # Store results in session state
-            st.session_state.calculation_results = {
-                "processed_data": processed_data,
-                "total_current_cost": total_current_cost,
-                "total_prepaid_cost": total_prepaid_cost,
-                "total_first_year_cost": total_first_year_cost,
-                "total_updated_annual_cost": total_updated_annual_cost,
-                "total_subscription_term_fee": total_subscription_term_fee,
-                "total_current_prepaid_cost": total_current_prepaid_cost,
-                "total_new_prepaid_cost": total_new_prepaid_cost
-            }
-            
-        st.success("Calculations completed successfully!")
+            if use_calculated_months:
+                months_remaining = calculated_months_remaining
+                st.markdown(f"""
+                <div class="info-display">
+                    <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                months_remaining = st.number_input(
+                    "", 
+                    min_value=0.01, 
+                    max_value=float(agreement_term), 
+                    value=calculated_months_remaining,
+                    step=0.01, 
+                    format="%.2f",
+                    key="manual_months",
+                    label_visibility="collapsed"
+                )
         
-    # Display results if available
-    if st.session_state.calculation_results:
-        results = st.session_state.calculation_results
-        processed_data = results["processed_data"]
-        total_current_cost = results["total_current_cost"]
-        total_prepaid_cost = results["total_prepaid_cost"]
-        total_first_year_cost = results["total_first_year_cost"]
-        total_updated_annual_cost = results["total_updated_annual_cost"]
-        total_subscription_term_fee = results["total_subscription_term_fee"]
+        # Add a separator with consistent styling
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
-        # Add these for pre-paid option
-        if "total_current_prepaid_cost" in results:
-            total_current_prepaid_cost = results["total_current_prepaid_cost"]
+        # Extension option with better styling
+        extension_col1, extension_col2 = st.columns([1, 3])
+        
+        with extension_col1:
+            add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
+        
+        if add_extension:
+            with extension_col2:
+                st.markdown('<p class="field-label">Extension Period (Months):</p>', unsafe_allow_html=True)
+                extension_months = st.number_input(
+                    "", 
+                    min_value=1, 
+                    value=12, 
+                    step=1, 
+                    format="%d",
+                    key="extension_months",
+                    label_visibility="collapsed"
+                )
+                total_term = months_remaining + extension_months
+                
+                # Display total term with consistent styling
+                st.markdown(f"""
+                <div class="total-display">
+                    <span class="info-label">Total Term:</span> {total_term:.2f} months
+                </div>
+                """, unsafe_allow_html=True)
         else:
-            total_current_prepaid_cost = 0
+            extension_months = 0
+            total_term = months_remaining
             
-        if "total_new_prepaid_cost" in results:
-            total_new_prepaid_cost = results["total_new_prepaid_cost"]
-        else:
-            total_new_prepaid_cost = 0
+    with tabs[1]:  # Licensing tab (previously tabs[2])
+        st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
         
-        with results_placeholder.container():
-            st.subheader("Detailed Line Items")
-            
-            # Handle column dropping more thoroughly
-            columns_to_drop = []
-            if billing_term == 'Monthly':
-                columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Current Annual Cost', 'Current Prepaid Cost', 'New Total Prepaid Cost']
-            elif billing_term == 'Annual':
-                columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'Current Monthly Cost', 'Current Prepaid Cost', 'New Total Prepaid Cost']
-            elif billing_term == 'Prepaid':
-                columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Current Monthly Cost']
-                # Keep Current Prepaid Cost and New Total Prepaid Cost for Prepaid billing
-            
-            # Only drop columns that exist in the dataframe
-            displayed_data = processed_data.copy()
-            existing_columns_to_drop = [col for col in columns_to_drop if col in displayed_data.columns]
-            if existing_columns_to_drop:
-                displayed_data = displayed_data.drop(columns=existing_columns_to_drop)
-            
-            # Format numeric columns
-            for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", 
-                        "Updated Annual Cost", "Subscription Term Total Service Fee", 
-                        "Monthly Co-Termed Cost", "First Month Co-Termed Cost",
-                        "Current Prepaid Cost", "New Total Prepaid Cost"]:
-                if col in displayed_data.columns:
-                    displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
-            
-            # Display the dataframe with formatting
-            st.dataframe(displayed_data.style.format({
-                "Annual Unit Fee": "${:,.2f}",
-                "Prepaid Co-Termed Cost": "${:,.2f}",
-                "First Year Co-Termed Cost": "${:,.2f}",
-                "Updated Annual Cost": "${:,.2f}",
-                "Subscription Term Total Service Fee": "${:,.2f}",
-                "Monthly Co-Termed Cost": "${:,.2f}",
-                "First Month Co-Termed Cost": "${:,.2f}",
-                "Current Prepaid Cost": "${:,.2f}",
-                "New Total Prepaid Cost": "${:,.2f}"
-            }).set_properties(**{"white-space": "normal"}))
-            
-            # Show current cost summary based on billing term
-            st.markdown("### Current Agreement Cost")
-            
-            if billing_term == 'Monthly':
-                # Show only monthly cost for Monthly billing term
-                current_monthly = total_current_cost / 12
-                st.markdown(f"**Current Monthly Cost:** ${current_monthly:,.2f}")
-            elif billing_term == 'Annual':
-                # Show only annual cost for Annual billing term
-                st.markdown(f"**Current Annual Cost:** ${total_current_cost:,.2f}")
-            else:  # Prepaid
-                # Show current prepaid cost for Prepaid billing term
-                st.markdown(f"**Current Prepaid Cost (Full Term):** ${total_current_prepaid_cost:,.2f}")
-                st.markdown(f"**Current Annual Cost (Reference):** ${total_current_cost:,.2f}")
+        num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
+        
+        columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
+                  "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", 
+                  "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
+        data = pd.DataFrame(columns=columns)
+        
+        # Create a container for the line items
+        line_items_container = st.container()
+        
+        with line_items_container:
+            for i in range(num_items):
+                st.markdown(f"**Item {i+1}**")
+                col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
                 
-                # Calculate total licenses (current + additional)
-                # Convert columns to numeric values to avoid errors when summing
-                processed_data["Unit Quantity"] = pd.to_numeric(processed_data["Unit Quantity"], errors="coerce").fillna(0)
-                processed_data["Additional Licenses"] = pd.to_numeric(processed_data["Additional Licenses"], errors="coerce").fillna(0)
+                # Use a unique key for each input to avoid conflicts
+                service_key = f"service_{i}"
+                qty_key = f"qty_{i}"
+                fee_key = f"fee_{i}"
+                add_lic_key = f"add_lic_{i}"
                 
-                # Now safely calculate the total licenses
-                total_current_licenses = processed_data.loc[
-                    processed_data["Cloud Service Description"] != "Total Licensing Cost", "Unit Quantity"
-                ].sum()
+                # Create input fields for each row
+                service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
+                qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=qty_key)
+                fee = col3.number_input("License Cost ($)", min_value=0.0, value=0.00, step=100.0, format="%.2f", key=fee_key)
+                add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=add_lic_key)
                 
-                total_additional_licenses = processed_data.loc[
-                    processed_data["Cloud Service Description"] != "Total Licensing Cost", "Additional Licenses"
-                ].sum()
-                
-                total_licenses = total_current_licenses + total_additional_licenses
-
-                
-                # Display license summary
-                st.markdown("### License Summary")
-                license_data = {
-                    "License Type": ["Current Licenses", "Additional Licenses", "Total Licenses"],
-                    "Count": [
-                        f"{int(total_current_licenses)}",
-                        f"{int(total_additional_licenses)}",
-                        f"{int(total_licenses)}"
-                    ]
+                # Add the row data to our dataframe
+                row_data = {
+                    "Cloud Service Description": service,
+                    "Unit Quantity": qty,
+                    "Annual Unit Fee": fee,
+                    "Additional Licenses": add_lic,
                 }
                 
-                license_df = pd.DataFrame(license_data)
-                st.table(license_df)
-                
-                if total_additional_licenses > 0:
-                    increase_pct = (total_additional_licenses / total_current_licenses * 100) if total_current_licenses > 0 else 0
-                    st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
-                
-                with st.expander("Current vs. New Cost Summary", expanded=True):
-                    # Create a comparison table with billing term-specific labels
-                    if billing_term == 'Monthly':
-                        current_cost_monthly = total_current_cost / 12
-                        new_cost_monthly = total_updated_annual_cost / 12
-                        
-                        comparison_data = {
-                            "Cost Type": ["Current Monthly Cost", "New Monthly Cost", "Difference", "Percentage Change"],
-                            "Amount": [
-                                f"${current_cost_monthly:,.2f}",
-                                f"${new_cost_monthly:,.2f}",
-                                f"${new_cost_monthly - current_cost_monthly:,.2f}",
-                                f"{((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0:,.2f}%"
-                            ]
-                        }
-                        
-                        comparison_df = pd.DataFrame(comparison_data)
-                        st.table(comparison_df)
-                        
-                        # Add insight about the cost change
-                        if new_cost_monthly > current_cost_monthly:
-                            change_pct = ((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
-                            st.info(f"The new monthly cost represents a {change_pct:.1f}% increase from the current cost.")
-                        elif new_cost_monthly < current_cost_monthly:
-                            change_pct = ((current_cost_monthly - new_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
-                            st.success(f"The new monthly cost represents a {change_pct:.1f}% decrease from the current cost.")
-                        else:
-                            st.info("The new monthly cost is identical to the current cost.")
-                    else:
-                        # For Annual and Prepaid, show annual costs
-                        comparison_data = {
-                            "Cost Type": ["Current Annual Cost", "New Annual Cost", "Difference", "Percentage Change"],
-                            "Amount": [
-                                f"${total_current_cost:,.2f}",
-                                f"${total_updated_annual_cost:,.2f}",
-                                f"${total_updated_annual_cost - total_current_cost:,.2f}",
-                                f"{((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0:,.2f}%"
-                            ]
-                        }
-                        
-                        comparison_df = pd.DataFrame(comparison_data)
-                        st.table(comparison_df)
-                        
-                        # Add insight about the cost change
-                        if total_updated_annual_cost > total_current_cost:
-                            change_pct = ((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
-                            st.info(f"The new annual cost represents a {change_pct:.1f}% increase from the current cost.")
-                        elif total_updated_annual_cost < total_current_cost:
-                            change_pct = ((total_current_cost - total_updated_annual_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
-                            st.success(f"The new annual cost represents a {change_pct:.1f}% decrease from the current cost.")
-                        else:
-                            st.info("The new annual cost is identical to the current cost.")
-                
-                st.markdown("### Cost Comparison")
-                
-                # Prepare chart data based on billing term
-                if billing_term == 'Monthly':
-                    # Get values from the Total Services Cost row
-                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
-                    
-                    # Make sure these columns exist in the dataframe
-                    monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
-                    first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
-                    
-                    # Current monthly cost
-                    current_monthly = total_current_cost / 12
-                    new_monthly = (total_updated_annual_cost / 12) if total_updated_annual_cost > 0 else 0
-                    
-                    # Make sure the key names match exactly what's expected in the JavaScript
-                    chart_data = {
-                        "currentCost": float(current_monthly),
-                        "coTermedMonthly": float(first_month_co_termed),  # This should match data.coTermedMonthly in JS
-                        "newMonthly": float(new_monthly),  # This should match data.newMonthly in JS
-                        "subscription": float(total_subscription_term_fee)
-                    }
-                    
-                elif billing_term == 'Annual':
-                    chart_data = {
-                        "currentCost": float(total_current_cost),
-                        "firstYearCoTerm": float(total_first_year_cost),
-                        "newAnnual": float(total_updated_annual_cost),
-                        "subscription": float(total_subscription_term_fee)
-                    }
-                elif billing_term == 'Prepaid':
-                    # Get the totals for prepaid
-                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
-                    
-                    # Get the current prepaid cost and new total prepaid cost
-                    current_prepaid_cost = float(total_row['Current Prepaid Cost'].iloc[0]) if 'Current Prepaid Cost' in total_row.columns else 0.0
-                    new_total_prepaid = float(total_row['New Total Prepaid Cost'].iloc[0]) if 'New Total Prepaid Cost' in total_row.columns else 0.0
-                    additional_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0]) if 'Prepaid Co-Termed Cost' in total_row.columns else 0.0
-                    
-                    # Create chart data specifically for prepaid view
-                    chart_data = {
-                        "currentCost": float(current_prepaid_cost),  # Current prepaid cost for the full term
-                        "coTermedPrepaid": float(additional_prepaid),  # Additional licenses prepaid cost
-                        "newTotalPrepaid": float(new_total_prepaid),  # New total prepaid cost
-                        "subscription": float(total_subscription_term_fee)  # Total subscription cost
-                    }
-                # Now generate the chart using the updated chart data
-                try:
-                    # Convert all values to float and ensure they're not None
-                    for key in chart_data:
-                        if chart_data[key] is None:
-                            chart_data[key] = 0.0
-                        else:
-                            chart_data[key] = float(chart_data[key])
-                    
-                    
-                    # Render chart with safety measures
-                    components.html(
-                        CHART_HTML + f"""
-                        <script>
-                            console.log("Starting chart rendering...");
-                            try {{
-                                const chartData = {chart_data};
-                                console.log("Chart data:", JSON.stringify(chartData));
-                                renderChart(chartData, '{billing_term}', '{st.session_state.theme}');
-                                console.log("Chart rendering complete");
-                            }} catch (e) {{
-                                console.error("Error rendering chart:", e);
-                                document.write("<div style='color:red'>Error rendering chart: " + e.message + "</div>");
-                            }}
-                        </script>
-                        """,
-                        height=500
-                    )
-                except Exception as e:
-                    st.error(f"Error generating chart: {str(e)}")
-                    st.warning("Please try recalculating costs or refreshing the page.")
-                
-                # Generate PDF
-                st.subheader("Report Generation")
-                
-                # Create columns for download options
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.markdown("##### PDF Report")
-                pdf_buffer = generate_pdf(
-                    billing_term,
+                # Append to the dataframe
+                new_row = pd.DataFrame([row_data])
+                data = pd.concat([data, new_row], ignore_index=True)
+        
+        # Add validation for empty service descriptions
+        empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
+        if empty_services.any():
+            st.warning("⚠️ Please enter a description for all licenses.")
+        
+            
+        # Inside the results tab, update this section:
+    with tabs[2]:
+        st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
+        
+        # Check if we have valid data before calculating
+        valid_data = not empty_services.any() and len(data) > 0
+        
+        # Create a placeholder for calculation results
+        results_placeholder = st.empty()
+        
+        # Calculate button
+        calculate_button = st.button("Calculate Costs", disabled=not valid_data, 
+                                      help="Enter all required information to enable calculations")
+        
+        # Store calculation results in session state
+        if "calculation_results" not in st.session_state:
+            st.session_state.calculation_results = None
+            
+        if calculate_button and valid_data:
+            with st.spinner("Calculating costs..."):
+                # Calculate costs
+                processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, total_current_prepaid_cost, total_new_prepaid_cost = calculate_costs(
+                    data,
+                    agreement_term,
                     months_remaining,
                     extension_months,
-                    total_current_cost,
-                    total_prepaid_cost,
-                    total_first_year_cost,
-                    total_updated_annual_cost,
-                    total_subscription_term_fee,
-                    processed_data,
-                    agreement_term,
+                    billing_term
                 )
-                    
-                # In the Results tab, update the download button
-                st.download_button(
-                    label="Download PDF Report",
-                    data=pdf_buffer,
-                    file_name="coterming_report.pdf",
-                    mime="application/pdf",
-                    key="pdf_download"
-                )
-with tabs[3]:
-    st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
-    
-    # Check if we have calculation results
-    if st.session_state.calculation_results:
-        results = st.session_state.calculation_results
-        total_current_cost = results["total_current_cost"]
-        total_prepaid_cost = results["total_prepaid_cost"]
-        total_first_year_cost = results["total_first_year_cost"]
-        total_updated_annual_cost = results["total_updated_annual_cost"] 
-        total_subscription_term_fee = results["total_subscription_term_fee"]
-        
-        # Add these for prepaid option if they exist in the results
-        if "total_current_prepaid_cost" in results:
-            total_current_prepaid_cost = results["total_current_prepaid_cost"]
-        else:
-            total_current_prepaid_cost = 0
+                
+                # Store results in session state
+                st.session_state.calculation_results = {
+                    "processed_data": processed_data,
+                    "total_current_cost": total_current_cost,
+                    "total_prepaid_cost": total_prepaid_cost,
+                    "total_first_year_cost": total_first_year_cost,
+                    "total_updated_annual_cost": total_updated_annual_cost,
+                    "total_subscription_term_fee": total_subscription_term_fee,
+                    "total_current_prepaid_cost": total_current_prepaid_cost,
+                    "total_new_prepaid_cost": total_new_prepaid_cost
+                }
+                
+            st.success("Calculations completed successfully!")
             
-        if "total_new_prepaid_cost" in results:
-            total_new_prepaid_cost = results["total_new_prepaid_cost"]
+        # Display results if available
+        if st.session_state.calculation_results:
+            results = st.session_state.calculation_results
+            processed_data = results["processed_data"]
+            total_current_cost = results["total_current_cost"]
+            total_prepaid_cost = results["total_prepaid_cost"]
+            total_first_year_cost = results["total_first_year_cost"]
+            total_updated_annual_cost = results["total_updated_annual_cost"]
+            total_subscription_term_fee = results["total_subscription_term_fee"]
+            
+            # Add these for pre-paid option
+            if "total_current_prepaid_cost" in results:
+                total_current_prepaid_cost = results["total_current_prepaid_cost"]
+            else:
+                total_current_prepaid_cost = 0
+                
+            if "total_new_prepaid_cost" in results:
+                total_new_prepaid_cost = results["total_new_prepaid_cost"]
+            else:
+                total_new_prepaid_cost = 0
+            
+            with results_placeholder.container():
+                st.subheader("Detailed Line Items")
+                
+                # Handle column dropping more thoroughly
+                columns_to_drop = []
+                if billing_term == 'Monthly':
+                    columns_to_drop = ['Prepaid Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Current Annual Cost', 'Current Prepaid Cost', 'New Total Prepaid Cost']
+                elif billing_term == 'Annual':
+                    columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'Current Monthly Cost', 'Current Prepaid Cost', 'New Total Prepaid Cost']
+                elif billing_term == 'Prepaid':
+                    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Current Monthly Cost']
+                    # Keep Current Prepaid Cost and New Total Prepaid Cost for Prepaid billing
+                
+                # Only drop columns that exist in the dataframe
+                displayed_data = processed_data.copy()
+                existing_columns_to_drop = [col for col in columns_to_drop if col in displayed_data.columns]
+                if existing_columns_to_drop:
+                    displayed_data = displayed_data.drop(columns=existing_columns_to_drop)
+                
+                # Format numeric columns
+                for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", 
+                            "Updated Annual Cost", "Subscription Term Total Service Fee", 
+                            "Monthly Co-Termed Cost", "First Month Co-Termed Cost",
+                            "Current Prepaid Cost", "New Total Prepaid Cost"]:
+                    if col in displayed_data.columns:
+                        displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
+                
+                # Display the dataframe with formatting
+                st.dataframe(displayed_data.style.format({
+                    "Annual Unit Fee": "${:,.2f}",
+                    "Prepaid Co-Termed Cost": "${:,.2f}",
+                    "First Year Co-Termed Cost": "${:,.2f}",
+                    "Updated Annual Cost": "${:,.2f}",
+                    "Subscription Term Total Service Fee": "${:,.2f}",
+                    "Monthly Co-Termed Cost": "${:,.2f}",
+                    "First Month Co-Termed Cost": "${:,.2f}",
+                    "Current Prepaid Cost": "${:,.2f}",
+                    "New Total Prepaid Cost": "${:,.2f}"
+                }).set_properties(**{"white-space": "normal"}))
+                
+                # Show current cost summary based on billing term
+                st.markdown("### Current Agreement Cost")
+                
+                if billing_term == 'Monthly':
+                    # Show only monthly cost for Monthly billing term
+                    current_monthly = total_current_cost / 12
+                    st.markdown(f"**Current Monthly Cost:** ${current_monthly:,.2f}")
+                elif billing_term == 'Annual':
+                    # Show only annual cost for Annual billing term
+                    st.markdown(f"**Current Annual Cost:** ${total_current_cost:,.2f}")
+                else:  # Prepaid
+                    # Show current prepaid cost for Prepaid billing term
+                    st.markdown(f"**Current Prepaid Cost (Full Term):** ${total_current_prepaid_cost:,.2f}")
+                    st.markdown(f"**Current Annual Cost (Reference):** ${total_current_cost:,.2f}")
+                    
+                    # Calculate total licenses (current + additional)
+                    # Convert columns to numeric values to avoid errors when summing
+                    processed_data["Unit Quantity"] = pd.to_numeric(processed_data["Unit Quantity"], errors="coerce").fillna(0)
+                    processed_data["Additional Licenses"] = pd.to_numeric(processed_data["Additional Licenses"], errors="coerce").fillna(0)
+                    
+                    # Now safely calculate the total licenses
+                    total_current_licenses = processed_data.loc[
+                        processed_data["Cloud Service Description"] != "Total Licensing Cost", "Unit Quantity"
+                    ].sum()
+                    
+                    total_additional_licenses = processed_data.loc[
+                        processed_data["Cloud Service Description"] != "Total Licensing Cost", "Additional Licenses"
+                    ].sum()
+                    
+                    total_licenses = total_current_licenses + total_additional_licenses
+    
+                    
+                    # Display license summary
+                    st.markdown("### License Summary")
+                    license_data = {
+                        "License Type": ["Current Licenses", "Additional Licenses", "Total Licenses"],
+                        "Count": [
+                            f"{int(total_current_licenses)}",
+                            f"{int(total_additional_licenses)}",
+                            f"{int(total_licenses)}"
+                        ]
+                    }
+                    
+                    license_df = pd.DataFrame(license_data)
+                    st.table(license_df)
+                    
+                    if total_additional_licenses > 0:
+                        increase_pct = (total_additional_licenses / total_current_licenses * 100) if total_current_licenses > 0 else 0
+                        st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
+                    
+                    with st.expander("Current vs. New Cost Summary", expanded=True):
+                        # Create a comparison table with billing term-specific labels
+                        if billing_term == 'Monthly':
+                            current_cost_monthly = total_current_cost / 12
+                            new_cost_monthly = total_updated_annual_cost / 12
+                            
+                            comparison_data = {
+                                "Cost Type": ["Current Monthly Cost", "New Monthly Cost", "Difference", "Percentage Change"],
+                                "Amount": [
+                                    f"${current_cost_monthly:,.2f}",
+                                    f"${new_cost_monthly:,.2f}",
+                                    f"${new_cost_monthly - current_cost_monthly:,.2f}",
+                                    f"{((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0:,.2f}%"
+                                ]
+                            }
+                            
+                            comparison_df = pd.DataFrame(comparison_data)
+                            st.table(comparison_df)
+                            
+                            # Add insight about the cost change
+                            if new_cost_monthly > current_cost_monthly:
+                                change_pct = ((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
+                                st.info(f"The new monthly cost represents a {change_pct:.1f}% increase from the current cost.")
+                            elif new_cost_monthly < current_cost_monthly:
+                                change_pct = ((current_cost_monthly - new_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
+                                st.success(f"The new monthly cost represents a {change_pct:.1f}% decrease from the current cost.")
+                            else:
+                                st.info("The new monthly cost is identical to the current cost.")
+                        else:
+                            # For Annual and Prepaid, show annual costs
+                            comparison_data = {
+                                "Cost Type": ["Current Annual Cost", "New Annual Cost", "Difference", "Percentage Change"],
+                                "Amount": [
+                                    f"${total_current_cost:,.2f}",
+                                    f"${total_updated_annual_cost:,.2f}",
+                                    f"${total_updated_annual_cost - total_current_cost:,.2f}",
+                                    f"{((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0:,.2f}%"
+                                ]
+                            }
+                            
+                            comparison_df = pd.DataFrame(comparison_data)
+                            st.table(comparison_df)
+                            
+                            # Add insight about the cost change
+                            if total_updated_annual_cost > total_current_cost:
+                                change_pct = ((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
+                                st.info(f"The new annual cost represents a {change_pct:.1f}% increase from the current cost.")
+                            elif total_updated_annual_cost < total_current_cost:
+                                change_pct = ((total_current_cost - total_updated_annual_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
+                                st.success(f"The new annual cost represents a {change_pct:.1f}% decrease from the current cost.")
+                            else:
+                                st.info("The new annual cost is identical to the current cost.")
+                    
+                    st.markdown("### Cost Comparison")
+                    
+                    # Prepare chart data based on billing term
+                    if billing_term == 'Monthly':
+                        # Get values from the Total Services Cost row
+                        total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
+                        
+                        # Make sure these columns exist in the dataframe
+                        monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
+                        first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
+                        
+                        # Current monthly cost
+                        current_monthly = total_current_cost / 12
+                        new_monthly = (total_updated_annual_cost / 12) if total_updated_annual_cost > 0 else 0
+                        
+                        # Make sure the key names match exactly what's expected in the JavaScript
+                        chart_data = {
+                            "currentCost": float(current_monthly),
+                            "coTermedMonthly": float(first_month_co_termed),  # This should match data.coTermedMonthly in JS
+                            "newMonthly": float(new_monthly),  # This should match data.newMonthly in JS
+                            "subscription": float(total_subscription_term_fee)
+                        }
+                        
+                    elif billing_term == 'Annual':
+                        chart_data = {
+                            "currentCost": float(total_current_cost),
+                            "firstYearCoTerm": float(total_first_year_cost),
+                            "newAnnual": float(total_updated_annual_cost),
+                            "subscription": float(total_subscription_term_fee)
+                        }
+                    elif billing_term == 'Prepaid':
+                        # Get the totals for prepaid
+                        total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
+                        
+                        # Get the current prepaid cost and new total prepaid cost
+                        current_prepaid_cost = float(total_row['Current Prepaid Cost'].iloc[0]) if 'Current Prepaid Cost' in total_row.columns else 0.0
+                        new_total_prepaid = float(total_row['New Total Prepaid Cost'].iloc[0]) if 'New Total Prepaid Cost' in total_row.columns else 0.0
+                        additional_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0]) if 'Prepaid Co-Termed Cost' in total_row.columns else 0.0
+                        
+                        # Create chart data specifically for prepaid view
+                        chart_data = {
+                            "currentCost": float(current_prepaid_cost),  # Current prepaid cost for the full term
+                            "coTermedPrepaid": float(additional_prepaid),  # Additional licenses prepaid cost
+                            "newTotalPrepaid": float(new_total_prepaid),  # New total prepaid cost
+                            "subscription": float(total_subscription_term_fee)  # Total subscription cost
+                        }
+                    # Now generate the chart using the updated chart data
+                    try:
+                        # Convert all values to float and ensure they're not None
+                        for key in chart_data:
+                            if chart_data[key] is None:
+                                chart_data[key] = 0.0
+                            else:
+                                chart_data[key] = float(chart_data[key])
+                        
+                        
+                        # Render chart with safety measures
+                        components.html(
+                            CHART_HTML + f"""
+                            <script>
+                                console.log("Starting chart rendering...");
+                                try {{
+                                    const chartData = {chart_data};
+                                    console.log("Chart data:", JSON.stringify(chartData));
+                                    renderChart(chartData, '{billing_term}', '{st.session_state.theme}');
+                                    console.log("Chart rendering complete");
+                                }} catch (e) {{
+                                    console.error("Error rendering chart:", e);
+                                    document.write("<div style='color:red'>Error rendering chart: " + e.message + "</div>");
+                                }}
+                            </script>
+                            """,
+                            height=500
+                        )
+                    except Exception as e:
+                        st.error(f"Error generating chart: {str(e)}")
+                        st.warning("Please try recalculating costs or refreshing the page.")
+                    
+                    # Generate PDF
+                    st.subheader("Report Generation")
+                    
+                    # Create columns for download options
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.markdown("##### PDF Report")
+                    pdf_buffer = generate_pdf(
+                        billing_term,
+                        months_remaining,
+                        extension_months,
+                        total_current_cost,
+                        total_prepaid_cost,
+                        total_first_year_cost,
+                        total_updated_annual_cost,
+                        total_subscription_term_fee,
+                        processed_data,
+                        agreement_term,
+                    )
+                        
+                    # In the Results tab, update the download button
+                    st.download_button(
+                        label="Download PDF Report",
+                        data=pdf_buffer,
+                        file_name="coterming_report.pdf",
+                        mime="application/pdf",
+                        key="pdf_download"
+                    )
+    with tabs[3]:
+        st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
+        
+        # Check if we have calculation results
+        if st.session_state.calculation_results:
+            results = st.session_state.calculation_results
+            total_current_cost = results["total_current_cost"]
+            total_prepaid_cost = results["total_prepaid_cost"]
+            total_first_year_cost = results["total_first_year_cost"]
+            total_updated_annual_cost = results["total_updated_annual_cost"] 
+            total_subscription_term_fee = results["total_subscription_term_fee"]
+            
+            # Add these for prepaid option if they exist in the results
+            if "total_current_prepaid_cost" in results:
+                total_current_prepaid_cost = results["total_current_prepaid_cost"]
+            else:
+                total_current_prepaid_cost = 0
+                
+            if "total_new_prepaid_cost" in results:
+                total_new_prepaid_cost = results["total_new_prepaid_cost"]
+            else:
+                total_new_prepaid_cost = 0
+            
+            # Determine which cost value to use based on billing term
+            if billing_term == 'Monthly':
+                first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
+            elif billing_term == 'Annual':
+                first_cost = total_first_year_cost
+            else:  # Prepaid
+                first_cost = total_prepaid_cost
+            
+            # Generate email template with prepaid costs
+            if billing_term == 'Prepaid':
+                email_content = generate_email_template(
+                    billing_term,
+                    total_current_cost,
+                    first_cost,
+                    total_subscription_term_fee,
+                    total_updated_annual_cost,
+                    total_current_prepaid_cost,
+                    total_new_prepaid_cost
+                )
+            else:
+                email_content = generate_email_template(
+                    billing_term,
+                    total_current_cost,
+                    first_cost,
+                    total_subscription_term_fee,
+                    total_updated_annual_cost
+                )
+            
+            # Display email template with copy button
+            st.markdown("### Email Template Preview")
+            st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
+            
+            # Add copy to clipboard button
+            st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
+            
+            # Email subject suggestion
+            st.markdown("### Suggested Email Subject")
+            email_subject = f"Co-Terming Cost Proposal - Customer Name"
+            st.text_input("Subject Line:", value=email_subject, key="email_subject")
+            
+            # Add copy button for subject line
+            st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
         else:
-            total_new_prepaid_cost = 0
-        
-        # Determine which cost value to use based on billing term
-        if billing_term == 'Monthly':
-            first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
-        elif billing_term == 'Annual':
-            first_cost = total_first_year_cost
-        else:  # Prepaid
-            first_cost = total_prepaid_cost
-        
-        # Generate email template with prepaid costs
-        if billing_term == 'Prepaid':
-            email_content = generate_email_template(
-                billing_term,
-                total_current_cost,
-                first_cost,
-                total_subscription_term_fee,
-                total_updated_annual_cost,
-                total_current_prepaid_cost,
-                total_new_prepaid_cost
-            )
-        else:
-            email_content = generate_email_template(
-                billing_term,
-                total_current_cost,
-                first_cost,
-                total_subscription_term_fee,
-                total_updated_annual_cost
-            )
-        
-        # Display email template with copy button
-        st.markdown("### Email Template Preview")
-        st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
-        
-        # Add copy to clipboard button
-        st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
-        
-        # Email subject suggestion
-        st.markdown("### Suggested Email Subject")
-        email_subject = f"Co-Terming Cost Proposal - Customer Name"
-        st.text_input("Subject Line:", value=email_subject, key="email_subject")
-        
-        # Add copy button for subject line
-        st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
-    else:
-        st.info("Please calculate costs first to generate an email template.")
+            st.info("Please calculate costs first to generate an email template.")
 
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
