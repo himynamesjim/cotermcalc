@@ -898,7 +898,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         
     return pdf_buffer
 
-def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, account_manager, updated_annual_cost=0):
+def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0):
     # Base template with placeholders for dynamic content
     email_templates = {
         'Monthly': f"""Dear Customer,
@@ -1513,7 +1513,6 @@ if st.session_state.active_tab == 'calculator':
                 total_current_cost,
                 first_cost,
                 total_subscription_term_fee,
-                account_manager or "Account Manager",
                 total_updated_annual_cost
             )
             
