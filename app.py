@@ -20,7 +20,7 @@ st.session_state.theme = 'dark'
 st.markdown("""
 <style>
     :root {
-        --background-color: rgb(14, 17, 23);
+        --background-color: rgb(51, 51, 51);
         --text-color: rgb(255, 255, 255);
         
         /* Dark theme styling */
