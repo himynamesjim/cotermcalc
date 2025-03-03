@@ -1312,7 +1312,7 @@ if st.session_state.active_tab == 'calculator':
                 elif billing_term == 'Annual':
                     columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'Current Monthly Cost']
                 elif billing_term == 'Prepaid':
-                    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Current Monthly Cost']
+                    columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Current Monthly Cost' , 'Current Annual Cost']
                 
                 # Only drop columns that exist in the dataframe
                 displayed_data = processed_data.copy()
