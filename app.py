@@ -1464,7 +1464,7 @@ if st.session_state.active_tab == 'calculator':
                         "newAnnual": float(total_updated_annual_cost),
                         "subscription": float(total_subscription_term_fee)
                     }
-               elif billing_term == 'Prepaid':
+               else: #Prepaid
                     # Extract row containing total cost
                     total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
                 
