@@ -1488,22 +1488,23 @@ if st.session_state.active_tab == 'calculator':
                     st.write("Debug: Chart Data (Prepaid)", chart_data)
 
                 # Now generate the chart using the updated chart data components.html(
-           try:
-            CHART_HTML + f"""
-            <script>
-                try {{
-                    const chartData = {chart_data};
-                    renderChart(chartData, '{billing_term}', 'dark');
-                }} catch (e) {{
-                    console.error("Chart rendering error:", e);
-                }}
-            </script>
-            """,
-            height=500
-        )
-           except Exception as e:
-                st.error(f"Error generating chart: {str(e)}")
-                st.warning("Please try recalculating costs or refreshing the page.")
+try:
+    components.html(
+        CHART_HTML + f"""
+        <script>
+            try {{
+                const chartData = {chart_data};
+                renderChart(chartData, '{billing_term}', 'dark');
+            }} catch (e) {{
+                console.error("Chart rendering error:", e);
+            }}
+        </script>
+        """,
+        height=500
+    )
+except Exception as e:
+    st.error(f"Error generating chart: {str(e)}")
+    st.warning("Please try recalculating costs or refreshing the page.")
                 
                 # Generate PDF
                 st.subheader("Report Generation")
