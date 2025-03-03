@@ -1496,9 +1496,9 @@ if st.session_state.active_tab == 'calculator':
                         else:
                             chart_data[key] = float(chart_data[key])
                     
-                st.write("Debug: Total Row Data (Prepaid)", total_row)
-                st.write("Debug: Prepaid Additional Licenses Cost:", additional_prepaid_cost)
-                st.write("Debug: Prepaid Co-Termed Cost:", co_termed_prepaid)
+st.write("Debug: Total Row Data (Prepaid)", total_row)
+st.write("Debug: Prepaid Additional Licenses Cost:", additional_prepaid_cost)
+st.write("Debug: Prepaid Co-Termed Cost:", co_termed_prepaid)
 
 
                     # Render chart with safety measures
