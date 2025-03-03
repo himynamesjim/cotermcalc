@@ -107,13 +107,6 @@ st.markdown("""
     .stButton>button *, [data-testid="baseButton-secondary"] * {
         color: white !important;
     }
- /* Fix buttons - make them blue with white text */
-    .stButton > button {
-        background-color: #4b8bbe !important;
-        color: white !important;
-        border: 1px solid #366b99 !important;
-        border-radius: 4px !important;
-    }
     
     /* Button hover state */
     .stButton > button:hover {
