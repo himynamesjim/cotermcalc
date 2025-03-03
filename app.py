@@ -1246,21 +1246,16 @@ if st.session_state.active_tab == 'calculator':
         if calculate_button and valid_data:
             with st.spinner("Calculating costs..."):
                 # Calculate costs
-                processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
+                processed_data, cost_metrics = calculate_costs(
                     data,
                     agreement_term,
                     months_remaining,
                     extension_months,
                     billing_term
                 )
+
                 
                 chart_data = prepare_chart_data(processed_data, billing_term)
-
-                st.session_state.calculation_results = {
-                    "processed_data": processed_data,
-                    "cost_metrics": cost_metrics,
-                    "chart_data": chart_data
-                }
                 
                 st.success("Calculations completed successfully!")
                 
@@ -1466,10 +1461,7 @@ if st.session_state.active_tab == 'calculator':
                         "subscription": float(total_subscription_term_fee)
                     }
                 elif billing_term == 'Prepaid':
-                    # Debug: Print the total row for verification
-                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
-                    st.write("Debug: Total Row Data (Prepaid)", total_row)
-                
+                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']                
                     # Default values
                     additional_prepaid_cost = 0.0
                 
@@ -1484,8 +1476,6 @@ if st.session_state.active_tab == 'calculator':
                         "subscription": float(total_subscription_term_fee)
                     }
                 
-                    # Debugging Output
-                    st.write("Debug: Chart Data (Prepaid)", chart_data)
 
                 # Now generate the chart using the updated chart data components.html(
 try:
