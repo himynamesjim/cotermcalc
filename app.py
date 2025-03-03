@@ -26,6 +26,61 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
+     /* Target form buttons and action buttons with dark style */
+    .stButton>button, [data-testid="baseButton-secondary"], .st-emotion-cache-ocsh0s.e1ewe7hr3 {
+        background-color: #2e3440 !important;  /* Dark Nord theme background */
+        color: #d8dee9 !important;             /* Light gray text */
+        border: 1px solid #4c566a !important;  /* Subtle border */
+        border-radius: 4px !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    /* Hover effect for buttons */
+    .stButton>button:hover, [data-testid="baseButton-secondary"]:hover, .st-emotion-cache-ocsh0s.e1ewe7hr3:hover {
+        background-color: #4c566a !important;  /* Lighter dark color on hover */
+        border-color: #81a1c1 !important;      /* Blue-ish border on hover */
+        box-shadow: 0 0 5px rgba(129, 161, 193, 0.5) !important; /* Subtle glow */
+    }
+    
+    /* Active/clicked state */
+    .stButton>button:active, [data-testid="baseButton-secondary"]:active, .st-emotion-cache-ocsh0s.e1ewe7hr3:active {
+        background-color: #3b4252 !important;  /* Mid-dark color when clicked */
+        transform: translateY(1px) !important; /* Subtle push effect */
+    }
+    
+    /* Disabled state */
+    .stButton>button:disabled, [data-testid="baseButton-secondary"]:disabled, .st-emotion-cache-ocsh0s.e1ewe7hr3:disabled {
+        background-color: #2e3440 !important;  /* Same as normal but more muted */
+        color: #4c566a !important;             /* Darker text for disabled state */
+        border-color: #3b4252 !important;
+        opacity: 0.7 !important;
+        cursor: not-allowed !important;
+    }
+    
+    /* Download button specific styling if needed */
+    .stDownloadButton>button {
+        background-color: #2e3440 !important;
+        color: #d8dee9 !important;
+        border: 1px solid #4c566a !important;
+    }
+    
+    .stDownloadButton>button:hover {
+        background-color: #4c566a !important;
+        border-color: #81a1c1 !important;
+    }
+    
+    /* Ensure button text is always properly colored */
+    .stButton>button *, .stDownloadButton>button * {
+        color: #d8dee9 !important;
+    }
+    
+    /* Leave navigation buttons with default styling */
+    [data-testid="stSidebarNavItems"] button,
+    [data-testid="stSidebarNav"] button,
+    .stRadio button {
+        background-color: inherit;
+        border-color: inherit;
+    }
     /* Target the specific button class that's causing the issue */
     .st-emotion-cache-ocsh0s, .st-emotion-cache-ocsh0s:hover, .st-emotion-cache-ocsh0s:active, .st-emotion-cache-ocsh0s:focus {
         background-color: #4b8bbe !important;
