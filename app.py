@@ -443,83 +443,36 @@ CHART_HTML = """
                 backgroundColor: '#1e1e1e',
                 textColor: '#ffffff',
                 gridColor: 'rgba(255, 255, 255, 0.1)',
-                barColors: ['#8884d8', '#82ca9d', '#ffc658']
+                barColors: ['#8884d8', '#82ca9d', '#ffc658', '#ff7f50']
             } : {
                 backgroundColor: '#ffffff',
                 textColor: '#31333F',
                 gridColor: 'rgba(0, 0, 0, 0.1)',
-                barColors: ['#8884d8', '#82ca9d', '#ffc658']
+                barColors: ['#8884d8', '#82ca9d', '#ffc658', '#ff7f50']
             };
             
-            let datasets = [];
-            
-            if (billingTerm === 'Annual') {
-                datasets = [
-                    {
-                        label: 'First Year Co-Termed Cost',
-                        data: [data.firstYearCoTerm || 0],
-                        backgroundColor: colors.barColors[1]
-                    },
-                    {
-                        label: 'Current Annual Cost',
-                        data: [data.currentCost || 0],
-                        backgroundColor: colors.barColors[0]
-                    },
-                    {
-                        label: 'Updated Annual Cost',
-                        data: [data.newAnnual || 0],
-                        backgroundColor: colors.barColors[2]
-                    },
-                    {
-                        label: 'Total Subscription Cost',
-                        data: [data.subscription || 0],
-                        backgroundColor: '#ff7f50'  // Coral color for total subscription
-                    }
-                ];
-            }
-          else if (billingTerm === 'Monthly') {
-                datasets = [
-                    {
-                        label: 'Current Monthly Cost',
-                        data: [data.currentCost || 0],
-                        backgroundColor: colors.barColors[0]
-                    },
-                    {
-                        label: 'First Month Co-Termed Cost',
-                        data: [data.coTermedMonthly || 0],
-                        backgroundColor: colors.barColors[1]
-                    },
-                    {
-                        label: 'New Monthly Cost',
-                        data: [data.newMonthly || 0],
-                        backgroundColor: colors.barColors[2]
-                    },
-                    {
-                        label: 'Total Subscription Cost',
-                        data: [data.subscription || 0],
-                        backgroundColor: '#ff7f50'
-                    }
-                ];
-            }
-            else if (billingTerm === 'Prepaid') {
-                datasets = [
-                    {
-                        label: 'Current Prepaid Cost (Full Term)',
-                        data: [data.currentCost || 0],
-                        backgroundColor: colors.barColors[0]
-                    },
-                    {
-                        label: 'Additional Licenses Prepaid Cost',
-                        data: [data.coTermedPrepaid || 0],
-                        backgroundColor: colors.barColors[1]
-                    },
-                    {
-                        label: 'Total Subscription Cost',
-                        data: [data.subscription || 0],
-                        backgroundColor: '#ff7f50'
-                    }
-                ];
-            }
+            let datasets = [
+                {
+                    label: 'Current Cost',
+                    data: [data.currentCost || 0],
+                    backgroundColor: colors.barColors[0]
+                },
+                {
+                    label: 'Co-Termed Cost',
+                    data: [data.coTermedCost || 0],
+                    backgroundColor: colors.barColors[1]
+                },
+                {
+                    label: 'Updated Cost',
+                    data: [data.updatedCost || 0],
+                    backgroundColor: colors.barColors[2]
+                },
+                {
+                    label: 'Subscription Total',
+                    data: [data.subscriptionTotal || 0],
+                    backgroundColor: colors.barColors[3]
+                }
+            ];
 
             new Chart(ctx, {
                 type: 'bar',
@@ -532,18 +485,15 @@ CHART_HTML = """
                     maintainAspectRatio: false,
                     plugins: {
                         title: {
-                            display: false
+                            display: true,
+                            text: `${billingTerm} Billing Cost Comparison`,
+                            color: colors.textColor
                         },
                         legend: {
                             position: 'top',
                             labels: {
-                                padding: 15,
-                                font: {
-                                    size: 12
-                                },
                                 color: colors.textColor
-                            },
-                            margin: 0
+                            }
                         },
                         datalabels: {
                             anchor: 'end',
@@ -554,50 +504,28 @@ CHART_HTML = """
                                     maximumFractionDigits: 2
                                 });
                             },
-                            font: {
-                                weight: 'bold',
-                                size: 12
-                            },
-                            color: colors.textColor,
-                            offset: 8
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let value = context.raw;
-                                    return `${context.dataset.label}: $${value.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}`;
-                                }
-                            }
-                        }
-                    },
-                    layout: {
-                        padding: {
-                            top: 10,
-                            bottom: 10
+                            color: colors.textColor
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: colors.gridColor
-                            },
                             ticks: {
                                 color: colors.textColor,
                                 callback: function(value) {
                                     return '$' + value.toLocaleString();
                                 }
+                            },
+                            grid: {
+                                color: colors.gridColor
                             }
                         },
                         x: {
-                            grid: {
-                                color: colors.gridColor
-                            },
                             ticks: {
                                 color: colors.textColor
+                            },
+                            grid: {
+                                color: colors.gridColor
                             }
                         }
                     }
@@ -637,111 +565,156 @@ def calculate_months_remaining(start_date, agreement_term):
     months_remaining = (days_remaining / total_days) * agreement_term
     
     return round(months_remaining, 2)
-    
+
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
+    """
+    Enhanced cost calculation method with consistent logic across billing terms
+    
+    Parameters:
+    - df: DataFrame with service line items
+    - agreement_term: Total agreement term in months
+    - months_remaining: Months remaining in current agreement
+    - extension_months: Additional months to extend
+    - billing_term: 'Monthly', 'Annual', or 'Prepaid'
+    
+    Returns:
+    - Processed DataFrame
+    - Cost metrics for different billing terms
+    """
     total_term = months_remaining + extension_months
     months_elapsed = agreement_term - months_remaining
-    total_prepaid_cost = 0
-    total_first_year_cost = 0
-    total_updated_annual_cost = 0
-    total_subscription_term_fee = 0
-    total_current_cost = 0  # Current cost before additional licenses
-    total_monthly_cost = 0  # Add this line to track monthly cost
-    total_updated_monthly_cost = 0  # Add this line to track updated monthly cost
     
+    # Initialize cost tracking dictionaries
+    cost_metrics = {
+        'current_cost': 0,
+        'co_termed_cost': 0,
+        'updated_cost': 0,
+        'subscription_total': 0
+    }
+    
+    # Process each line item
     for index, row in df.iterrows():
-        # Calculate current costs (before additional licenses)
-        current_monthly_cost = (row['Annual Unit Fee'] / 12) * row['Unit Quantity']
-        current_annual_cost = row['Unit Quantity'] * row['Annual Unit Fee']
+        # Base calculations
+        annual_unit_fee = row['Annual Unit Fee']
+        current_quantity = row['Unit Quantity']
+        additional_licenses = row['Additional Licenses']
         
-        # Always store both monthly and annual costs regardless of billing term
-        df.at[index, 'Current Monthly Cost'] = current_monthly_cost
-        df.at[index, 'Current Annual Cost'] = current_annual_cost
+        # Monthly calculations
+        monthly_unit_fee = annual_unit_fee / 12
         
-        # Calculate new costs with additional licenses
-        new_monthly_cost = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
-        new_annual_cost = (row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']
+        # Co-terming cost calculation based on remaining months
+        co_terming_factor = months_remaining / 12
         
-        # Always set the Updated Annual Cost
-        df.at[index, 'Updated Annual Cost'] = new_annual_cost
-        
-        # Billing term specific calculations
         if billing_term == 'Monthly':
-            # Monthly specific calculations...
-            fractional_month = months_remaining % 1
-            first_month_factor = fractional_month if fractional_month > 0 else 1.0
+            # Monthly-specific calculations
+            current_monthly_cost = (current_quantity * annual_unit_fee) / 12
+            co_termed_monthly_cost = (additional_licenses * annual_unit_fee * co_terming_factor) / 12
+            new_monthly_cost = ((current_quantity + additional_licenses) * annual_unit_fee) / 12
             
-            first_month_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * first_month_factor
-            monthly_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses']
+            df.at[index, 'Current Monthly Cost'] = current_monthly_cost
+            df.at[index, 'Co-Termed Monthly Cost'] = co_termed_monthly_cost
+            df.at[index, 'New Monthly Cost'] = new_monthly_cost
             
-            df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
-            df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
-            
+            # Update cost metrics
+            cost_metrics['current_cost'] += current_monthly_cost
+            cost_metrics['co_termed_cost'] += co_termed_monthly_cost
+            cost_metrics['updated_cost'] += new_monthly_cost
+        
         elif billing_term == 'Annual':
-            # Annual specific calculations...
-            co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
-            df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
+            # Annual-specific calculations
+            current_annual_cost = current_quantity * annual_unit_fee
+            co_termed_annual_cost = additional_licenses * annual_unit_fee * co_terming_factor
+            new_annual_cost = (current_quantity + additional_licenses) * annual_unit_fee
             
+            df.at[index, 'Current Annual Cost'] = current_annual_cost
+            df.at[index, 'Co-Termed Annual Cost'] = co_termed_annual_cost
+            df.at[index, 'New Annual Cost'] = new_annual_cost
+            
+            # Update cost metrics
+            cost_metrics['current_cost'] += current_annual_cost
+            cost_metrics['co_termed_cost'] += co_termed_annual_cost
+            cost_metrics['updated_cost'] += new_annual_cost
+        
         elif billing_term == 'Prepaid':
-            # Debug: Ensure the variable is initialized
-            additional_prepaid_cost = 0.0
+            # Prepaid-specific calculations
+            current_prepaid_cost = current_quantity * annual_unit_fee
+            co_termed_prepaid_cost = additional_licenses * annual_unit_fee * co_terming_factor
+            new_prepaid_cost = (current_quantity + additional_licenses) * annual_unit_fee
             
-            # Calculate Additional Licenses Prepaid Cost
-            if 'Additional Licenses' in df.columns and 'Annual Unit Fee' in df.columns:
-                additional_prepaid_cost = df['Additional Licenses'] * df['Annual Unit Fee'] * (months_remaining / 12)
-                df['Prepaid Additional Licenses Co-Termed Cost'] = additional_prepaid_cost  # Store in the dataframe
+            df.at[index, 'Current Prepaid Cost'] = current_prepaid_cost
+            df.at[index, 'Co-Termed Prepaid Cost'] = co_termed_prepaid_cost
+            df.at[index, 'New Prepaid Cost'] = new_prepaid_cost
             
-            # Debugging Output
-            st.write("Debug: Additional Prepaid Cost", additional_prepaid_cost)
-
-            
-        # Always add the subscription term total
-        annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
-        subscription_term_total_fee = ((annual_total_fee * total_term) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
-        df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
-
-    # Convert numeric columns to float - only convert columns that exist
-    numeric_cols = [
-        "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
-        "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
-        "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
-    ]
+            # Update cost metrics
+            cost_metrics['current_cost'] += current_prepaid_cost
+            cost_metrics['co_termed_cost'] += co_termed_prepaid_cost
+            cost_metrics['updated_cost'] += new_prepaid_cost
+        
+        # Subscription total calculation
+        subscription_total = (current_quantity + additional_licenses) * annual_unit_fee * (total_term / 12)
+        df.at[index, 'Subscription Total'] = subscription_total
+        cost_metrics['subscription_total'] += subscription_total
     
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
-
-    # Create Total Services Cost row
+    # Add a total row to the DataFrame
     total_row = pd.DataFrame({
-        "Cloud Service Description": ["Total Licensing Cost"],
-        "Unit Quantity": ["-"],
-        "Additional Licenses": ["-"],
+        'Cloud Service Description': ['Total Licensing Cost'],
+        'Current Cost': [cost_metrics['current_cost']],
+        'Co-Termed Cost': [cost_metrics['co_termed_cost']],
+        'Updated Cost': [cost_metrics['updated_cost']],
+        'Subscription Total': [cost_metrics['subscription_total']]
     })
-
-    # Add numeric column totals
-    for col in numeric_cols:
-        if col in df.columns:
-            total_row[col] = df[col].sum()
-
-    # Remove any existing total row to prevent duplicates
-    df = df[df["Cloud Service Description"] != "Total Licensing Cost"]
-
-    # Concatenate the total row
+    
     df = pd.concat([df, total_row], ignore_index=True)
+    
+    return df, cost_metrics
 
-    # Calculate the final totals for the PDF
-    if 'Current Annual Cost' in df.columns:
-        total_current_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Current Annual Cost'].sum()
-    if 'Prepaid Co-Termed Cost' in df.columns:
-        total_prepaid_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Prepaid Co-Termed Cost'].sum()
-    if 'First Year Co-Termed Cost' in df.columns:
-        total_first_year_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'First Year Co-Termed Cost'].sum()
-    if 'Updated Annual Cost' in df.columns:
-        total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
-    if 'Subscription Term Total Service Fee' in df.columns:
-        total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
-
-    return df, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
+def prepare_chart_data(processed_data, billing_term):
+    """
+    Prepare chart data for different billing terms
+    
+    Parameters:
+    - processed_data: DataFrame with calculated costs
+    - billing_term: 'Monthly', 'Annual', or 'Prepaid'
+    
+    Returns:
+    - Dictionary of chart data
+    """
+    # Locate the total row
+    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
+    
+    # Default chart data structure
+    chart_data = {
+        'currentCost': 0,
+        'coTermedCost': 0,
+        'updatedCost': 0,
+        'subscriptionTotal': 0
+    }
+    
+    # Populate chart data based on billing term
+    if not total_row.empty:
+        if billing_term == 'Monthly':
+            chart_data.update({
+                'currentCost': total_row['Current Monthly Cost'].iloc[0],
+                'coTermedCost': total_row['Co-Termed Monthly Cost'].iloc[0],
+                'updatedCost': total_row['New Monthly Cost'].iloc[0],
+                'subscriptionTotal': total_row['Subscription Total'].iloc[0]
+            })
+        elif billing_term == 'Annual':
+            chart_data.update({
+                'currentCost': total_row['Current Annual Cost'].iloc[0],
+                'coTermedCost': total_row['Co-Termed Annual Cost'].iloc[0],
+                'updatedCost': total_row['New Annual Cost'].iloc[0],
+                'subscriptionTotal': total_row['Subscription Total'].iloc[0]
+            })
+        elif billing_term == 'Prepaid':
+            chart_data.update({
+                'currentCost': total_row['Current Prepaid Cost'].iloc[0],
+                'coTermedCost': total_row['Co-Termed Prepaid Cost'].iloc[0],
+                'updatedCost': total_row['New Prepaid Cost'].iloc[0],
+                'subscriptionTotal': total_row['Subscription Total'].iloc[0]
+            })
+    
+    return chart_data
 
 def generate_pdf(billing_term, months_remaining, extension_months, total_current_cost, total_prepaid_cost, 
                 total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term, 
@@ -1281,6 +1254,16 @@ if st.session_state.active_tab == 'calculator':
                     billing_term
                 )
                 
+                chart_data = prepare_chart_data(processed_data, billing_term)
+
+                st.session_state.calculation_results = {
+                    "processed_data": processed_data,
+                    "cost_metrics": cost_metrics,
+                    "chart_data": chart_data
+                }
+                
+                st.success("Calculations completed successfully!")
+                
                 # Store results in session state
                 st.session_state.calculation_results = {
                     "processed_data": processed_data,
@@ -1297,6 +1280,8 @@ if st.session_state.active_tab == 'calculator':
         if st.session_state.calculation_results:
             results = st.session_state.calculation_results
             processed_data = results["processed_data"]
+            cost_metrics = results["cost_metrics"]
+            chart_data = results["chart_data"]
             total_current_cost = results["total_current_cost"]
             total_prepaid_cost = results["total_prepaid_cost"]
             total_first_year_cost = results["total_first_year_cost"]
@@ -1503,38 +1488,21 @@ if st.session_state.active_tab == 'calculator':
                     st.write("Debug: Chart Data (Prepaid)", chart_data)
 
                 # Now generate the chart using the updated chart data
-                try:
-                    # Convert all values to float and ensure they're not None
-                    for key in chart_data:
-                        if chart_data[key] is None:
-                            chart_data[key] = 0.0
-                        else:
-                            chart_data[key] = float(chart_data[key])
-                    
-                    st.write("Debug: Total Row Data (Prepaid)", total_row)
-                    st.write("Debug: Prepaid Additional Licenses Cost:", additional_prepaid_cost)
-                    st.write("Debug: Prepaid Co-Termed Cost:", co_termed_prepaid)
-
-
-                    # Render chart with safety measures
-                    components.html(
-                        CHART_HTML + f"""
-                        <script>
-                            console.log("Starting chart rendering...");
-                            try {{
-                                const chartData = {chart_data};
-                                console.log("Chart data:", JSON.stringify(chartData));
-                                renderChart(chartData, '{billing_term}', '{st.session_state.theme}');
-                                console.log("Chart rendering complete");
-                            }} catch (e) {{
-                                console.error("Error rendering chart:", e);
-                                document.write("<div style='color:red'>Error rendering chart: " + e.message + "</div>");
-                            }}
-                        </script>
-                        """,
-                        height=500
-                    )
-                except Exception as e:
+               try:
+            components.html(
+                CHART_HTML + f"""
+                <script>
+                    try {{
+                        const chartData = {chart_data};
+                        renderChart(chartData, '{billing_term}', 'dark');
+                    }} catch (e) {{
+                        console.error("Chart rendering error:", e);
+                    }}
+                </script>
+                """,
+                height=500
+            )
+               except Exception as e:
                     st.error(f"Error generating chart: {str(e)}")
                     st.warning("Please try recalculating costs or refreshing the page.")
                 
