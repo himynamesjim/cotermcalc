@@ -898,7 +898,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         
     return pdf_buffer
 
-def generate_email_template(billing_term, customer_name, current_cost, first_cost, total_subscription_cost, company_name, account_manager, updated_annual_cost=0):
+def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, company_name, account_manager, updated_annual_cost=0):
     # Base template with placeholders for dynamic content
     email_templates = {
         'Monthly': f"""Dear Customer,
@@ -1527,7 +1527,7 @@ if st.session_state.active_tab == 'calculator':
             
             # Email subject suggestion
             st.markdown("### Suggested Email Subject")
-            email_subject = f"Co-Terming Cost Proposal - {customer_name}" if customer_name else "Co-Terming Cost Proposal"
+            email_subject = f"Co-Terming Cost Proposal - Customer Name"
             st.text_input("Subject Line:", value=email_subject, key="email_subject")
             
             # Add copy button for subject line
