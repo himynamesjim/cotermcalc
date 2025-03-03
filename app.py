@@ -26,66 +26,7 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-     /* Target the specific scroller and editor classes used by the table */
-    .dvn-scroller,
-    .stDataFrameGlideDataEditor,
-    .dvn-scroller div,
-    .stDataFrameGlideDataEditor div,
-    .dvn-scroller table,
-    .stDataFrameGlideDataEditor table,
-    .dvn-scroller th,
-    .stDataFrameGlideDataEditor th,
-    .dvn-scroller td,
-    .stDataFrameGlideDataEditor td {
-        background-color: #2e3440 !important;
-        color: #d8dee9 !important;
-        border-color: #4c566a !important;
-    }
-    
-    /* Table headers */
-    .dvn-scroller th,
-    .stDataFrameGlideDataEditor th {
-        background-color: #3b4252 !important;
-        color: #eceff4 !important;
-        font-weight: bold !important;
-    }
-    
-    /* Fix cell backgrounds */
-    .dvn-scroller td div,
-    .stDataFrameGlideDataEditor td div,
-    .dvn-scroller th div,
-    .stDataFrameGlideDataEditor th div {
-        background-color: transparent !important;
-        color: inherit !important;
-    }
-    
-    /* Fix row backgrounds */
-    .dvn-scroller tr,
-    .stDataFrameGlideDataEditor tr {
-        background-color: #2e3440 !important;
-    }
-    
-    /* Style alternating rows */
-    .dvn-scroller tr:nth-child(even),
-    .stDataFrameGlideDataEditor tr:nth-child(even) {
-        background-color: #353c4a !important;
-    }
-    
-    /* Fix Glide-specific elements */
-    .glideDataEditor, 
-    .glideDataEditor * {
-        background-color: #2e3440 !important;
-        color: #d8dee9 !important;
-    }
-    
-    /* Cell selection highlight */
-    .dvn-scroller td.selected,
-    .stDataFrameGlideDataEditor td.selected,
-    .dvn-scroller td:focus,
-    .stDataFrameGlideDataEditor td:focus {
-        background-color: #5e81ac !important;
-        color: white !important;
-    }
+ 
      /* Style the tooltip/popup for help text */
     [data-baseweb="tooltip"],
     [role="tooltip"],
