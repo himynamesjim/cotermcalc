@@ -1706,7 +1706,7 @@ elif st.session_state.active_tab == 'help_documentation':
         
         - **Email Template**: The email template is automatically generated based on the calculation results and customer information. You can copy and customize it as needed.
         """)
-
+        
 elif st.session_state.active_tab == 'about':
     st.markdown('<div class="main-header">About This Application</div>', unsafe_allow_html=True)
     
@@ -1734,7 +1734,6 @@ elif st.session_state.active_tab == 'about':
     
     For support or feature requests, please contact your application administrator.
     """)
-    pass
 
     # Footer with a credit note
     st.markdown("""
