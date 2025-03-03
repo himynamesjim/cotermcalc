@@ -26,7 +26,37 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-  
+   /* Target the specific button class that's causing the issue */
+    .st-emotion-cache-ocsh0s, .st-emotion-cache-ocsh0s:hover, .st-emotion-cache-ocsh0s:active, .st-emotion-cache-ocsh0s:focus {
+        background-color: #4b8bbe !important;
+        color: white !important;
+        border: 1px solid #366b99 !important;
+    }
+    
+    /* Target the disabled button state as well */
+    .st-emotion-cache-ocsh0s:disabled {
+        background-color: #2c3e50 !important;
+        color: #95a5a6 !important;
+        opacity: 0.7 !important;
+    }
+    
+    /* Additional target for download button specific class if different */
+    button[kind="primary"], button[kind="secondary"] {
+        background-color: #4b8bbe !important;
+        color: white !important;
+    }
+    
+    /* Target all buttons more aggressively */
+    button, .stButton>button, [role="button"], [type="button"] {
+        background-color: #4b8bbe !important;
+        color: white !important;
+        border-color: #366b99 !important;
+    }
+    
+    /* Ensure button text is always white */
+    button *, .stButton>button *, [role="button"] *, [type="button"] * {
+        color: white !important;
+    }
  /* Fix buttons - make them blue with white text */
     .stButton > button {
         background-color: #4b8bbe !important;
