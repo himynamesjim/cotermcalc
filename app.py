@@ -463,12 +463,12 @@ CHART_HTML = """
             else if (billingTerm === 'Prepaid') {
                 datasets = [
                     {
-                        label: 'Current Annual Cost',
+                        label: 'Current Prepaid Cost (Full Term)',
                         data: [data.currentCost || 0],
                         backgroundColor: colors.barColors[0]
                     },
                     {
-                        label: 'Co-Termed Prepaid Cost',
+                        label: 'Additional Licenses Prepaid Cost',
                         data: [data.coTermedPrepaid || 0],
                         backgroundColor: colors.barColors[1]
                     },
@@ -646,19 +646,12 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
             df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
             
-            # Set updated prepaid cost - this is the total prepaid cost for the entire term
-            prepaid_current_cost = (row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12
-            df.at[index, 'Current Prepaid Cost'] = prepaid_current_cost
+            # Set the current prepaid cost (current licenses cost for the entire term)
+            current_prepaid_cost = (row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12
+            df.at[index, 'Current Prepaid Cost'] = current_prepaid_cost
             
-            # Total prepaid cost including additional licenses
-            total_prepaid = prepaid_current_cost + co_termed_prepaid_cost
-            df.at[index, 'Total Prepaid Cost'] = total_prepaid
-            
-            # Clear any annual or monthly fields to avoid confusion
-            if 'First Year Co-Termed Cost' in df.columns:
-                df.at[index, 'First Year Co-Termed Cost'] = 0
-            if 'Updated Annual Cost' in df.columns:
-                df.at[index, 'Updated Annual Cost'] = 0
+            # Clear annual values to avoid confusion
+            df.at[index, 'Updated Annual Cost'] = 0
             
         # Always add the subscription term total
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
@@ -1434,25 +1427,23 @@ if st.session_state.active_tab == 'calculator':
                         "subscription": float(total_subscription_term_fee)
                     }
                 elif billing_term == 'Prepaid':
-                    # Get the prepaid costs from the Total Licensing Cost row
-                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
+                    # Get prepaid-specific values using fallbacks to calculate if columns don't exist
+                    current_prepaid = total_current_cost * (total_term / 12)  # Calculate current prepaid cost
                     
-                    # Get prepaid-specific values
-                    current_prepaid = float(total_row['Current Prepaid Cost'].iloc[0]) if 'Current Prepaid Cost' in total_row.columns else (total_current_cost * total_term / 12)
-                    co_termed_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0]) if 'Prepaid Co-Termed Cost' in total_row.columns else 0.0
+                    # Make sure we get the total_prepaid_cost for additional licenses
+                    if 'Current Prepaid Cost' in processed_data.columns:
+                        try:
+                            current_prepaid = float(processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']['Current Prepaid Cost'].iloc[0])
+                        except:
+                            # Fallback calculation
+                            pass
                     
                     # Create chart data specifically for prepaid view
                     chart_data = {
                         "currentCost": float(current_prepaid),  # Current cost for the full term
-                        "coTermedPrepaid": float(co_termed_prepaid),  # Additional licenses prepaid cost
+                        "coTermedPrepaid": float(total_prepaid_cost),  # Additional licenses prepaid cost
                         "subscription": float(total_subscription_term_fee)  # Total subscription cost
                     }
-                    
-                    # Debug output
-                    st.write("Prepaid Calculation Debug:")
-                    st.write(f"  - Current Prepaid Cost (full term): ${current_prepaid:,.2f}")
-                    st.write(f"  - Additional Licenses Prepaid Cost: ${co_termed_prepaid:,.2f}")
-                    st.write(f"  - Total Subscription: ${total_subscription_term_fee:,.2f}")
                 
                 # Now generate the chart using the updated chart data
                 try:
