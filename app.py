@@ -26,6 +26,70 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
+    /* Force dark theme for buttons */
+    .stButton > button {
+        background-color: #4b8bbe !important;
+        color: white !important;
+        border: 1px solid #366b99 !important;
+        border-radius: 4px !important;
+    }
+    
+    /* Force dark theme for tables */
+    .dataframe {
+        background-color: #262730 !important;
+        color: white !important;
+    }
+    
+    .dataframe th {
+        background-color: #1e1e1e !important;
+        color: white !important;
+        border-color: #4b8bbe !important;
+    }
+    
+    .dataframe td {
+        background-color: #262730 !important;
+        color: white !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Force dark theme for other common elements */
+    .stDataFrame, [data-testid="stTable"] {
+        background-color: #262730 !important;
+        color: white !important;
+    }
+    
+    /* Fix white backgrounds in forms and containers */
+    [data-testid="stForm"], .stForm,
+    [data-testid="column"], .stColumn,
+    [data-testid="stExpander"], .stExpander,
+    .stTabs [data-baseweb="tab-panel"] {
+        background-color: #0e1117 !important;
+        color: white !important;
+    }
+    
+    /* Fix tab styling */
+    .stTabs [role="tab"] {
+        background-color: #262730 !important;
+        color: white !important;
+    }
+    
+    .stTabs [role="tab"][aria-selected="true"] {
+        background-color: #4b8bbe !important;
+        color: white !important;
+    }
+    
+    /* Fix download button */
+    .stDownloadButton > button {
+        background-color: #4b8bbe !important;
+        color: white !important;
+        border: 1px solid #366b99 !important;
+    }
+    
+    /* Fix metric values */
+    [data-testid="stMetricValue"] {
+        background-color: transparent !important;
+        color: white !important;
+    }
  /* Fix buttons - make them blue with white text */
     .stButton > button {
         background-color: #4b8bbe !important;
