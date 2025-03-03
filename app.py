@@ -1487,9 +1487,8 @@ if st.session_state.active_tab == 'calculator':
                     # Debugging Output
                     st.write("Debug: Chart Data (Prepaid)", chart_data)
 
-                # Now generate the chart using the updated chart data
+                # Now generate the chart using the updated chart data components.html(
                try:
-            components.html(
                 CHART_HTML + f"""
                 <script>
                     try {{
