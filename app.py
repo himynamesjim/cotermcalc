@@ -1480,50 +1480,50 @@ with tabs[2]:
                 
                 st.markdown("### Cost Comparison")
                 
-                    # Prepare chart data based on billing term
-                    if billing_term == 'Monthly':
-                        # Get values from the Total Services Cost row
-                        total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
-                        
-                        # Make sure these columns exist in the dataframe
-                        monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
-                        first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
-                        
-                        # Current monthly cost
-                        current_monthly = total_current_cost / 12
-                        new_monthly = (total_updated_annual_cost / 12) if total_updated_annual_cost > 0 else 0
-                        
-                        # Make sure the key names match exactly what's expected in the JavaScript
-                        chart_data = {
-                            "currentCost": float(current_monthly),
-                            "coTermedMonthly": float(first_month_co_termed),  # This should match data.coTermedMonthly in JS
-                            "newMonthly": float(new_monthly),  # This should match data.newMonthly in JS
-                            "subscription": float(total_subscription_term_fee)
-                        }
-                        
-                    elif billing_term == 'Annual':
-                        chart_data = {
-                            "currentCost": float(total_current_cost),
-                            "firstYearCoTerm": float(total_first_year_cost),
-                            "newAnnual": float(total_updated_annual_cost),
-                            "subscription": float(total_subscription_term_fee)
-                        }
-                    elif billing_term == 'Prepaid':
-                        # Get the totals for prepaid
-                        total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
-                        
-                        # Get the current prepaid cost and new total prepaid cost
-                        current_prepaid_cost = float(total_row['Current Prepaid Cost'].iloc[0]) if 'Current Prepaid Cost' in total_row.columns else 0.0
-                        new_total_prepaid = float(total_row['New Total Prepaid Cost'].iloc[0]) if 'New Total Prepaid Cost' in total_row.columns else 0.0
-                        additional_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0]) if 'Prepaid Co-Termed Cost' in total_row.columns else 0.0
-                        
-                        # Create chart data specifically for prepaid view
-                        chart_data = {
-                            "currentCost": float(current_prepaid_cost),  # Current prepaid cost for the full term
-                            "coTermedPrepaid": float(additional_prepaid),  # Additional licenses prepaid cost
-                            "newTotalPrepaid": float(new_total_prepaid),  # New total prepaid cost
-                            "subscription": float(total_subscription_term_fee)  # Total subscription cost
-                        }
+                # Prepare chart data based on billing term
+                if billing_term == 'Monthly':
+                    # Get values from the Total Services Cost row
+                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
+                    
+                    # Make sure these columns exist in the dataframe
+                    monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
+                    first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
+                    
+                    # Current monthly cost
+                    current_monthly = total_current_cost / 12
+                    new_monthly = (total_updated_annual_cost / 12) if total_updated_annual_cost > 0 else 0
+                    
+                    # Make sure the key names match exactly what's expected in the JavaScript
+                    chart_data = {
+                        "currentCost": float(current_monthly),
+                        "coTermedMonthly": float(first_month_co_termed),  # This should match data.coTermedMonthly in JS
+                        "newMonthly": float(new_monthly),  # This should match data.newMonthly in JS
+                        "subscription": float(total_subscription_term_fee)
+                    }
+                    
+                elif billing_term == 'Annual':
+                    chart_data = {
+                        "currentCost": float(total_current_cost),
+                        "firstYearCoTerm": float(total_first_year_cost),
+                        "newAnnual": float(total_updated_annual_cost),
+                        "subscription": float(total_subscription_term_fee)
+                    }
+                elif billing_term == 'Prepaid':
+                    # Get the totals for prepaid
+                    total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
+                    
+                    # Get the current prepaid cost and new total prepaid cost
+                    current_prepaid_cost = float(total_row['Current Prepaid Cost'].iloc[0]) if 'Current Prepaid Cost' in total_row.columns else 0.0
+                    new_total_prepaid = float(total_row['New Total Prepaid Cost'].iloc[0]) if 'New Total Prepaid Cost' in total_row.columns else 0.0
+                    additional_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0]) if 'Prepaid Co-Termed Cost' in total_row.columns else 0.0
+                    
+                    # Create chart data specifically for prepaid view
+                    chart_data = {
+                        "currentCost": float(current_prepaid_cost),  # Current prepaid cost for the full term
+                        "coTermedPrepaid": float(additional_prepaid),  # Additional licenses prepaid cost
+                        "newTotalPrepaid": float(new_total_prepaid),  # New total prepaid cost
+                        "subscription": float(total_subscription_term_fee)  # Total subscription cost
+                    }
                 # Now generate the chart using the updated chart data
                 try:
                     # Convert all values to float and ensure they're not None
