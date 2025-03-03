@@ -26,7 +26,48 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
- 
+ // Function to force dark theme by clicking the theme selector
+function forceDarkTheme() {
+    // Try to find and click the theme menu
+    const menuButton = document.querySelector('button[aria-label="Menu"]');
+    if (menuButton) {
+        menuButton.click();
+        
+        // Wait for menu to appear and find settings
+        setTimeout(() => {
+            const settingsItem = Array.from(document.querySelectorAll('li')).find(
+                li => li.textContent.includes('Settings')
+            );
+            
+            if (settingsItem) {
+                settingsItem.click();
+                
+                // Wait for settings dialog and find theme selector
+                setTimeout(() => {
+                    const themeOption = Array.from(document.querySelectorAll('label')).find(
+                        label => label.textContent.includes('Dark')
+                    );
+                    
+                    if (themeOption) {
+                        const radioInput = themeOption.querySelector('input');
+                        if (radioInput) radioInput.click();
+                        
+                        // Close by clicking ok
+                        const okButton = Array.from(document.querySelectorAll('button')).find(
+                            button => button.textContent.includes('Save')
+                        );
+                        if (okButton) okButton.click();
+                    }
+                }, 300);
+            }
+        }, 300);
+    }
+}
+
+// Run after page loads
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(forceDarkTheme, 1000);
+});
      /* Style the tooltip/popup for help text */
     [data-baseweb="tooltip"],
     [role="tooltip"],
