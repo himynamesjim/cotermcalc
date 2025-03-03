@@ -1510,7 +1510,6 @@ if st.session_state.active_tab == 'calculator':
             # Generate email template
             email_content = generate_email_template(
                 billing_term,
-                customer_name or "Customer",
                 total_current_cost,
                 first_cost,
                 total_subscription_term_fee,
