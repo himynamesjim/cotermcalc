@@ -43,8 +43,16 @@ st.markdown("""
         transition: all 0.2s ease !important;
     }
     
-    /* Hover effect for buttons */
-    .stButton>button:hover, [data-testid="baseButton-secondary"]:hover, .st-emotion-cache-ocsh0s.e1ewe7hr3:hover {
+  /* Also apply hover styles to all the above button types */
+    .stButton>button:hover, 
+    [data-testid="baseButton-secondary"]:hover, 
+    .st-emotion-cache-ocsh0s.e1ewe7hr3:hover,
+    .st-emotion-cache-ocsh0s:hover,
+    button[kind="primary"]:hover,
+    button[kind="secondary"]:hover,
+    button[data-testid="StyledButton"]:hover,
+    .element-container button:hover,
+    form button:hover {
         background-color: #4c566a !important;  /* Lighter dark color on hover */
         border-color: #81a1c1 !important;      /* Blue-ish border on hover */
         box-shadow: 0 0 5px rgba(129, 161, 193, 0.5) !important; /* Subtle glow */
