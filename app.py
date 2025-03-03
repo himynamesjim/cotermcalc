@@ -1458,10 +1458,22 @@ if st.session_state.active_tab == 'calculator':
                     }
                     
                 elif billing_term == 'Annual':
+                    # Default values
+                    first_year_co_term = 0.0
+                    updated_annual = 0.0
+                
+                    # ✅ Ensure columns exist and are not empty before extracting values
+                    if 'First Year Co-Termed Cost' in total_row.columns and not total_row.empty:
+                        first_year_co_term = float(total_row['First Year Co-Termed Cost'].fillna(0).iloc[0])
+                
+                    if 'Updated Annual Cost' in total_row.columns and not total_row.empty:
+                        updated_annual = float(total_row['Updated Annual Cost'].fillna(0).iloc[0])
+                
+                    # ✅ Final Chart Data for Annual
                     chart_data = {
                         "currentCost": float(total_current_cost),
-                        "firstYearCoTerm": float(total_first_year_cost),
-                        "newAnnual": float(total_updated_annual_cost),
+                        "firstYearCoTerm": float(first_year_co_term),
+                        "newAnnual": float(updated_annual),
                         "subscription": float(total_subscription_term_fee)
                     }
                 else: #Prepaid
