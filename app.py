@@ -1490,12 +1490,6 @@ if st.session_state.active_tab == 'calculator':
     with tabs[3]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
-        # Customer Information Fields
-        st.markdown("### Customer Information")
-        customer_name = st.text_input("Customer Name:", placeholder="Enter customer name")
-        company_name = st.text_input("Company Name:", placeholder="Enter your company name")
-        account_manager = st.text_input("Account Manager:", placeholder="Enter your name")
-        
         # Check if we have calculation results
         if st.session_state.calculation_results:
             results = st.session_state.calculation_results
