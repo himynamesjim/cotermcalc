@@ -1183,7 +1183,7 @@ if st.session_state.active_tab == 'calculator':
                 # Create input fields for each row
                 service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
                 qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=qty_key)
-                fee = col3.number_input("Annual Fee ($)", min_value=0.0, value=0.00, step=100.0, format="%.2f", key=fee_key)
+                fee = col3.number_input("License Cost ($)", min_value=0.0, value=0.00, step=100.0, format="%.2f", key=fee_key)
                 add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=add_lic_key)
                 
                 # Add the row data to our dataframe
