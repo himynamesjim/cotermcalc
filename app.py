@@ -26,11 +26,11 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-   /* Target only form buttons and calculation/download buttons */
-    .stButton>button, [data-testid="baseButton-secondary"] {
+    /* Target the specific button class that's causing the issue */
+    .st-emotion-cache-ocsh0s, .st-emotion-cache-ocsh0s:hover, .st-emotion-cache-ocsh0s:active, .st-emotion-cache-ocsh0s:focus {
         background-color: #4b8bbe !important;
         color: white !important;
-        border-color: #366b99 !important;
+        border: 1px solid #366b99 !important;
     }
     
     /* Target the specific button class for Calculate and other action buttons */
