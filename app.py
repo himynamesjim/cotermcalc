@@ -26,62 +26,7 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-     /* Force dark theme for dataframes and tables - comprehensive targeting */
-    .dataframe, 
-    .dataframe th, 
-    .dataframe td,
-    .st-emotion-cache-1q1n0ol,
-    .st-emotion-cache-z5fcl4,
-    .st-emotion-cache-1ht94ch, 
-    .st-emotion-cache-zt5igj,
-    .st-emotion-cache-1n76uvr, 
-    .st-emotion-cache-1inwz65,
-    .st-emotion-cache-13gsgv5,
-    .st-emotion-cache-ocqkz7,
-    .css-1cpxqw2, 
-    .edgvbvh9,
-    div.stDataFrame table,
-    div.stDataFrame th,
-    div.stDataFrame td,
-    [data-testid="stTable"] table,
-    [data-testid="stTable"] th,
-    [data-testid="stTable"] td {
-        background-color: #2e3440 !important;
-        color: #d8dee9 !important;
-        border-color: #4c566a !important;
-    }
-    
-    /* Headers */
-    .dataframe th,
-    div.stDataFrame th,
-    [data-testid="stTable"] th,
-    .st-emotion-cache-1n76uvr th {
-        background-color: #3b4252 !important;
-        color: #eceff4 !important;
-        font-weight: bold !important;
-    }
-    
-    /* Target the DataFrame wrapper elements */
-    div.stDataFrame, 
-    div.stDataFrame > div,
-    [data-testid="stTable"],
-    .element-container div[data-testid="element-container"] div {
-        background-color: #2e3440 !important;
-    }
-    
-    /* Cell styling */
-    .stDataFrame td div, 
-    .stDataFrame th div,
-    [data-testid="stTable"] td div,
-    [data-testid="stTable"] th div {
-        background-color: transparent !important;
-        color: inherit !important;
-    }
-    
-    /* Table container */
-    div[data-testid="stVerticalBlock"] .element-container:has(table) {
-        background-color: #2e3440 !important;
-    }
+   
      /* Style the tooltip/popup for help text */
     [data-baseweb="tooltip"],
     [role="tooltip"],
