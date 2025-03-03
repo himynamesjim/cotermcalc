@@ -26,6 +26,27 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
+     /* Style the tooltip/popup for help text */
+    [data-baseweb="tooltip"],
+    [role="tooltip"],
+    .stTooltipContent {
+        background-color: #2e3440 !important;
+        color: #d8dee9 !important;
+        border: 1px solid #4c566a !important;
+        border-radius: 4px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+        max-width: 300px !important;
+        z-index: 1000 !important;
+    }
+    
+    /* Style the tooltip arrow if needed */
+    [data-baseweb="tooltip"]::after,
+    [role="tooltip"]::after,
+    .stTooltipContent::after {
+        border-color: #2e3440 !important;
+    }
     /* Target all action buttons including Calculate Results */
     .stButton>button, 
     [data-testid="baseButton-secondary"], 
