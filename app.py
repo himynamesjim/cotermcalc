@@ -1495,36 +1495,36 @@ try:
 except Exception as e:
     st.error(f"Error generating chart: {str(e)}")
     st.warning("Please try recalculating costs or refreshing the page.")
-                
-                # Generate PDF
-                st.subheader("Report Generation")
-                
-                # Create columns for download options
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.markdown("##### PDF Report")
-                pdf_buffer = generate_pdf(
-                    billing_term,
-                    months_remaining,
-                    extension_months,
-                    total_current_cost,
-                    total_prepaid_cost,
-                    total_first_year_cost,
-                    total_updated_annual_cost,
-                    total_subscription_term_fee,
-                    processed_data,
-                    agreement_term,
-                )
-                    
-                # In the Results tab, update the download button
-                st.download_button(
-                    label="Download PDF Report",
-                    data=pdf_buffer,
-                    file_name="coterming_report.pdf",
-                    mime="application/pdf",
-                    key="pdf_download"
-                )
+
+# Generate PDF - this should be at the same indentation level as the try/except block
+st.subheader("Report Generation")
+
+# Create columns for download options
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("##### PDF Report")
+pdf_buffer = generate_pdf(
+    billing_term,
+    months_remaining,
+    extension_months,
+    total_current_cost,
+    total_prepaid_cost,
+    total_first_year_cost,
+    total_updated_annual_cost,
+    total_subscription_term_fee,
+    processed_data,
+    agreement_term,
+)
+    
+# In the Results tab, update the download button
+st.download_button(
+    label="Download PDF Report",
+    data=pdf_buffer,
+    file_name="coterming_report.pdf",
+    mime="application/pdf",
+    key="pdf_download"
+)
     with tabs[3]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
