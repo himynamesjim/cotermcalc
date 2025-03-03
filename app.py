@@ -1733,7 +1733,8 @@ elif st.session_state.active_tab == 'about':
     
     For support or feature requests, please contact your application administrator.
     """)
-    
+    pass
+
     # Footer with a credit note
     st.markdown("""
     <div class="footer">
