@@ -1116,164 +1116,164 @@ if st.session_state.active_tab == 'calculator':
     # Create tabs without the Customer Info tab
     tabs = st.tabs(["Agreement Info", "Licensing", "Results", "Email Template"])
     
-    with tabs[0]:
-        st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
+with tabs[0]:
+    st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
+    
+    # Add a separator
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    
+    # Agreement info section
+    left_col, right_col = st.columns(2)
+    
+    with left_col:
+        # Agreement start date with consistent styling
+        st.markdown('<p class="field-label">Agreement Start Date:</p>', unsafe_allow_html=True)
+        default_start_date = datetime.today() - pd.DateOffset(months=6)
+        agreement_start_date = st.date_input(
+            "",  # Empty label since we're using custom styling
+            value=default_start_date,
+            max_value=datetime.today(),
+            key="agreement_start_date",
+            label_visibility="collapsed"
+        )
         
-        # Add a separator
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+        # Billing term with consistent styling
+        st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
+        billing_term = st.selectbox(
+            "", 
+            ["Annual", "Prepaid", "Monthly"],
+            key="billing_term",
+            label_visibility="collapsed"
+        )
+    
+    with right_col:
+        # Agreement term with consistent styling
+        st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
+        agreement_term = st.number_input(
+            "",
+            min_value=1, 
+            value=36, 
+            step=1, 
+            format="%d",
+            key="agreement_term",
+            label_visibility="collapsed"
+        )
         
-        # Agreement info section
-        left_col, right_col = st.columns(2)
+        # Convert date_input result to datetime
+        agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
         
-        with left_col:
-            # Agreement start date with consistent styling
-            st.markdown('<p class="field-label">Agreement Start Date:</p>', unsafe_allow_html=True)
-            default_start_date = datetime.today() - pd.DateOffset(months=6)
-            agreement_start_date = st.date_input(
-                "",  # Empty label since we're using custom styling
-                value=default_start_date,
-                max_value=datetime.today(),
-                key="agreement_start_date",
-                label_visibility="collapsed"
-            )
-            
-            # Billing term with consistent styling
-            st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
-            billing_term = st.selectbox(
+        # Calculate months remaining
+        calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
+        
+        # Months remaining section with consistent styling
+        st.markdown('<p class="field-label">Months Remaining:</p>', unsafe_allow_html=True)
+        use_calculated_months = st.checkbox(
+            "Use calculated months remaining", 
+            value=True,
+            key="use_calculated"
+        )
+        
+        if use_calculated_months:
+            months_remaining = calculated_months_remaining
+            st.markdown(f"""
+            <div class="info-display">
+                <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            months_remaining = st.number_input(
                 "", 
-                ["Annual", "Prepaid", "Monthly"],
-                key="billing_term",
+                min_value=0.01, 
+                max_value=float(agreement_term), 
+                value=calculated_months_remaining,
+                step=0.01, 
+                format="%.2f",
+                key="manual_months",
                 label_visibility="collapsed"
             )
-        
-        with right_col:
-            # Agreement term with consistent styling
-            st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
-            agreement_term = st.number_input(
-                "",
+    
+    # Add a separator with consistent styling
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    
+    # Extension option with better styling
+    extension_col1, extension_col2 = st.columns([1, 3])
+    
+    with extension_col1:
+        add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
+    
+    if add_extension:
+        with extension_col2:
+            st.markdown('<p class="field-label">Extension Period (Months):</p>', unsafe_allow_html=True)
+            extension_months = st.number_input(
+                "", 
                 min_value=1, 
-                value=36, 
+                value=12, 
                 step=1, 
                 format="%d",
-                key="agreement_term",
+                key="extension_months",
                 label_visibility="collapsed"
             )
+            total_term = months_remaining + extension_months
             
-            # Convert date_input result to datetime
-            agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
+            # Display total term with consistent styling
+            st.markdown(f"""
+            <div class="total-display">
+                <span class="info-label">Total Term:</span> {total_term:.2f} months
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        extension_months = 0
+        total_term = months_remaining
+        
+with tabs[1]:  # Licensing tab (previously tabs[2])
+    st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+    
+    num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
+    
+    columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
+              "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", 
+              "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
+    data = pd.DataFrame(columns=columns)
+    
+    # Create a container for the line items
+    line_items_container = st.container()
+    
+    with line_items_container:
+        for i in range(num_items):
+            st.markdown(f"**Item {i+1}**")
+            col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
             
-            # Calculate months remaining
-            calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
+            # Use a unique key for each input to avoid conflicts
+            service_key = f"service_{i}"
+            qty_key = f"qty_{i}"
+            fee_key = f"fee_{i}"
+            add_lic_key = f"add_lic_{i}"
             
-            # Months remaining section with consistent styling
-            st.markdown('<p class="field-label">Months Remaining:</p>', unsafe_allow_html=True)
-            use_calculated_months = st.checkbox(
-                "Use calculated months remaining", 
-                value=True,
-                key="use_calculated"
-            )
+            # Create input fields for each row
+            service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
+            qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=qty_key)
+            fee = col3.number_input("License Cost ($)", min_value=0.0, value=0.00, step=100.0, format="%.2f", key=fee_key)
+            add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=add_lic_key)
             
-            if use_calculated_months:
-                months_remaining = calculated_months_remaining
-                st.markdown(f"""
-                <div class="info-display">
-                    <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                months_remaining = st.number_input(
-                    "", 
-                    min_value=0.01, 
-                    max_value=float(agreement_term), 
-                    value=calculated_months_remaining,
-                    step=0.01, 
-                    format="%.2f",
-                    key="manual_months",
-                    label_visibility="collapsed"
-                )
-        
-        # Add a separator with consistent styling
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-        
-        # Extension option with better styling
-        extension_col1, extension_col2 = st.columns([1, 3])
-        
-        with extension_col1:
-            add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
-        
-        if add_extension:
-            with extension_col2:
-                st.markdown('<p class="field-label">Extension Period (Months):</p>', unsafe_allow_html=True)
-                extension_months = st.number_input(
-                    "", 
-                    min_value=1, 
-                    value=12, 
-                    step=1, 
-                    format="%d",
-                    key="extension_months",
-                    label_visibility="collapsed"
-                )
-                total_term = months_remaining + extension_months
-                
-                # Display total term with consistent styling
-                st.markdown(f"""
-                <div class="total-display">
-                    <span class="info-label">Total Term:</span> {total_term:.2f} months
-                </div>
-                """, unsafe_allow_html=True)
-        else:
-            extension_months = 0
-            total_term = months_remaining
+            # Add the row data to our dataframe
+            row_data = {
+                "Cloud Service Description": service,
+                "Unit Quantity": qty,
+                "Annual Unit Fee": fee,
+                "Additional Licenses": add_lic,
+            }
             
-    with tabs[1]:  # Licensing tab (previously tabs[2])
-        st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+            # Append to the dataframe
+            new_row = pd.DataFrame([row_data])
+            data = pd.concat([data, new_row], ignore_index=True)
+    
+    # Add validation for empty service descriptions
+    empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
+    if empty_services.any():
+        st.warning("⚠️ Please enter a description for all licenses.")
+    
         
-        num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
-        
-        columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
-                  "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", 
-                  "Subscription Term Total Service Fee", "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]
-        data = pd.DataFrame(columns=columns)
-        
-        # Create a container for the line items
-        line_items_container = st.container()
-        
-        with line_items_container:
-            for i in range(num_items):
-                st.markdown(f"**Item {i+1}**")
-                col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-                
-                # Use a unique key for each input to avoid conflicts
-                service_key = f"service_{i}"
-                qty_key = f"qty_{i}"
-                fee_key = f"fee_{i}"
-                add_lic_key = f"add_lic_{i}"
-                
-                # Create input fields for each row
-                service = col1.text_input("Service Description", key=service_key, placeholder="Enter service name")
-                qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=qty_key)
-                fee = col3.number_input("License Cost ($)", min_value=0.0, value=0.00, step=100.0, format="%.2f", key=fee_key)
-                add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=add_lic_key)
-                
-                # Add the row data to our dataframe
-                row_data = {
-                    "Cloud Service Description": service,
-                    "Unit Quantity": qty,
-                    "Annual Unit Fee": fee,
-                    "Additional Licenses": add_lic,
-                }
-                
-                # Append to the dataframe
-                new_row = pd.DataFrame([row_data])
-                data = pd.concat([data, new_row], ignore_index=True)
-        
-        # Add validation for empty service descriptions
-        empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
-        if empty_services.any():
-            st.warning("⚠️ Please enter a description for all licenses.")
-        
-            
-   # Inside the results tab, update this section:
+    # Inside the results tab, update this section:
 with tabs[2]:
     st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
     
