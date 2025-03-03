@@ -26,54 +26,7 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-      /* Target the dataframe with dark theme styling */
-    .dataframe, .dataframe th, .dataframe td {
-        background-color: #2e3440 !important;
-        color: #d8dee9 !important;
-        border-color: #4c566a !important;
-    }
-    
-    /* Style table headers */
-    .dataframe th {
-        background-color: #3b4252 !important; /* Slightly different shade for headers */
-        color: #eceff4 !important; /* Brighter text for headers */
-        font-weight: bold !important;
-        border-bottom: 2px solid #5e81ac !important; /* Accent color for bottom border */
-    }
-    
-    /* Style alternating rows for better readability */
-    .dataframe tr:nth-child(even) {
-        background-color: #333b4a !important;
-    }
-    
-    /* Style row hover for interactivity */
-    .dataframe tr:hover {
-        background-color: #4c566a !important;
-    }
-    
-    /* Target the specific Streamlit elements for tables */
-    [data-testid="stTable"], .stDataFrame {
-        background-color: #2e3440 !important;
-        color: #d8dee9 !important;
-    }
-    
-    /* Fix any containers or wrappers around tables */
-    div.stDataFrame > div {
-        background-color: #2e3440 !important;
-    }
-    
-    /* Additional selector for Streamlit's emotion-styled table elements */
-    .st-emotion-cache-1ht94ch, .st-emotion-cache-zt5igj,
-    .st-emotion-cache-1n76uvr, .st-emotion-cache-1inwz65 {
-        background-color: #2e3440 !important;
-        color: #d8dee9 !important;
-    }
-    
-    /* Target specific table cell styling */
-    .css-1cpxqw2, .edgvbvh9 {
-        background-color: #2e3440 !important;
-        color: #d8dee9 !important;
-    }
+   
      /* Style the tooltip/popup for help text */
     [data-baseweb="tooltip"],
     [role="tooltip"],
