@@ -1585,7 +1585,7 @@ with tabs[2]:
                     mime="application/pdf",
                     key="pdf_download"
                 )
-    with tabs[3]:
+with tabs[3]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
         # Check if we have calculation results
@@ -1597,6 +1597,17 @@ with tabs[2]:
             total_updated_annual_cost = results["total_updated_annual_cost"] 
             total_subscription_term_fee = results["total_subscription_term_fee"]
             
+            # Add these for prepaid option if they exist in the results
+            if "total_current_prepaid_cost" in results:
+                total_current_prepaid_cost = results["total_current_prepaid_cost"]
+            else:
+                total_current_prepaid_cost = 0
+                
+            if "total_new_prepaid_cost" in results:
+                total_new_prepaid_cost = results["total_new_prepaid_cost"]
+            else:
+                total_new_prepaid_cost = 0
+            
             # Determine which cost value to use based on billing term
             if billing_term == 'Monthly':
                 first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
@@ -1605,14 +1616,25 @@ with tabs[2]:
             else:  # Prepaid
                 first_cost = total_prepaid_cost
             
-            # Generate email template
-            email_content = generate_email_template(
-                billing_term,
-                total_current_cost,
-                first_cost,
-                total_subscription_term_fee,
-                total_updated_annual_cost
-            )
+            # Generate email template with prepaid costs
+            if billing_term == 'Prepaid':
+                email_content = generate_email_template(
+                    billing_term,
+                    total_current_cost,
+                    first_cost,
+                    total_subscription_term_fee,
+                    total_updated_annual_cost,
+                    total_current_prepaid_cost,
+                    total_new_prepaid_cost
+                )
+            else:
+                email_content = generate_email_template(
+                    billing_term,
+                    total_current_cost,
+                    first_cost,
+                    total_subscription_term_fee,
+                    total_updated_annual_cost
+                )
             
             # Display email template with copy button
             st.markdown("### Email Template Preview")
@@ -1631,9 +1653,10 @@ with tabs[2]:
         else:
             st.info("Please calculate costs first to generate an email template.")
 
+# This should be unindented - this is where your issue is!
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
-
+    
     # Create an accordion for different help topics
     with st.expander("How to Use This Calculator", expanded=True):
         st.markdown("""
