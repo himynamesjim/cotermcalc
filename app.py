@@ -965,7 +965,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         
     return pdf_buffer
 
-def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0):
+def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, current_prepaid_cost=0, new_total_prepaid_cost=0):
     # Base template with placeholders for dynamic content
     email_templates = {
         'Monthly': f"""Dear Customer,
@@ -1025,15 +1025,17 @@ Your Signature""",
 We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.
 
 Current Agreement:
-- Current Annual Cost: ${current_cost:,.2f}
+- Current Prepaid Cost (Full Term): ${current_prepaid_cost:,.2f}
+- Current Annual Cost (Reference): ${current_cost:,.2f}
 
 Updated Cost Summary:
-- Total Pre-Paid Cost: ${first_cost:,.2f}
+- Additional Licenses Prepaid Cost: ${first_cost:,.2f}
+- New Total Prepaid Cost: ${new_total_prepaid_cost:,.2f}
 - Total Subscription Cost: ${total_subscription_cost:,.2f}
-{'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
 
 Key Details:
-- The pre-paid cost covers your entire service term.
+- The additional licenses prepaid cost covers the entire service term for new licenses.
+- The new total prepaid cost combines both current and additional licenses.
 - Your total subscription cost reflects the full agreement period.
 
 Next Steps:
@@ -1653,7 +1655,6 @@ with tabs[3]:
         else:
             st.info("Please calculate costs first to generate an email template.")
 
-# This should be unindented - this is where your issue is!
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
     
