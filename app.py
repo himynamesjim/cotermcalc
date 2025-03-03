@@ -26,8 +26,16 @@ st.markdown("""
         /* Dark theme styling */
         color-scheme: dark;
     }
-     /* Target form buttons and action buttons with dark style */
-    .stButton>button, [data-testid="baseButton-secondary"], .st-emotion-cache-ocsh0s.e1ewe7hr3 {
+    /* Target all action buttons including Calculate Results */
+    .stButton>button, 
+    [data-testid="baseButton-secondary"], 
+    .st-emotion-cache-ocsh0s.e1ewe7hr3,
+    .st-emotion-cache-ocsh0s,            /* Add general class */
+    button[kind="primary"],              /* Add primary buttons */
+    button[kind="secondary"],            /* Add secondary buttons */
+    button[data-testid="StyledButton"],  /* Add styled buttons */
+    .element-container button,           /* Catch buttons in containers */
+    form button {                        /* Catch form buttons */
         background-color: #2e3440 !important;  /* Dark Nord theme background */
         color: #d8dee9 !important;             /* Light gray text */
         border: 1px solid #4c566a !important;  /* Subtle border */
