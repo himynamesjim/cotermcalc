@@ -37,7 +37,7 @@ st.markdown("""
         padding: 8px 12px !important;
         font-size: 14px !important;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
-        max-width: 300px !important;
+        max-width: 400px !important;
         z-index: 1000 !important;
     }
     
