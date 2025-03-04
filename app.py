@@ -608,9 +608,9 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Unit Quantity", "Additional Licenses"
     ]
 
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    for col in df.select_dtypes(include=['object']).columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+
     
     # Initialize totals
     total_current_cost = 0
@@ -877,7 +877,8 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         
     return pdf_buffer
 
-def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0):
+def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0):
+
     license_list = []
     
     for index, row in df.iterrows():
@@ -1540,10 +1541,12 @@ if st.session_state.active_tab == 'calculator':
             # Generate email template
             email_content = generate_email_template(
                 billing_term,
+                processed_data,
                 total_current_cost,
                 first_cost,
                 total_subscription_term_fee,
-                total_updated_annual_cost
+                total_updated_annual_cost,
+                total_first_year_co_termed_cost
             )
             
             # Display email template with copy button
