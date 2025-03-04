@@ -967,7 +967,7 @@ Current Agreement:
 Updated Cost Summary:
 - First Month Co-Termed Cost: ${first_cost:,.2f}
 - New Monthly Cost: ${updated_annual_cost/12:,.2f}
-- Total Subscription Cost: ${total_subscription_cost:,.2f}
+- Total Remaining Subscription Cost: ${total_subscription_cost:,.2f}
 
 Key Details:
 - The first month's co-termed cost reflects your current service adjustments.
@@ -996,7 +996,7 @@ We are writing to inform you about the updated co-terming cost for your annual b
 ### Updated Cost Summary:
 - **Total First Year Co-Termed Cost:** ${total_first_year_co_termed_cost:,.2f}
 - **Updated Annual Cost:** ${updated_annual_cost:,.2f}
-- **Total Subscription Cost:** ${total_subscription_cost:,.2f}
+- **Total Remaining Subscription Cost:** ${total_subscription_cost:,.2f}
 
 ### Key Details:
 - The first year's co-termed cost reflects your current service adjustments.
@@ -1022,7 +1022,7 @@ Current Agreement:
 
 Updated Cost Summary:
 - Total Pre-Paid Cost: ${first_cost:,.2f}
-- Total Subscription Cost: ${total_subscription_cost:,.2f}
+- Total Remaining Subscription Cost: ${total_subscription_cost:,.2f}
 {'- Updated Annual Cost: ${updated_annual_cost:,.2f}' if updated_annual_cost > 0 else ''}
 
 Key Details:
