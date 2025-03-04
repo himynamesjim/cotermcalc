@@ -1156,20 +1156,19 @@ if st.session_state.active_tab == 'calculator':
                 key="agreement_term",
                 label_visibility="collapsed"
             )
-            co_termed_months_remaining = calculate_co_termed_months_remaining(co_termed_start_date, agreement_term)
-            st.markdown(f"**Co-Terming Months Remaining:** {co_termed_months_remaining:.2f}")
-                        
-            # Convert dates to pandas timestamps
+        
+            # ✅ Convert dates to pandas timestamps
             co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
             agreement_start_datetime = pd.Timestamp(agreement_start_date)
-            
+        
             # ✅ Pass all three required arguments when calling the function
             co_termed_months_remaining = calculate_co_termed_months_remaining(
                 co_termed_start_datetime, agreement_start_datetime, agreement_term
             )
-            
-            # ✅ Display the correct months remaining
+        
+            # ✅ Display the correct months remaining AFTER calculation
             st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
+
 
 
 
