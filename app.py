@@ -568,34 +568,15 @@ CHART_HTML = """
 </html>
 """
 # Add this function after the existing imports
-def calculate_months_remaining(start_date, agreement_term):
+def calculate_co_termed_months_remaining(co_termed_start_date, agreement_term):
     """
-    Calculate months remaining based on agreement start date and term
-    
-    Parameters:
-    start_date (datetime): The start date of the agreement
-    agreement_term (int): The full term of the agreement in months
-    
-    Returns:
-    float: Months remaining with decimal precision
+    Calculates months remaining based on the co-termed start date and agreement term.
     """
-    today = datetime.today()
-    
-    # Calculate total days in the agreement
-    end_date = start_date + pd.DateOffset(months=agreement_term)
-    total_days = (end_date - start_date).days
-    
-    # Calculate days remaining
-    days_remaining = (end_date - today).days
-    
-    # If agreement is already expired, return 0
-    if days_remaining <= 0:
-        return 0.0
-    
-    # Convert days remaining to months with decimal precision
-    months_remaining = (days_remaining / total_days) * agreement_term
-    
+    end_date = co_termed_start_date + pd.DateOffset(months=agreement_term)
+    days_remaining = (end_date - co_termed_start_date).days
+    months_remaining = (days_remaining / 30.44)  # Convert days to months
     return round(months_remaining, 2)
+
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
@@ -1123,6 +1104,24 @@ if st.session_state.active_tab == 'calculator':
                 key="agreement_start_date",
                 label_visibility="collapsed"
             )
+
+            # ✅ Co-Terming Start Date Selection
+            st.markdown('<p class="field-label">Co-Termed Start Date:</p>', unsafe_allow_html=True)
+            
+            # Default Co-Termed Start Date (set to today or future)
+            default_co_termed_start_date = datetime.today()
+            
+            # ✅ Allow user to manually select a future co-termed start date
+            co_termed_start_date = st.date_input(
+                "Select Co-Termed Start Date:",
+                value=default_co_termed_start_date,
+                min_value=datetime.today(),  # ✅ Ensure co-termed start date is in the future
+                max_value=datetime.today() + pd.DateOffset(years=5),  # Optional: Limit selection
+                key="co_termed_start_date"
+            )
+            
+            st.markdown(f"**Selected Co-Termed Start Date:** {co_termed_start_date.strftime('%Y-%m-%d')}")
+
             
             # Billing term with consistent styling
             st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
@@ -1132,7 +1131,10 @@ if st.session_state.active_tab == 'calculator':
                 key="billing_term",
                 label_visibility="collapsed"
             )
-        
+            co_termed_months_remaining = calculate_co_termed_months_remaining(co_termed_start_date, agreement_term)
+    
+            st.markdown(f"**Co-Terming Months Remaining:** {co_termed_months_remaining:.2f}")
+
         with right_col:
             # Agreement term with consistent styling
             st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
