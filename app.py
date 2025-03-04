@@ -1197,6 +1197,7 @@ if st.session_state.active_tab == 'calculator':
                 )
 
 
+
         
         # Add a separator with consistent styling
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
