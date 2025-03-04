@@ -672,18 +672,23 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     # Create Total Services Cost row
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Licensing Cost"],
-        "Unit Quantity": ["-"],
-        "Additional Licenses": ["-"],
     })
-
-    # Add numeric column totals
-    for col in numeric_cols:
-        if col in df.columns:
+    
+    # Add numeric column totals including quantities
+    for col in df.columns:
+        if col in ["Unit Quantity", "Additional Licenses"]:
+            # Sum these columns and make them integers
+            total_row[col] = [df[col].sum()]
+        elif col in numeric_cols:
+            # Sum other numeric columns
             total_row[col] = df[col].sum()
-
+        else:
+            # Skip non-numeric columns
+            total_row[col] = ["-"]
+    
     # Remove any existing total row to prevent duplicates
     df = df[df["Cloud Service Description"] != "Total Licensing Cost"]
-
+    
     # Concatenate the total row
     df = pd.concat([df, total_row], ignore_index=True)
 
