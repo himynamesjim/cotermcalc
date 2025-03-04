@@ -572,17 +572,17 @@ def calculate_co_termed_months_remaining(co_termed_start_date, agreement_term):
     """
     Calculates months remaining based on the co-termed start date and agreement term.
     """
-    # Convert co_termed_start_date to pandas Timestamp for compatibility
+    # Convert co-termed start date to a pandas Timestamp
     co_termed_start_date = pd.Timestamp(co_termed_start_date)
 
-    # Calculate the end date
+    # Calculate the agreement end date from the co-termed start date
     end_date = co_termed_start_date + pd.DateOffset(months=agreement_term)
 
-    # Calculate the difference in days and convert to months
-    days_remaining = (end_date - co_termed_start_date).days
-    months_remaining = days_remaining / 30.44  # Approximate conversion
+    # Calculate remaining months from today
+    days_remaining = (end_date - pd.Timestamp.today()).days
+    months_remaining = days_remaining / 30.44  # Convert days to months
 
-    return round(months_remaining, 2)
+    return max(round(months_remaining, 2), 0)  # Ensure it doesn’t go negative
 
 
 
@@ -1156,14 +1156,15 @@ if st.session_state.active_tab == 'calculator':
             co_termed_months_remaining = calculate_co_termed_months_remaining(co_termed_start_date, agreement_term)
             st.markdown(f"**Co-Terming Months Remaining:** {co_termed_months_remaining:.2f}")
             
-            # Ensure agreement_start_datetime is a Timestamp for compatibility
-            agreement_start_datetime = pd.Timestamp(datetime.combine(agreement_start_date, datetime.min.time()))
+            # Convert Co-Termed Start Date to Timestamp for compatibility
+            co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
             
-            # Calculate months remaining
-            calculated_months_remaining = calculate_co_termed_months_remaining(agreement_start_datetime, agreement_term)
+            # Calculate months remaining based on Co-Termed Start Date
+            calculated_months_remaining = calculate_co_termed_months_remaining(co_termed_start_datetime, agreement_term)
             
-            # Display in Streamlit
-            st.markdown(f"**Months Remaining:** {calculated_months_remaining:.2f}")
+            # Display updated months remaining in Streamlit
+            st.markdown(f"**Calculated Months Remaining:** {calculated_months_remaining:.2f}")
+
 
             
             # Months remaining section with consistent styling
