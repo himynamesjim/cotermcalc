@@ -661,7 +661,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     numeric_cols = [
         "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
         "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
-        "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
+        "New Monthly Cost", "First Month Co-Termed Cost"
     ]
 
     for col in numeric_cols:
