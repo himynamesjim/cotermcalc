@@ -881,17 +881,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0):
     license_list = []
     
-    # Rename the last license to "Total Co-Termed Cost"
-    if license_list:
-        license_list[-1]["name"] = "Total Co-Termed Cost"
-    
-    # Generate the License Cost Breakdown in the email
-    license_cost_breakdown = ''.join([
-        f"- {license['name']} - Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n"
-        for license in license_list
-    ])
-
-
     # Extract correct co-term cost based on billing term
     for index, row in df.iterrows():
         if billing_term == "Annual":
@@ -908,12 +897,19 @@ def generate_email_template(billing_term, df, current_cost, first_cost, total_su
 
         license_list.append(license_entry)
 
-    # Calculate the total co-term cost for all licenses
-    total_co_term_cost = sum(license["co_termed_cost"] for license in license_list)
+    # ✅ Rename the last license to "Total Co-Termed Cost"
+    if license_list:
+        license_list[-1]["name"] = "Total Co-Termed Cost"
 
+    # ✅ Generate the License Cost Breakdown in the email
+    license_cost_breakdown = ''.join([
+        f"- {license['name']} - Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n"
+        for license in license_list
+    ])
 
-    # Base template with placeholders for dynamic content
+    # ✅ Update the email template
     email_templates = {
+        
         'Monthly': f"""Dear Customer,
 
 We are writing to inform you about the updated co-terming cost for your monthly billing arrangement.
