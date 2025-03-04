@@ -912,7 +912,7 @@ def generate_email_template(billing_term, df, current_cost, first_cost, total_su
 
     # ✅ Generate the License Cost Breakdown in the email
     license_cost_breakdown = ''.join([
-        f"- {license['name']} Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n"
+        f"- {license['name']} - Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n"
         for license in license_list
     ])
 
