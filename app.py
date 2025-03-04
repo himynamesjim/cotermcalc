@@ -1161,13 +1161,34 @@ if st.session_state.active_tab == 'calculator':
             co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
             agreement_start_datetime = pd.Timestamp(agreement_start_date)
         
-            # ✅ Pass all three required arguments when calling the function
+            # ✅ Calculate co-termed months remaining
             co_termed_months_remaining = calculate_co_termed_months_remaining(
                 co_termed_start_datetime, agreement_start_datetime, agreement_term
             )
         
-            # ✅ Display the correct months remaining AFTER calculation
+            # ✅ Display the correct months remaining
             st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
+        
+            # ✅ Ensure the variable name is consistent
+            if use_calculated_months:
+                months_remaining = co_termed_months_remaining  # ✅ Use correct variable name
+                st.markdown(f"""
+                <div class="info-display">
+                    <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                months_remaining = st.number_input(
+                    "", 
+                    min_value=0.01, 
+                    max_value=float(agreement_term), 
+                    value=co_termed_months_remaining,  # ✅ Use the correct variable name
+                    step=0.01, 
+                    format="%.2f",
+                    key="manual_months",
+                    label_visibility="collapsed"
+                )
+
 
 
 
