@@ -1484,9 +1484,9 @@ if st.session_state.active_tab == 'calculator':
                 
                             
                 with st.expander("Current vs. New Cost Summary", expanded=True):
-                # ✅ Define Original and Extended Agreement Terms
-                original_term_years = agreement_term / 12  # ✅ Convert original agreement term to years
-                total_term_years = (months_remaining + extension_months) / 12  # ✅ Convert total agreement term (including extensions) to years
+                    # ✅ Define Original and Extended Agreement Terms
+                    original_term_years = agreement_term / 12  # ✅ Convert original agreement term to years
+                    total_term_years = (months_remaining + extension_months) / 12  # ✅ Convert total agreement term (including extensions) to years
             
                 if billing_term == "Monthly":
                     current_cost = total_current_cost / 12
