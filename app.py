@@ -1285,20 +1285,8 @@ if st.session_state.active_tab == 'calculator':
                             "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Current Annual Cost"]:
                  if col in displayed_data.columns:
                     displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
-                
-                # Display the dataframe with formatting
-                st.dataframe(displayed_data.style.format({
-                    "Annual Unit Fee": "${:,.2f}",
-                    "Prepaid Co-Termed Cost": "${:,.2f}",
-                    "First Year Co-Termed Cost": "${:,.2f}",
-                    "Updated Annual Cost": "${:,.2f}",
-                    "Current Annual Cost": "${:,.2f}",
-                    "Subscription Term Total Service Fee": "${:,.2f}",
-                    "Monthly Co-Termed Cost": "${:,.2f}",
-                    "First Month Co-Termed Cost": "${:,.2f}"
-                }).set_properties(**{"white-space": "normal"}))
 
-                # After creating displayed_data and before displaying it with st.dataframe()
+                 # After creating displayed_data and before displaying it with st.dataframe()
                 if 'Current Annual Cost' in displayed_data.columns and 'Updated Annual Cost' in displayed_data.columns:
                     # Get all column names
                     cols = displayed_data.columns.tolist()
@@ -1315,6 +1303,20 @@ if st.session_state.active_tab == 'calculator':
                         
                         # Reorder the DataFrame
                         displayed_data = displayed_data[cols]
+                        
+                # Display the dataframe with formatting
+                st.dataframe(displayed_data.style.format({
+                    "Annual Unit Fee": "${:,.2f}",
+                    "Prepaid Co-Termed Cost": "${:,.2f}",
+                    "First Year Co-Termed Cost": "${:,.2f}",
+                    "Updated Annual Cost": "${:,.2f}",
+                    "Current Annual Cost": "${:,.2f}",
+                    "Subscription Term Total Service Fee": "${:,.2f}",
+                    "Monthly Co-Termed Cost": "${:,.2f}",
+                    "First Month Co-Termed Cost": "${:,.2f}"
+                }).set_properties(**{"white-space": "normal"}))
+
+               
                         
                 # Show current cost summary based on billing term
                 st.markdown("### Current Agreement Cost")
