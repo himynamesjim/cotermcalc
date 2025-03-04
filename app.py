@@ -1297,7 +1297,25 @@ if st.session_state.active_tab == 'calculator':
                     "Monthly Co-Termed Cost": "${:,.2f}",
                     "First Month Co-Termed Cost": "${:,.2f}"
                 }).set_properties(**{"white-space": "normal"}))
-                
+
+                # After creating displayed_data and before displaying it with st.dataframe()
+                if 'Current Annual Cost' in displayed_data.columns and 'Updated Annual Cost' in displayed_data.columns:
+                    # Get all column names
+                    cols = displayed_data.columns.tolist()
+                    
+                    # Remove 'Current Annual Cost' from its current position
+                    if 'Current Annual Cost' in cols:
+                        cols.remove('Current Annual Cost')
+                    
+                    # Find the position of 'Updated Annual Cost'
+                    if 'Updated Annual Cost' in cols:
+                        updated_pos = cols.index('Updated Annual Cost')
+                        # Insert 'Current Annual Cost' right after 'Updated Annual Cost'
+                        cols.insert(updated_pos + 1, 'Current Annual Cost')
+                        
+                        # Reorder the DataFrame
+                        displayed_data = displayed_data[cols]
+                        
                 # Show current cost summary based on billing term
                 st.markdown("### Current Agreement Cost")
                 
