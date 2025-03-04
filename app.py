@@ -1322,7 +1322,7 @@ if st.session_state.active_tab == 'calculator':
                         "Cloud Service Description",  # ✅ Ensure this stays in the output
                         "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
                         "First Month Co-Termed Cost", "Current Monthly Cost", 
-                        "Monthly Co-Termed Cost", "Subscription Term Total Service Fee"
+                        "New Monthly Cost", "Subscription Term Total Service Fee"
                     ]
                 
                     # Keep only columns that exist in the DataFrame to avoid errors
