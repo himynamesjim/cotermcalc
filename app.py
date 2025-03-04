@@ -1581,8 +1581,6 @@ if st.session_state.active_tab == 'calculator':
             email_subject = f"Co-Terming Cost Proposal - Customer Name"
             st.text_input("Subject Line:", value=email_subject, key="email_subject")
     
-            # **🖱 Add the "Copy Subject Line" Button**
-            st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
         
         else:
             st.info("Please calculate costs first to generate an email template.")
