@@ -881,8 +881,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0):
     license_list = []
     
-    # Extract correct co-term cost based on billing term
+    # Extract correct co-term cost and actual license names from df
     for index, row in df.iterrows():
+        license_name = row.get("Cloud Service Description", f"License {index + 1}")  # Get license name from DF
+
         if billing_term == "Annual":
             co_termed_cost = row.get("First Year Co-Termed Cost", 0)
         elif billing_term == "Prepaid":
@@ -891,7 +893,7 @@ def generate_email_template(billing_term, df, current_cost, first_cost, total_su
             co_termed_cost = row.get("First Month Co-Termed Cost", 0)
 
         license_entry = {
-            "name": f"License {index + 1}",
+            "name": license_name,  # Use real license name
             "co_termed_cost": co_termed_cost,
         }
 
