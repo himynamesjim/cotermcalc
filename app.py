@@ -576,14 +576,15 @@ def calculate_co_termed_months_remaining(co_termed_start_date, agreement_start_d
     co_termed_start_date = pd.Timestamp(co_termed_start_date)
     agreement_start_date = pd.Timestamp(agreement_start_date)
 
-    # Calculate the agreement end date
+    # ✅ Calculate the agreement's original end date
     agreement_end_date = agreement_start_date + pd.DateOffset(months=agreement_term)
 
-    # Calculate remaining months from the co-termed start date to the agreement end date
+    # ✅ Calculate months remaining from the Co-Term Start Date to the Agreement End Date
     days_remaining = (agreement_end_date - co_termed_start_date).days
-    months_remaining = days_remaining / 30.44  # Approximate conversion to months
+    months_remaining = days_remaining / 30.44  # Convert days to months
 
-    return max(round(months_remaining, 2), 0)  # Ensure it doesn’t go negative
+    return max(round(months_remaining, 2), 0)  # Prevents negative values
+
 
 
 
@@ -1162,13 +1163,14 @@ if st.session_state.active_tab == 'calculator':
             co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
             agreement_start_datetime = pd.Timestamp(agreement_start_date)
             
-            # Calculate months remaining based on the Co-Termed Start Date
+            # ✅ Pass all three required arguments when calling the function
             co_termed_months_remaining = calculate_co_termed_months_remaining(
                 co_termed_start_datetime, agreement_start_datetime, agreement_term
             )
             
-            # Display updated months remaining in Streamlit
+            # ✅ Display the correct months remaining
             st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
+
 
 
 
