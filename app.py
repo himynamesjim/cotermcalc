@@ -1460,11 +1460,11 @@ if st.session_state.active_tab == 'calculator':
                     
                     # Make sure the key names match exactly what's expected in the JavaScript
                     chart_data = {
-                        "currentCost": float(current_monthly),
-                        "coTermedMonthly": float(first_month_co_termed),  # This should match data.coTermedMonthly in JS
-                        "newMonthly": float(new_monthly),  # This should match data.newMonthly in JS
+                        "currentCost": float(total_current_cost / 12),  # ✅ Current Monthly Cost
+                        "newMonthly": float(total_updated_annual_cost / 12),  # ✅ Corrected "New Monthly Cost"
                         "subscription": float(total_subscription_term_fee)
                     }
+
                     
                 elif billing_term == 'Annual':
                     chart_data = {
