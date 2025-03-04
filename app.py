@@ -650,15 +650,33 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     # Ensure "Cloud Service Description" remains a string
     df["Cloud Service Description"] = df["Cloud Service Description"].astype(str)
 
-    # Create a new total row
-    total_row = pd.DataFrame({
+    # Create Total Licensing Cost row with conditional columns based on billing term
+    total_row_data = {
         "Cloud Service Description": ["Total Licensing Cost"],
         "Unit Quantity": [df["Unit Quantity"].sum()],
         "Additional Licenses": [df["Additional Licenses"].sum()],
-        "Current Prepaid Cost": [df["Current Prepaid Cost"].sum()],  # ✅ Ensure this is summed correctly
-        "Prepaid Co-Termed Cost": [df["Prepaid Co-Termed Cost"].sum()],
         "Subscription Term Total Service Fee": [df["Subscription Term Total Service Fee"].sum()]
-    })
+    }
+    
+    # ✅ Only include Prepaid-specific columns when the billing term is Prepaid
+    if billing_term == "Prepaid":
+        total_row_data["Current Prepaid Cost"] = [df["Current Prepaid Cost"].sum()]
+        total_row_data["Prepaid Co-Termed Cost"] = [df["Prepaid Co-Termed Cost"].sum()]
+    
+    # ✅ Only include Annual-specific columns when the billing term is Annual
+    if billing_term == "Annual":
+        total_row_data["First Year Co-Termed Cost"] = [df["First Year Co-Termed Cost"].sum()]
+        total_row_data["Updated Annual Cost"] = [df["Updated Annual Cost"].sum()]
+    
+    # ✅ Only include Monthly-specific columns when the billing term is Monthly
+    if billing_term == "Monthly":
+        total_row_data["First Month Co-Termed Cost"] = [df["First Month Co-Termed Cost"].sum()]
+        total_row_data["Current Monthly Cost"] = [df["Current Monthly Cost"].sum()]
+        total_row_data["New Monthly Cost"] = [df["New Monthly Cost"].sum()]
+    
+    # ✅ Convert dictionary to DataFrame
+    total_row = pd.DataFrame(total_row_data)
+
     # Add numeric totals
     numeric_cols = [
         "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
@@ -1393,19 +1411,29 @@ if st.session_state.active_tab == 'calculator':
 
 
                     
-                # Display the dataframe with formatting
-                st.dataframe(displayed_data.style.format({
+                # ✅ Ensure only existing columns are formatted
+                columns_to_format = {
                     "Annual Unit Fee": "${:,.2f}",
-                    "Prepaid Co-Termed Cost": "${:,.2f}",
-                    "Current Prepaid Cost": "${:,.2f}",
-                    "First Year Co-Termed Cost": "${:,.2f}",
-                    "Updated Annual Cost": "${:,.2f}",
-                    "Current Annual Cost": "${:,.2f}",
-                    "Current Monthly Cost": "${:,.2f}",
-                    "Subscription Term Total Service Fee": "${:,.2f}",
-                    "New Monthly Cost": "${:,.2f}",
-                    "First Month Co-Termed Cost": "${:,.2f}"
-                }).set_properties(**{"white-space": "normal"}))
+                    "Subscription Term Total Service Fee": "${:,.2f}"
+                }
+                
+                # ✅ Conditionally add columns based on the billing term
+                if billing_term == "Prepaid":
+                    columns_to_format["Current Prepaid Cost"] = "${:,.2f}"
+                    columns_to_format["Prepaid Co-Termed Cost"] = "${:,.2f}"
+                
+                if billing_term == "Annual":
+                    columns_to_format["First Year Co-Termed Cost"] = "${:,.2f}"
+                    columns_to_format["Updated Annual Cost"] = "${:,.2f}"
+                    columns_to_format["Current Annual Cost"] = "${:,.2f}"
+                
+                if billing_term == "Monthly":
+                    columns_to_format["First Month Co-Termed Cost"] = "${:,.2f}"
+                    columns_to_format["Current Monthly Cost"] = "${:,.2f}"
+                    columns_to_format["New Monthly Cost"] = "${:,.2f}"
+                
+                st.dataframe(displayed_data.style.format(columns_to_format).set_properties(**{"white-space": "normal"}))
+
 
                
                         
@@ -1484,33 +1512,45 @@ if st.session_state.active_tab == 'calculator':
                         else:
                             st.info("The new monthly cost is identical to the current cost.")
                             
-                    elif billing_term == 'Prepaid':
-                        # ✅ Ensure Current Prepaid Cost is correctly assigned
-                        current_prepaid_cost = total_current_cost  # ✅ Represents the total current prepaid cost
-                        new_prepaid_cost = current_prepaid_cost + total_prepaid_cost  # ✅ Fixes incorrect calculation
-                    
-                        comparison_data = {
-                            "Cost Type": ["Current Prepaid Cost", "New Total Prepaid Cost", "Difference", "Percentage Change"],
-                            "Amount": [
-                                f"${current_prepaid_cost:,.2f}",
-                                f"${new_prepaid_cost:,.2f}",  # ✅ Now correctly reflects TOTAL prepaid amount
-                                f"${new_prepaid_cost - current_prepaid_cost:,.2f}",
-                                f"{((new_prepaid_cost - current_prepaid_cost) / current_prepaid_cost * 100) if current_prepaid_cost > 0 else 0:,.2f}%"
-                            ]
-                        }
-                    
-                        comparison_df = pd.DataFrame(comparison_data)
-                        st.table(comparison_df)
-                    
-                        # ✅ Add Insight About the Cost Change
-                        if new_prepaid_cost > current_prepaid_cost:
-                            change_pct = ((new_prepaid_cost - current_prepaid_cost) / current_prepaid_cost * 100) if current_prepaid_cost > 0 else 0
-                            st.info(f"The new prepaid cost represents a {change_pct:.1f}% increase from the current cost.")
-                        elif new_prepaid_cost < current_prepaid_cost:
-                            change_pct = ((current_prepaid_cost - new_prepaid_cost) / current_prepaid_cost * 100) if current_prepaid_cost > 0 else 0
-                            st.success(f"The new prepaid cost represents a {change_pct:.1f}% decrease from the current cost.")
-                        else:
-                            st.info("The new prepaid cost is identical to the current prepaid cost.")
+                with st.expander("Current vs. New Cost Summary", expanded=True):
+                    if billing_term == "Monthly":
+                        current_cost = total_current_cost / 12
+                        new_cost = total_updated_annual_cost / 12
+                        cost_label = "Monthly Cost"
+                
+                    elif billing_term == "Annual":
+                        current_cost = total_current_cost
+                        new_cost = total_updated_annual_cost
+                        cost_label = "Annual Cost"
+                
+                    elif billing_term == "Prepaid":
+                        current_cost = total_current_cost
+                        new_cost = total_current_cost + total_prepaid_cost  # ✅ Fix for Prepaid
+                        cost_label = "Prepaid Cost"
+                
+                    comparison_data = {
+                        "Cost Type": [f"Current {cost_label}", f"New {cost_label}", "Difference", "Percentage Change"],
+                        "Amount": [
+                            f"${current_cost:,.2f}",
+                            f"${new_cost:,.2f}",
+                            f"${new_cost - current_cost:,.2f}",
+                            f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%"
+                        ]
+                    }
+                
+                    comparison_df = pd.DataFrame(comparison_data)
+                    st.table(comparison_df)
+                
+                    # Add insight about the cost change
+                    if new_cost > current_cost:
+                        change_pct = ((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0
+                        st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current cost.")
+                    elif new_cost < current_cost:
+                        change_pct = ((current_cost - new_cost) / current_cost * 100) if current_cost > 0 else 0
+                        st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current cost.")
+                    else:
+                        st.info(f"The new {billing_term.lower()} cost is identical to the current cost.")
+
 
 
                            
