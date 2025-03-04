@@ -7,7 +7,6 @@ import base64
 import io
 import os
 
-    
 # Set page configuration and theme options
 st.set_page_config(
     page_title="Co-Terming Cost Calculator",
@@ -1489,6 +1488,8 @@ if st.session_state.active_tab == 'calculator':
                         current_cost = total_current_cost / 12
                         new_cost = total_updated_annual_cost / 12
                         cost_label = "Monthly Cost"
+                        current_tco = current_cost * 12  # Annualized cost for current subscription
+                        new_tco = new_cost * 12  # Annualized cost for new subscription
                 
                     elif billing_term == "Annual":
                         current_cost = total_current_cost
@@ -1501,14 +1502,24 @@ if st.session_state.active_tab == 'calculator':
                         cost_label = "Prepaid Cost"
                 
                     comparison_data = {
-                        "Cost Type": [f"Current {cost_label}", f"New {cost_label}", "Difference", "Percentage Change"],
-                        "Amount": [
-                            f"${current_cost:,.2f}",
-                            f"${new_cost:,.2f}",
-                            f"${new_cost - current_cost:,.2f}",
-                            f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%"
-                        ]
-                    }
+                            "Cost Type": [
+                                f"Current {cost_label}",
+                                f"New {cost_label}",
+                                "Difference",
+                                "Percentage Change",
+                                "Current Total Cost of Ownership (Annualized)",
+                                "New Total Cost of Ownership (Annualized)"
+                            ],
+                            "Amount": [
+                                f"${current_cost:,.2f}",
+                                f"${new_cost:,.2f}",
+                                f"${new_cost - current_cost:,.2f}",
+                                f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%",
+                                f"${current_tco:,.2f}",
+                                f"${new_tco:,.2f}"
+                            ]
+                        }
+
                 
                     comparison_df = pd.DataFrame(comparison_data)
                     st.table(comparison_df)
