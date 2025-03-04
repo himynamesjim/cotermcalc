@@ -1144,7 +1144,7 @@ if st.session_state.active_tab == 'calculator':
             )
 
 
-        with right_col:
+         with right_col:
             # Agreement term with consistent styling
             st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
             agreement_term = st.number_input(
@@ -1175,8 +1175,8 @@ if st.session_state.active_tab == 'calculator':
                 value=True,
                 key="use_calculated_months_checkbox"  # ✅ Unique key to prevent duplication
             )
-            
-            # ✅ Ensure the variable name is consistent
+        
+            # ✅ Use calculated months if checked, otherwise allow manual input
             if use_calculated_months:
                 months_remaining = co_termed_months_remaining  # ✅ Use correct variable name
                 st.markdown(f"""
@@ -1192,45 +1192,11 @@ if st.session_state.active_tab == 'calculator':
                     value=co_termed_months_remaining,  # ✅ Use the correct variable name
                     step=0.01, 
                     format="%.2f",
-                    key="manual_months_input",  # ✅ Another unique key for this input
+                    key="manual_months_input",  # ✅ Unique key
                     label_visibility="collapsed"
                 )
 
 
-
-
-
-
-
-
-
-            
-            # Months remaining section with consistent styling
-            st.markdown('<p class="field-label">Months Remaining:</p>', unsafe_allow_html=True)
-            use_calculated_months = st.checkbox(
-                "Use calculated months remaining", 
-                value=True,
-                key="use_calculated"
-            )
-            
-            if use_calculated_months:
-                months_remaining = calculated_months_remaining
-                st.markdown(f"""
-                <div class="info-display">
-                    <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                months_remaining = st.number_input(
-                    "", 
-                    min_value=0.01, 
-                    max_value=float(agreement_term), 
-                    value=calculated_months_remaining,
-                    step=0.01, 
-                    format="%.2f",
-                    key="manual_months",
-                    label_visibility="collapsed"
-                )
         
         # Add a separator with consistent styling
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
