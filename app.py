@@ -654,9 +654,11 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Licensing Cost"],
         "Unit Quantity": [df["Unit Quantity"].sum()],
-        "Additional Licenses": [df["Additional Licenses"].sum()]
+        "Additional Licenses": [df["Additional Licenses"].sum()],
+        "Current Prepaid Cost": [df["Current Prepaid Cost"].sum()],  # ✅ Fix: Ensure this is included
+        "Prepaid Co-Termed Cost": [df["Prepaid Co-Termed Cost"].sum()],
+        "Subscription Term Total Service Fee": [df["Subscription Term Total Service Fee"].sum()]
     })
-
     # Add numeric totals
     numeric_cols = [
         "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
