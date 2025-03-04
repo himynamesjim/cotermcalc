@@ -1156,11 +1156,15 @@ if st.session_state.active_tab == 'calculator':
             co_termed_months_remaining = calculate_co_termed_months_remaining(co_termed_start_date, agreement_term)
             st.markdown(f"**Co-Terming Months Remaining:** {co_termed_months_remaining:.2f}")
             
-            # Convert date_input result to datetime
-            agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
+            # Ensure agreement_start_datetime is a Timestamp for compatibility
+            agreement_start_datetime = pd.Timestamp(datetime.combine(agreement_start_date, datetime.min.time()))
             
             # Calculate months remaining
-            calculated_months_remaining = calculate_months_remaining(agreement_start_datetime, agreement_term)
+            calculated_months_remaining = calculate_co_termed_months_remaining(agreement_start_datetime, agreement_term)
+            
+            # Display in Streamlit
+            st.markdown(f"**Months Remaining:** {calculated_months_remaining:.2f}")
+
             
             # Months remaining section with consistent styling
             st.markdown('<p class="field-label">Months Remaining:</p>', unsafe_allow_html=True)
