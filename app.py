@@ -1095,7 +1095,7 @@ if st.session_state.active_tab == 'calculator':
     # Create tabs without the Customer Info tab
     tabs = st.tabs(["Agreement Info", "Licensing", "Results", "Email Template"])
     
-    with tabs[0]:
+with tabs[0]:
     st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
 
     # Add a separator
