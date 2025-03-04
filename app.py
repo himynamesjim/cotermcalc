@@ -878,18 +878,27 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     return pdf_buffer
 
 def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0):
-
     license_list = []
-    
+
+    # Extract correct co-term cost based on billing term
     for index, row in df.iterrows():
+        if billing_term == "Annual":
+            co_termed_cost = row.get("First Year Co-Termed Cost", 0)
+        elif billing_term == "Prepaid":
+            co_termed_cost = row.get("Prepaid Co-Termed Cost", 0)
+        else:  # Monthly
+            co_termed_cost = row.get("First Month Co-Termed Cost", 0)
+
         license_entry = {
-            "name": f"License {index + 1}",  # Adjust based on your naming convention
-            "co_termed_cost": row.get("Prepaid Co-Termed Cost", 0),  # Adjust column name if needed
+            "name": f"License {index + 1}",
+            "co_termed_cost": co_termed_cost,
         }
-        if "First Year Co-Termed Cost" in row and row["First Year Co-Termed Cost"] > 0:
-            license_entry["first_year_cost"] = row["First Year Co-Termed Cost"]
-    
+
         license_list.append(license_entry)
+
+    # Calculate the total co-term cost for all licenses
+    total_co_term_cost = sum(license["co_termed_cost"] for license in license_list)
+
 
     # Base template with placeholders for dynamic content
     email_templates = {
@@ -927,9 +936,9 @@ We are writing to inform you about the updated co-terming cost for your annual b
 - **Current Annual Cost:** ${current_cost:,.2f}
 
 ### License Cost Breakdown:
-{''.join([f"- {license['name']} - Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n" + 
-          (f"  - First Year Co-Termed Cost: ${license['first_year_cost']:,.2f}\n" if 'first_year_cost' in license and license['first_year_cost'] else '') 
-          for license in license_list])}
+{''.join([f"- {license['name']} - Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n" for license in license_list])}
+
+**Total Co-Termed Cost: ${total_co_term_cost:,.2f}**  
 
 ### Updated Cost Summary:
 - **Total First Year Co-Termed Cost:** ${total_first_year_co_termed_cost:,.2f}
