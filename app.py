@@ -891,7 +891,10 @@ def generate_email_template(billing_term, df, current_cost, first_cost, total_su
     
     # Extract correct co-term cost and actual license names from df
     for index, row in df.iterrows():
-        license_name = row.get("Cloud Service Description", f"License {index + 1}")  # Get license name from DF
+        license_name = row.get("Cloud Service Description", f"License {index + 1}")  # Get actual license name
+        first_year_co_termed = row.get("First Year Co-Termed Cost", 0)
+        first_month_co_termed = row.get("First Month Co-Termed Cost", 0)
+        new_monthly_cost = row.get("New Monthly Cost", 0)
 
         if billing_term == "Annual":
             co_termed_cost = row.get("First Year Co-Termed Cost", 0)
@@ -901,8 +904,10 @@ def generate_email_template(billing_term, df, current_cost, first_cost, total_su
             co_termed_cost = row.get("First Month Co-Termed Cost", 0)
 
         license_entry = {
-            "name": license_name,  # Use real license name
-            "co_termed_cost": co_termed_cost,
+            "name": license_name,
+            "first_year_co_termed": first_year_co_termed,
+            "first_month_co_termed": first_month_co_termed,
+            "new_monthly_cost": new_monthly_cost
         }
 
         license_list.append(license_entry)
@@ -911,11 +916,21 @@ def generate_email_template(billing_term, df, current_cost, first_cost, total_su
     if license_list:
         license_list[-1]["name"] = "Total"
 
-    # ✅ Generate the License Cost Breakdown in the email
-    license_cost_breakdown = ''.join([
-        f"- {license['name']} - Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n"
-        for license in license_list
-    ])
+# ✅ Generate the License Cost Breakdown for Annual Billing
+    annual_license_cost_breakdown = ""
+    if billing_term == "Annual":
+        annual_license_cost_breakdown = ''.join([
+            f"- {license['name']} - First Year Co-Termed Cost: ${license['first_year_co_termed']:,.2f}\n"
+            for license in license_list
+        ])
+
+    # ✅ Generate the License Cost Breakdown for Monthly Billing
+    monthly_license_cost_breakdown = ""
+    if billing_term == "Monthly":
+        monthly_license_cost_breakdown = ''.join([
+            f"- {license['name']} - First Month Co-Termed Cost: ${license['first_month_co_termed']:,.2f}, New Monthly Cost: ${license['new_monthly_cost']:,.2f}\n"
+            for license in license_list
+        ])
 
     # ✅ Update the email template
     email_templates = {
@@ -926,6 +941,9 @@ We are writing to inform you about the updated co-terming cost for your monthly 
 
 Current Agreement:
 - Current Monthly Cost: ${current_cost/12:,.2f}
+
+### License Cost Breakdown:
+{monthly_license_cost_breakdown}
 
 Updated Cost Summary:
 - First Month Co-Termed Cost: ${first_cost:,.2f}
@@ -954,7 +972,7 @@ We are writing to inform you about the updated co-terming cost for your annual b
 - **Current Annual Cost:** ${current_cost:,.2f}
 
 ### License Cost Breakdown:
-{license_cost_breakdown}
+{annual_license_cost_breakdown}
 
 ### Updated Cost Summary:
 - **Total First Year Co-Termed Cost:** ${total_first_year_co_termed_cost:,.2f}
