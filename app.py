@@ -1169,13 +1169,13 @@ if st.session_state.active_tab == 'calculator':
             # ✅ Display the correct months remaining
             st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
         
-            # ✅ Place the checkbox HERE before using it
+            # ✅ Place the checkbox BEFORE using `use_calculated_months`
             use_calculated_months = st.checkbox(
                 "Use calculated months remaining", 
                 value=True,
-                key="use_calculated"
+                key="use_calculated_months_checkbox"  # ✅ Unique key to prevent duplication
             )
-        
+            
             # ✅ Ensure the variable name is consistent
             if use_calculated_months:
                 months_remaining = co_termed_months_remaining  # ✅ Use correct variable name
@@ -1192,9 +1192,10 @@ if st.session_state.active_tab == 'calculator':
                     value=co_termed_months_remaining,  # ✅ Use the correct variable name
                     step=0.01, 
                     format="%.2f",
-                    key="manual_months",
+                    key="manual_months_input",  # ✅ Another unique key for this input
                     label_visibility="collapsed"
                 )
+
 
 
 
