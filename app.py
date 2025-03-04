@@ -1131,9 +1131,7 @@ if st.session_state.active_tab == 'calculator':
                 key="billing_term",
                 label_visibility="collapsed"
             )
-            co_termed_months_remaining = calculate_co_termed_months_remaining(co_termed_start_date, agreement_term)
-    
-            st.markdown(f"**Co-Terming Months Remaining:** {co_termed_months_remaining:.2f}")
+
 
         with right_col:
             # Agreement term with consistent styling
@@ -1147,6 +1145,8 @@ if st.session_state.active_tab == 'calculator':
                 key="agreement_term",
                 label_visibility="collapsed"
             )
+            co_termed_months_remaining = calculate_co_termed_months_remaining(co_termed_start_date, agreement_term)
+            st.markdown(f"**Co-Terming Months Remaining:** {co_termed_months_remaining:.2f}")
             
             # Convert date_input result to datetime
             agreement_start_datetime = datetime.combine(agreement_start_date, datetime.min.time())
