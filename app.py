@@ -657,7 +657,9 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
         subscription_term_total_fee = ((annual_total_fee * total_term) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
         df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
-
+        df["Unit Quantity"] = pd.to_numeric(df["Unit Quantity"], errors='coerce').fillna(0)
+        df["Additional Licenses"] = pd.to_numeric(df["Additional Licenses"], errors='coerce').fillna(0)
+    
     # Convert numeric columns to float - only convert columns that exist
     numeric_cols = [
         "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
@@ -668,6 +670,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     for col in numeric_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+
 
     # Create Total Services Cost row
     total_row = pd.DataFrame({
@@ -687,10 +690,20 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             total_row[col] = ["-"]
     
     # Remove any existing total row to prevent duplicates
-    df = df[df["Cloud Service Description"] != "Total Licensing Cost"]
+    df_without_total = df[df["Cloud Service Description"] != "Total Licensing Cost"].copy()
+
+    # Calculate sums for all numeric columns including quantities
+    totals = {}
+    totals["Cloud Service Description"] = "Total Licensing Cost"
     
+    # Calculate sum for Unit Quantity and Additional Licenses
+    totals["Unit Quantity"] = int(df_without_total["Unit Quantity"].sum())
+    totals["Additional Licenses"] = int(df_without_total["Additional Licenses"].sum())
+    
+    total_row = pd.DataFrame([totals])
+
     # Concatenate the total row
-    df = pd.concat([df, total_row], ignore_index=True)
+    df = pd.concat([df_without_total, total_row], ignore_index=True)
 
     # Calculate the final totals for the PDF
     if 'Current Annual Cost' in df.columns:
