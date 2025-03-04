@@ -568,21 +568,23 @@ CHART_HTML = """
 </html>
 """
 # Add this function after the existing imports
-def calculate_co_termed_months_remaining(co_termed_start_date, agreement_term):
+def calculate_co_termed_months_remaining(co_termed_start_date, agreement_start_date, agreement_term):
     """
     Calculates months remaining based on the co-termed start date and agreement term.
     """
-    # Convert co-termed start date to a pandas Timestamp
+    # Convert dates to pandas Timestamps for compatibility
     co_termed_start_date = pd.Timestamp(co_termed_start_date)
+    agreement_start_date = pd.Timestamp(agreement_start_date)
 
-    # Calculate the agreement end date from the co-termed start date
-    end_date = co_termed_start_date + pd.DateOffset(months=agreement_term)
+    # Calculate the agreement end date
+    agreement_end_date = agreement_start_date + pd.DateOffset(months=agreement_term)
 
-    # Calculate remaining months from today
-    days_remaining = (end_date - pd.Timestamp.today()).days
-    months_remaining = days_remaining / 30.44  # Convert days to months
+    # Calculate remaining months from the co-termed start date to the agreement end date
+    days_remaining = (agreement_end_date - co_termed_start_date).days
+    months_remaining = days_remaining / 30.44  # Approximate conversion to months
 
     return max(round(months_remaining, 2), 0)  # Ensure it doesn’t go negative
+
 
 
 
@@ -1155,15 +1157,19 @@ if st.session_state.active_tab == 'calculator':
             )
             co_termed_months_remaining = calculate_co_termed_months_remaining(co_termed_start_date, agreement_term)
             st.markdown(f"**Co-Terming Months Remaining:** {co_termed_months_remaining:.2f}")
-            
-            # Convert Co-Termed Start Date to Timestamp for compatibility
+                        
+            # Convert dates to pandas timestamps
             co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
+            agreement_start_datetime = pd.Timestamp(agreement_start_date)
             
-            # Calculate months remaining based on Co-Termed Start Date
-            calculated_months_remaining = calculate_co_termed_months_remaining(co_termed_start_datetime, agreement_term)
+            # Calculate months remaining based on the Co-Termed Start Date
+            calculated_months_remaining = calculate_co_termed_months_remaining(
+                co_termed_start_datetime, agreement_start_datetime, agreement_term
+            )
             
             # Display updated months remaining in Streamlit
             st.markdown(f"**Calculated Months Remaining:** {calculated_months_remaining:.2f}")
+
 
 
             
