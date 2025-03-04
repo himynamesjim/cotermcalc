@@ -596,128 +596,82 @@ def calculate_months_remaining(start_date, agreement_term):
     months_remaining = (days_remaining / total_days) * agreement_term
     
     return round(months_remaining, 2)
-    
+
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
     total_term = months_remaining + extension_months
     months_elapsed = agreement_term - months_remaining
+    
+    # Convert relevant columns to numeric
+    numeric_cols = [
+        "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
+        "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
+        "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Unit Quantity", "Additional Licenses"
+    ]
+
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    
+    # Initialize totals
+    total_current_cost = 0
     total_prepaid_cost = 0
     total_first_year_cost = 0
     total_updated_annual_cost = 0
     total_subscription_term_fee = 0
-    total_current_cost = 0  # Current cost before additional licenses
-    total_monthly_cost = 0  # Add this line to track monthly cost
-    total_updated_monthly_cost = 0  # Add this line to track updated monthly cost
-    
+
     for index, row in df.iterrows():
-        # Calculate current costs (before additional licenses)
+        # Calculate costs
         current_monthly_cost = (row['Annual Unit Fee'] / 12) * row['Unit Quantity']
         current_annual_cost = row['Unit Quantity'] * row['Annual Unit Fee']
-        
-        # Always store both monthly and annual costs regardless of billing term
+        new_annual_cost = (row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']
+
         df.at[index, 'Current Monthly Cost'] = current_monthly_cost
         df.at[index, 'Current Annual Cost'] = current_annual_cost
-        
-        # Calculate new costs with additional licenses
-        new_monthly_cost = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
-        new_annual_cost = (row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']
-        
-        # Always set the Updated Annual Cost
         df.at[index, 'Updated Annual Cost'] = new_annual_cost
-        
-        # Billing term specific calculations
+
         if billing_term == 'Monthly':
-            # Monthly specific calculations...
             fractional_month = months_remaining % 1
             first_month_factor = fractional_month if fractional_month > 0 else 1.0
-            
-            first_month_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * first_month_factor
-            monthly_co_termed_cost = (row['Annual Unit Fee'] / 12) * row['Additional Licenses']
-            
-            df.at[index, 'First Month Co-Termed Cost'] = first_month_co_termed_cost
-            df.at[index, 'Monthly Co-Termed Cost'] = monthly_co_termed_cost
-            
+            df.at[index, 'First Month Co-Termed Cost'] = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * first_month_factor
+            df.at[index, 'Monthly Co-Termed Cost'] = (row['Annual Unit Fee'] / 12) * row['Additional Licenses']
         elif billing_term == 'Annual':
-            # Annual specific calculations...
-            co_termed_first_year_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
-            df.at[index, 'First Year Co-Termed Cost'] = co_termed_first_year_cost
-            
+            df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
         else:  # Prepaid
-            # Prepaid specific calculations...
-            co_termed_prepaid_cost = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
-            df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
-            
-            # Set the current prepaid cost (current licenses cost for the entire term)
-            current_prepaid_cost = (row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12
-            df.at[index, 'Current Prepaid Cost'] = current_prepaid_cost
-            
-            # Clear annual values to avoid confusion
+            df.at[index, 'Prepaid Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
+            df.at[index, 'Current Prepaid Cost'] = (row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12
             df.at[index, 'Updated Annual Cost'] = 0
-            
-        # Always add the subscription term total
-        annual_total_fee = row['Unit Quantity'] * row['Annual Unit Fee']
-        subscription_term_total_fee = ((annual_total_fee * total_term) / 12) + ((row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
+
+        subscription_term_total_fee = ((row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12) + (
+            (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
         df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
-        df["Unit Quantity"] = pd.to_numeric(df["Unit Quantity"], errors='coerce').fillna(0)
-        df["Additional Licenses"] = pd.to_numeric(df["Additional Licenses"], errors='coerce').fillna(0)
-    
-    # Convert numeric columns to float - only convert columns that exist
-    numeric_cols = [
-        "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
-        "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
-        "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
-    ]
-    
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
+    # Remove any existing total row
+    df = df[df["Cloud Service Description"] != "Total Licensing Cost"].copy()
 
-    # Create Total Services Cost row
+    # Create a new total row
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Licensing Cost"],
+        "Unit Quantity": [df["Unit Quantity"].sum()],
+        "Additional Licenses": [df["Additional Licenses"].sum()]
     })
-    
-    # Add numeric column totals including quantities
-    for col in df.columns:
-        if col in ["Unit Quantity", "Additional Licenses"]:
-            # Sum these columns and make them integers
-            total_row[col] = [df[col].sum()]
-        elif col in numeric_cols:
-            # Sum other numeric columns
+
+    # Add numeric totals
+    for col in numeric_cols:
+        if col in df.columns and col not in ["Unit Quantity", "Additional Licenses"]:
             total_row[col] = df[col].sum()
-        else:
-            # Skip non-numeric columns
-            total_row[col] = ["-"]
-    
-    # Remove any existing total row to prevent duplicates
-    df_without_total = df[df["Cloud Service Description"] != "Total Licensing Cost"].copy()
 
-    # Calculate sums for all numeric columns including quantities
-    totals = {}
-    totals["Cloud Service Description"] = "Total Licensing Cost"
-    
-    # Calculate sum for Unit Quantity and Additional Licenses
-    totals["Unit Quantity"] = int(df_without_total["Unit Quantity"].sum())
-    totals["Additional Licenses"] = int(df_without_total["Additional Licenses"].sum())
-    
-    total_row = pd.DataFrame([totals])
+    # Append the total row back
+    df = pd.concat([df, total_row], ignore_index=True)
 
-    # Concatenate the total row
-    df = pd.concat([df_without_total, total_row], ignore_index=True)
-
-    # Calculate the final totals for the PDF
-    if 'Current Annual Cost' in df.columns:
-        total_current_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Current Annual Cost'].sum()
-    if 'Prepaid Co-Termed Cost' in df.columns:
-        total_prepaid_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Prepaid Co-Termed Cost'].sum()
-    if 'First Year Co-Termed Cost' in df.columns:
-        total_first_year_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'First Year Co-Termed Cost'].sum()
-    if 'Updated Annual Cost' in df.columns:
-        total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
-    if 'Subscription Term Total Service Fee' in df.columns:
-        total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
+    # Final Totals for return values
+    total_current_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Current Annual Cost'].sum()
+    total_prepaid_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Prepaid Co-Termed Cost'].sum()
+    total_first_year_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'First Year Co-Termed Cost'].sum()
+    total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
+    total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
 
     return df, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
+
 
 def generate_pdf(billing_term, months_remaining, extension_months, total_current_cost, total_prepaid_cost, 
                 total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term, 
