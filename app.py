@@ -1564,7 +1564,7 @@ if st.session_state.active_tab == 'calculator':
             
             # Display the email template
             st.markdown("### Email Template Preview")
-            st.text_area("Copy Email Content:", email_content, height=200)  # Allows manual copying
+            st.text_area("Copy Email Content:", email_content, height=600)  # Allows manual copying
             
     
             # **📩 Suggested Subject Line**
