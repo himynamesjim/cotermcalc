@@ -1302,6 +1302,7 @@ if st.session_state.active_tab == 'calculator':
                     columns_to_drop = ['Prepaid Co-Termed Cost', 'Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'Current Monthly Cost']
                 elif billing_term == 'Prepaid':
                     columns_to_drop = ['Monthly Co-Termed Cost', 'First Month Co-Termed Cost', 'First Year Co-Termed Cost', 'Updated Annual Cost', 'Current Monthly Cost']
+
                 
                 # Only drop columns that exist in the dataframe
                 displayed_data = processed_data.copy()
@@ -1347,11 +1348,26 @@ if st.session_state.active_tab == 'calculator':
                     # Keep only columns that exist in the DataFrame to avoid errors
                     displayed_data = displayed_data[[col for col in column_order if col in displayed_data.columns]]
 
+                if billing_term == 'Prepaid':
+                    column_order = [
+                        "Cloud Service Description",
+                        "Unit Quantity",
+                        "Additional Licenses",
+                        "Current Prepaid Cost",
+                        "Prepaid Co-Termed Cost",
+                        "Subscription Term Total Service Fee"
+                    ]
+                
+                    # Keep only columns that exist in the DataFrame to avoid errors
+                    displayed_data = displayed_data[[col for col in column_order if col in displayed_data.columns]]
+
+
                     
                 # Display the dataframe with formatting
                 st.dataframe(displayed_data.style.format({
                     "Annual Unit Fee": "${:,.2f}",
                     "Prepaid Co-Termed Cost": "${:,.2f}",
+                    "Current Prepaid Cost": "${:,.2f}",
                     "First Year Co-Termed Cost": "${:,.2f}",
                     "Updated Annual Cost": "${:,.2f}",
                     "Current Annual Cost": "${:,.2f}",
