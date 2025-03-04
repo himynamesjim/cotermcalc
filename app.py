@@ -1556,22 +1556,24 @@ if st.session_state.active_tab == 'calculator':
                 total_first_year_co_termed_cost
             )
             
-            # Display email template with copy button
+            # **🔹 Display the Email Content in a Styled Box**
             st.markdown("### Email Template Preview")
             st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
-            
-            # Add copy to clipboard button
-            st.markdown(copy_to_clipboard_button(email_content, "Copy Email Template"), unsafe_allow_html=True)
-            
-            # Email subject suggestion
+    
+            # **🖱 Add the "Copy Email" Button**
+            st.markdown(copy_to_clipboard_button(email_content, "Copy Email"), unsafe_allow_html=True)
+    
+            # **📩 Suggested Subject Line**
             st.markdown("### Suggested Email Subject")
             email_subject = f"Co-Terming Cost Proposal - Customer Name"
             st.text_input("Subject Line:", value=email_subject, key="email_subject")
-            
-            # Add copy button for subject line
+    
+            # **🖱 Add the "Copy Subject Line" Button**
             st.markdown(copy_to_clipboard_button(email_subject, "Copy Subject Line"), unsafe_allow_html=True)
+        
         else:
             st.info("Please calculate costs first to generate an email template.")
+
 
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
