@@ -7,11 +7,6 @@ import base64
 import io
 import os
 
-# Define the function for copying the email to clipboard
-def copy_email_to_clipboard(email_text):
-    """ Copies the email text to clipboard """
-    pyperclip.copy(email_text)
-    st.success("Email copied to clipboard!")
     
 # Set page configuration and theme options
 st.set_page_config(
@@ -1564,11 +1559,8 @@ if st.session_state.active_tab == 'calculator':
             
             # Display the email template
             st.markdown("### Email Template Preview")
-            st.code(email_content, language="text")  # Display email as formatted text
+            st.text_area("Copy Email Content:", email_content, height=200)  # Allows manual copying
             
-            # **🖱 Copy Email Button**
-            if st.button("Copy Email"):
-                copy_email_to_clipboard(email_content)
     
             # **📩 Suggested Subject Line**
             st.markdown("### Suggested Email Subject")
