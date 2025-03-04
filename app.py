@@ -1163,12 +1163,13 @@ if st.session_state.active_tab == 'calculator':
             agreement_start_datetime = pd.Timestamp(agreement_start_date)
             
             # Calculate months remaining based on the Co-Termed Start Date
-            calculated_months_remaining = calculate_co_termed_months_remaining(
+            co_termed_months_remaining = calculate_co_termed_months_remaining(
                 co_termed_start_datetime, agreement_start_datetime, agreement_term
             )
             
             # Display updated months remaining in Streamlit
-            st.markdown(f"**Calculated Months Remaining:** {calculated_months_remaining:.2f}")
+            st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
+
 
 
 
