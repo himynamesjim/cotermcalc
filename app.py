@@ -602,17 +602,14 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_term = months_remaining + extension_months
     months_elapsed = agreement_term - months_remaining
     
-    # Convert relevant columns to numeric
-    numeric_cols = [
-        "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
-        "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
-        "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Unit Quantity", "Additional Licenses"
-    ]
-
+    # Convert relevant columns to numeric, but exclude "Cloud Service Description"
     for col in df.select_dtypes(include=['object']).columns:
-        df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        if col != "Cloud Service Description":  # ✅ Prevent license names from becoming numbers
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-    
+    # Ensure "Cloud Service Description" is explicitly kept as text
+    df["Cloud Service Description"] = df["Cloud Service Description"].astype(str)
+
     # Initialize totals
     total_current_cost = 0
     total_prepaid_cost = 0
@@ -649,6 +646,9 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     # Remove any existing total row
     df = df[df["Cloud Service Description"] != "Total Licensing Cost"].copy()
 
+    # Ensure "Cloud Service Description" remains a string
+    df["Cloud Service Description"] = df["Cloud Service Description"].astype(str)
+
     # Create a new total row
     total_row = pd.DataFrame({
         "Cloud Service Description": ["Total Licensing Cost"],
@@ -657,6 +657,12 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     })
 
     # Add numeric totals
+    numeric_cols = [
+        "Annual Unit Fee", "Current Monthly Cost", "Current Annual Cost", "Prepaid Co-Termed Cost",
+        "First Year Co-Termed Cost", "Updated Annual Cost", "Subscription Term Total Service Fee",
+        "Monthly Co-Termed Cost", "First Month Co-Termed Cost"
+    ]
+
     for col in numeric_cols:
         if col in df.columns and col not in ["Unit Quantity", "Additional Licenses"]:
             total_row[col] = df[col].sum()
@@ -672,6 +678,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
 
     return df, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
+
 
 
 def generate_pdf(billing_term, months_remaining, extension_months, total_current_cost, total_prepaid_cost, 
