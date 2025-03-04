@@ -572,10 +572,18 @@ def calculate_co_termed_months_remaining(co_termed_start_date, agreement_term):
     """
     Calculates months remaining based on the co-termed start date and agreement term.
     """
+    # Convert co_termed_start_date to pandas Timestamp for compatibility
+    co_termed_start_date = pd.Timestamp(co_termed_start_date)
+
+    # Calculate the end date
     end_date = co_termed_start_date + pd.DateOffset(months=agreement_term)
+
+    # Calculate the difference in days and convert to months
     days_remaining = (end_date - co_termed_start_date).days
-    months_remaining = (days_remaining / 30.44)  # Convert days to months
+    months_remaining = days_remaining / 30.44  # Approximate conversion
+
     return round(months_remaining, 2)
+
 
 
 def calculate_costs(df, agreement_term, months_remaining, extension_months, billing_term):
