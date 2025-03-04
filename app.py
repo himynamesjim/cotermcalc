@@ -1282,7 +1282,6 @@ if st.session_state.active_tab == 'calculator':
                         "total_subscription_term_fee": total_subscription_term_fee
                     }
         
-                st.success("Calculations completed successfully!")
         
                 
                 # Store calculation results in session state
