@@ -1455,21 +1455,20 @@ if st.session_state.active_tab == 'calculator':
                             st.success(f"The new monthly cost represents a {change_pct:.1f}% decrease from the current cost.")
                         else:
                             st.info("The new monthly cost is identical to the current cost.")
-                    elif billing_term == 'Prepaid':
-                        # ✅ Ensure Current Prepaid Cost and New Prepaid Cost are properly calculated
-                        current_prepaid_cost = total_current_cost  # ✅ Represents the total current prepaid cost
-                        new_prepaid_cost = total_prepaid_cost  # ✅ Represents the total new prepaid cost
-                    
-                        # ✅ Create a Prepaid Cost Comparison Table
-                        comparison_data = {
-                            "Cost Type": ["Current Prepaid Cost", "New Prepaid Cost", "Difference", "Percentage Change"],
-                            "Amount": [
-                                f"${current_prepaid_cost:,.2f}",
-                                f"${new_prepaid_cost:,.2f}",
-                                f"${new_prepaid_cost - current_prepaid_cost:,.2f}",
-                                f"{((new_prepaid_cost - current_prepaid_cost) / current_prepaid_cost * 100) if current_prepaid_cost > 0 else 0:,.2f}%"
-                            ]
-                        }
+                        elif billing_term == 'Prepaid':
+                            # ✅ Ensure New Prepaid Cost includes total prepaid cost of all licenses
+                            new_prepaid_cost = total_current_cost + total_prepaid_cost  # ✅ Fixes incorrect calculation
+                        
+                            comparison_data = {
+                                "Cost Type": ["Current Prepaid Cost", "New Total Prepaid Cost", "Difference", "Percentage Change"],
+                                "Amount": [
+                                    f"${total_current_cost:,.2f}",
+                                    f"${new_prepaid_cost:,.2f}",  # ✅ Now correctly reflects TOTAL prepaid amount
+                                    f"${new_prepaid_cost - total_current_cost:,.2f}",
+                                    f"{((new_prepaid_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0:,.2f}%"
+                                ]
+                            }
+
                     
                         # Display Comparison Table
                         comparison_df = pd.DataFrame(comparison_data)
