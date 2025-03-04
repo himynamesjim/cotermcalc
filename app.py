@@ -631,7 +631,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             fractional_month = months_remaining % 1
             first_month_factor = fractional_month if fractional_month > 0 else 1.0
             df.at[index, 'First Month Co-Termed Cost'] = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * first_month_factor
-            df.at[index, 'Monthly Co-Termed Cost'] = (row['Annual Unit Fee'] / 12) * row['Additional Licenses']
+            df.at[index, 'Monthly Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
         elif billing_term == 'Annual':
             df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
         else:  # Prepaid
@@ -1336,8 +1336,9 @@ if st.session_state.active_tab == 'calculator':
                     "First Year Co-Termed Cost": "${:,.2f}",
                     "Updated Annual Cost": "${:,.2f}",
                     "Current Annual Cost": "${:,.2f}",
+                    "Current Monthly Cost": "${:,.2f}",
                     "Subscription Term Total Service Fee": "${:,.2f}",
-                    "Monthly Co-Termed Cost": "${:,.2f}",
+                    "New Monthly Cost": "${:,.2f}",
                     "First Month Co-Termed Cost": "${:,.2f}"
                 }).set_properties(**{"white-space": "normal"}))
 
