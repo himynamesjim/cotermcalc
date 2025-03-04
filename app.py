@@ -1484,63 +1484,71 @@ if st.session_state.active_tab == 'calculator':
                 
                             
                 with st.expander("Current vs. New Cost Summary", expanded=True):
-                    if billing_term == "Monthly":
-                        current_cost = total_current_cost / 12
-                        new_cost = total_updated_annual_cost / 12
-                        cost_label = "Monthly Cost"
-                        total_term = months_remaining + extension_months  # ✅ Include extension months
-                        current_tco = current_cost * total_term  # ✅ Adjusted for full agreement duration
-                        new_tco = new_cost * total_term
-                
-                    elif billing_term == "Annual":
-                        current_cost = total_current_cost
-                        new_cost = total_updated_annual_cost
-                        cost_label = "Annual Cost"
-                        total_term_years = (months_remaining + extension_months) / 12  # Convert to years
-                        current_tco = current_cost * total_term_years
-                        new_tco = new_cost * total_term_years
-                
-                    elif billing_term == "Prepaid":
-                        current_cost = total_current_cost
-                        new_cost = total_current_cost + total_prepaid_cost  # ✅ Fix for Prepaid
-                        cost_label = "Prepaid Cost"
-                        total_term_years = (months_remaining + extension_months) / 12  # Convert to years
-                        current_tco = current_cost * total_term_years
-                        new_tco = new_cost * total_term_years
-                
-                    # ✅ Create a comparison table including Total Cost of Ownership
-                    comparison_data = {
-                        "Cost Type": [
-                            f"Current {cost_label}",
-                            f"New {cost_label}",
-                            "Difference",
-                            "Percentage Change",
-                            f"Current Total Cost of Ownership",
-                            f"New Total Cost of Ownership"
-                        ],
-                        "Amount": [
-                            f"${current_cost:,.2f}",
-                            f"${new_cost:,.2f}",
-                            f"${new_cost - current_cost:,.2f}",
-                            f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%",
-                            f"${current_tco:,.2f}",
-                            f"${new_tco:,.2f}"
-                        ]
-                    }
-                
-                    # ✅ Display the updated cost summary table
-                    comparison_df = pd.DataFrame(comparison_data)
-                    st.table(comparison_df)
-                
-                    # ✅ Add insight about the cost change
-                    if new_tco > current_tco:
-                        change_pct = ((new_tco - current_tco) / current_tco * 100) if current_tco > 0 else 0
-                        st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current total cost of ownership.")
-                    elif new_tco < current_tco:
-                        change_pct = ((current_tco - new_tco) / current_tco * 100) if current_tco > 0 else 0
-                        st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current total cost of ownership.")
-                    else:
-                        st.info(f"The new {billing_term.lower()} cost is identical to the current total cost of ownership.")
+                # ✅ Define Original and Extended Agreement Terms
+                original_term_years = agreement_term / 12  # ✅ Convert original agreement term to years
+                total_term_years = (months_remaining + extension_months) / 12  # ✅ Convert total agreement term (including extensions) to years
+            
+                if billing_term == "Monthly":
+                    current_cost = total_current_cost / 12
+                    new_cost = total_updated_annual_cost / 12
+                    cost_label = "Monthly Cost"
+            
+                    # ✅ Current TCO (Original Agreement Term) & New TCO (Extended Term)
+                    current_tco = current_cost * (agreement_term)  # ✅ Only original term in months
+                    new_tco = new_cost * (months_remaining + extension_months)  # ✅ Extended term
+            
+                elif billing_term == "Annual":
+                    current_cost = total_current_cost
+                    new_cost = total_updated_annual_cost
+                    cost_label = "Annual Cost"
+            
+                    # ✅ Current TCO (Original Agreement Term) & New TCO (Extended Term)
+                    current_tco = current_cost * original_term_years
+                    new_tco = new_cost * total_term_years
+            
+                elif billing_term == "Prepaid":
+                    current_cost = total_current_cost
+                    new_cost = total_current_cost + total_prepaid_cost  # ✅ Fix for Prepaid
+                    cost_label = "Prepaid Cost"
+            
+                    # ✅ Current TCO (Original Agreement Term) & New TCO (Extended Term)
+                    current_tco = current_cost * original_term_years
+                    new_tco = new_cost * total_term_years
+            
+                # ✅ Create a comparison table including Total Cost of Ownership
+                comparison_data = {
+                    "Cost Type": [
+                        f"Current {cost_label}",
+                        f"New {cost_label}",
+                        "Difference",
+                        "Percentage Change",
+                        f"Current Total Cost of Ownership ({cost_label})",
+                        f"New Total Cost of Ownership ({cost_label})"
+                    ],
+                    "Amount": [
+                        f"${current_cost:,.2f}",
+                        f"${new_cost:,.2f}",
+                        f"${new_cost - current_cost:,.2f}",
+                        f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%",
+                        f"${current_tco:,.2f}",  # ✅ Uses only the original agreement term
+                        f"${new_tco:,.2f}"  # ✅ Uses the extended term if applicable
+                    ]
+                }
+            
+                # ✅ Display the updated cost summary table
+                comparison_df = pd.DataFrame(comparison_data)
+                st.table(comparison_df)
+            
+                # ✅ Add insight about the cost change
+                if new_tco > current_tco:
+                    change_pct = ((new_tco - current_tco) / current_tco * 100) if current_tco > 0 else 0
+                    st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current total cost of ownership.")
+                elif new_tco < current_tco:
+                    change_pct = ((current_tco - new_tco) / current_tco * 100) if current_tco > 0 else 0
+                    st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current total cost of ownership.")
+                else:
+                    st.info(f"The new {billing_term.lower()} cost is identical to the current total cost of ownership.")
+
 
 
 
