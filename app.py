@@ -878,6 +878,18 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     return pdf_buffer
 
 def generate_email_template(billing_term, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0):
+license_list = []
+
+for index, row in df.iterrows():
+    license_entry = {
+        "name": f"License {index + 1}",  # Adjust based on your naming convention
+        "co_termed_cost": row.get("Prepaid Co-Termed Cost", 0),  # Adjust column name if needed
+    }
+    if "First Year Co-Termed Cost" in row and row["First Year Co-Termed Cost"] > 0:
+        license_entry["first_year_cost"] = row["First Year Co-Termed Cost"]
+
+    license_list.append(license_entry)
+
     # Base template with placeholders for dynamic content
     email_templates = {
         'Monthly': f"""Dear Customer,
