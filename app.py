@@ -1280,7 +1280,6 @@ if st.session_state.active_tab == 'calculator':
         with results_placeholder:
             if calculate_button and valid_data:
                 with st.spinner("Calculating costs..."):
-                    # ✅ Run calculations
                     processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
                         data,
                         agreement_term,
@@ -1288,8 +1287,8 @@ if st.session_state.active_tab == 'calculator':
                         extension_months,
                         billing_term
                     )
-        
-                    # ✅ Store results in session state
+            
+                    # ✅ Store the calculated values in session state
                     st.session_state.calculation_results = {
                         "processed_data": processed_data,
                         "total_current_cost": total_current_cost,
@@ -1298,6 +1297,7 @@ if st.session_state.active_tab == 'calculator':
                         "total_updated_annual_cost": total_updated_annual_cost,
                         "total_subscription_term_fee": total_subscription_term_fee
                     }
+
         
         
                 
@@ -1327,9 +1327,12 @@ if st.session_state.active_tab == 'calculator':
                         }
                         
                     st.success("Calculations completed successfully!")
-            
-        # Display results if available
-        if st.session_state.calculation_results:
+
+            # ✅ Ensure session state variable is initialized before access
+        if "calculation_results" not in st.session_state:
+            st.session_state.calculation_results = None  # ✅ Initializes it safely
+
+        if st.session_state.calculation_results is not None:  # ✅ Prevents KeyError
             results = st.session_state.calculation_results
             processed_data = results["processed_data"]
             total_current_cost = results["total_current_cost"]
@@ -1337,6 +1340,7 @@ if st.session_state.active_tab == 'calculator':
             total_first_year_cost = results["total_first_year_cost"]
             total_updated_annual_cost = results["total_updated_annual_cost"]
             total_subscription_term_fee = results["total_subscription_term_fee"]
+
             
             with results_placeholder.container():
                 st.subheader("Detailed Line Items")
