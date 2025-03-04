@@ -630,7 +630,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         if billing_term == 'Monthly':
             fractional_month = months_remaining % 1
             first_month_factor = fractional_month if fractional_month > 0 else 1.0
-            df.at[index, 'First Month Co-Termed Cost'] = (row['Annual Unit Fee'] / 12) * row['Additional Licenses'] * first_month_factor
+            df.at[index, 'First Month Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee'] / 12) * first_month_factor
             df.at[index, 'Monthly Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
         elif billing_term == 'Annual':
             df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
@@ -1452,20 +1452,20 @@ if st.session_state.active_tab == 'calculator':
                     
                     # Make sure these columns exist in the dataframe
                     monthly_co_termed = float(total_row['Monthly Co-Termed Cost'].iloc[0]) if 'Monthly Co-Termed Cost' in total_row.columns else 0.0
-                    first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0]) if 'First Month Co-Termed Cost' in total_row.columns else 0.0
+                    # ✅ Ensure First Month Co-Termed Cost pulls the correct sum
+                    first_month_co_termed = float(total_row["First Month Co-Termed Cost"].sum()) if "First Month Co-Termed Cost" in total_row.columns else 0.0
                     
                     # Current monthly cost
                     current_monthly = total_current_cost / 12
                     new_monthly = (total_updated_annual_cost / 12) if total_updated_annual_cost > 0 else 0
                     
-                    # Make sure the key names match exactly what's expected in the JavaScript
                     chart_data = {
                         "currentCost": float(total_current_cost / 12),  # ✅ Current Monthly Cost
+                        "coTermedMonthly": float(first_month_co_termed),  # ✅ Now correctly included in chart
                         "newMonthly": float(total_updated_annual_cost / 12),  # ✅ Corrected "New Monthly Cost"
                         "subscription": float(total_subscription_term_fee)
                     }
 
-                    
                 elif billing_term == 'Annual':
                     chart_data = {
                         "currentCost": float(total_current_cost),
