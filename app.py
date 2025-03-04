@@ -1321,7 +1321,7 @@ if st.session_state.active_tab == 'calculator':
                     column_order = [
                         "Cloud Service Description",  # ✅ Ensure this stays in the output
                         "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
-                        "First Month Co-Termed Cost", "Current Monthly Cost", 
+                        "First Month Co-Termed Cost", "New Monthly Cost", 
                         "Monthly Co-Termed Cost", "Subscription Term Total Service Fee"
                     ]
                 
