@@ -632,6 +632,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             first_month_factor = fractional_month if fractional_month > 0 else 1.0
             df.at[index, 'First Month Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee'] / 12) * first_month_factor
             df.at[index, 'Monthly Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
+            df.at[index, 'New Monthly Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
         elif billing_term == 'Annual':
             df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
         else:  # Prepaid
@@ -1322,7 +1323,7 @@ if st.session_state.active_tab == 'calculator':
                         "Cloud Service Description",  # ✅ Ensure this stays in the output
                         "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
                         "First Month Co-Termed Cost", "Current Monthly Cost", 
-                        "Monthly Co-Termed Monthly Cost", "Subscription Term Total Service Fee"
+                        "New Monthly Cost", "Subscription Term Total Service Fee"
                     ]
                 
                     # Keep only columns that exist in the DataFrame to avoid errors
