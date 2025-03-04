@@ -991,31 +991,27 @@ Your Signature"""
     return email_templates.get(billing_term, "Invalid billing term")
 
 def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
-    # Create a unique key for this button
+    # Unique button ID to prevent conflicts
     button_id = f"copy_button_{hash(text)}"
-    
+
     # JavaScript function to copy text to clipboard
     js_code = f"""
     <script>
     function copyToClipboard_{button_id}() {{
-        const el = document.createElement('textarea');
-        el.value = `{text.replace('`', '\\`')}`;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        
-        // Change button text temporarily
-        const btn = document.getElementById('{button_id}');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = 'Copied!';
-        setTimeout(() => {{
-            btn.innerHTML = originalText;
-        }}, 2000);
+        navigator.clipboard.writeText(`{text.replace("`", "\\`")}`).then(() => {{
+            const btn = document.getElementById('{button_id}');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Copied!';
+            setTimeout(() => {{
+                btn.innerHTML = originalText;
+            }}, 2000);
+        }}).catch(err => {{
+            console.error('Error copying text:', err);
+        }});
     }}
     </script>
     """
-    
+
     # HTML button that calls the JavaScript function
     html_button = f"""
     {js_code}
@@ -1025,7 +1021,7 @@ def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     {button_text}
     </button>
     """
-    
+
     return html_button
 
 # Sidebar for navigation and settings
