@@ -1319,7 +1319,7 @@ if st.session_state.active_tab == 'calculator':
                 # Adjust column order for Monthly billing
                 if billing_term == 'Monthly':
                     column_order = [
-                        "Cloud Services Description", Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
+                        "Cloud Service Description", Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
                         "First Month Co-Termed Cost", "Current Monthly Cost", 
                         "Monthly Co-Termed Cost", "Subscription Term Total Service Fee"
                     ]
