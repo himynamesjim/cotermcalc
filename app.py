@@ -1249,68 +1249,68 @@ if st.session_state.active_tab == 'calculator':
         # Check if we have valid data before calculating
         valid_data = not empty_services.any() and len(data) > 0
         
-# Create a fixed layout for the Results page
-button_container = st.container()  # ✅ This keeps the button static
-results_placeholder = st.container()  # ✅ This holds the dynamic results
-
-# Place the button inside the static container
-with button_container:
-    st.markdown("### Run Cost Calculation")  # ✅ Add a section title for clarity
-    calculate_button = st.button("Calculate Costs", disabled=not valid_data, 
-                                 help="Enter all required information to enable calculations")
-
-# Process calculations inside the results placeholder
-with results_placeholder:
-    if calculate_button and valid_data:
-        with st.spinner("Calculating costs..."):
-            # ✅ Run calculations
-            processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
-                data,
-                agreement_term,
-                months_remaining,
-                extension_months,
-                billing_term
-            )
-
-            # ✅ Store results in session state
-            st.session_state.calculation_results = {
-                "processed_data": processed_data,
-                "total_current_cost": total_current_cost,
-                "total_prepaid_cost": total_prepaid_cost,
-                "total_first_year_cost": total_first_year_cost,
-                "total_updated_annual_cost": total_updated_annual_cost,
-                "total_subscription_term_fee": total_subscription_term_fee
-            }
-
-        st.success("Calculations completed successfully!")
-
+        # Create a fixed layout for the Results page
+        button_container = st.container()  # ✅ This keeps the button static
+        results_placeholder = st.container()  # ✅ This holds the dynamic results
         
-        # Store calculation results in session state
-        if "calculation_results" not in st.session_state:
-            st.session_state.calculation_results = None
-            
-        if calculate_button and valid_data:
-            with st.spinner("Calculating costs..."):
-                # Calculate costs
-                processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
-                    data,
-                    agreement_term,
-                    months_remaining,
-                    extension_months,
-                    billing_term
-                )
+        # Place the button inside the static container
+        with button_container:
+            st.markdown("### Run Cost Calculation")  # ✅ Add a section title for clarity
+            calculate_button = st.button("Calculate Costs", disabled=not valid_data, 
+                                         help="Enter all required information to enable calculations")
+        
+        # Process calculations inside the results placeholder
+        with results_placeholder:
+            if calculate_button and valid_data:
+                with st.spinner("Calculating costs..."):
+                    # ✅ Run calculations
+                    processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
+                        data,
+                        agreement_term,
+                        months_remaining,
+                        extension_months,
+                        billing_term
+                    )
+        
+                    # ✅ Store results in session state
+                    st.session_state.calculation_results = {
+                        "processed_data": processed_data,
+                        "total_current_cost": total_current_cost,
+                        "total_prepaid_cost": total_prepaid_cost,
+                        "total_first_year_cost": total_first_year_cost,
+                        "total_updated_annual_cost": total_updated_annual_cost,
+                        "total_subscription_term_fee": total_subscription_term_fee
+                    }
+        
+                st.success("Calculations completed successfully!")
+        
                 
-                # Store results in session state
-                st.session_state.calculation_results = {
-                    "processed_data": processed_data,
-                    "total_current_cost": total_current_cost,
-                    "total_prepaid_cost": total_prepaid_cost,
-                    "total_first_year_cost": total_first_year_cost,
-                    "total_updated_annual_cost": total_updated_annual_cost,
-                    "total_subscription_term_fee": total_subscription_term_fee
-                }
-                
-            st.success("Calculations completed successfully!")
+                # Store calculation results in session state
+                if "calculation_results" not in st.session_state:
+                    st.session_state.calculation_results = None
+                    
+                if calculate_button and valid_data:
+                    with st.spinner("Calculating costs..."):
+                        # Calculate costs
+                        processed_data, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee = calculate_costs(
+                            data,
+                            agreement_term,
+                            months_remaining,
+                            extension_months,
+                            billing_term
+                        )
+                        
+                        # Store results in session state
+                        st.session_state.calculation_results = {
+                            "processed_data": processed_data,
+                            "total_current_cost": total_current_cost,
+                            "total_prepaid_cost": total_prepaid_cost,
+                            "total_first_year_cost": total_first_year_cost,
+                            "total_updated_annual_cost": total_updated_annual_cost,
+                            "total_subscription_term_fee": total_subscription_term_fee
+                        }
+                        
+                    st.success("Calculations completed successfully!")
             
         # Display results if available
         if st.session_state.calculation_results:
