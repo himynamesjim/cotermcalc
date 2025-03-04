@@ -1282,9 +1282,9 @@ if st.session_state.active_tab == 'calculator':
                 # Format numeric columns
                 for col in ["Annual Unit Fee", "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", 
                             "Updated Annual Cost", "Subscription Term Total Service Fee", 
-                            "Monthly Co-Termed Cost", "First Month Co-Termed Cost"]:
-                    if col in displayed_data.columns:
-                        displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
+                            "Monthly Co-Termed Cost", "First Month Co-Termed Cost", "Current Annual Cost"]:
+                 if col in displayed_data.columns:
+                    displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
                 
                 # Display the dataframe with formatting
                 st.dataframe(displayed_data.style.format({
