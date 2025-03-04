@@ -636,7 +636,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         elif billing_term == 'Annual':
             df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
         else:  # Prepaid
-            df.at[index, 'Prepaid Co-Termed Cost'] = row['Additional Licenses'] * row['Annual Unit Fee']
+            df.at[index, 'Prepaid Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] / 12) * months_remaining
             df.at[index, 'Current Prepaid Cost'] = row['Unit Quantity'] * row['Annual Unit Fee']
             df.at[index, 'Updated Annual Cost'] = 0
 
