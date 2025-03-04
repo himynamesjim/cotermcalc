@@ -636,8 +636,8 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         elif billing_term == 'Annual':
             df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
         else:  # Prepaid
-            df.at[index, 'Prepaid Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12
-            df.at[index, 'Current Prepaid Cost'] = (row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12
+            df.at[index, 'Prepaid Co-Termed Cost'] = row['Additional Licenses'] * row['Annual Unit Fee']
+            df.at[index, 'Current Prepaid Cost'] = row['Unit Quantity'] * row['Annual Unit Fee']
             df.at[index, 'Updated Annual Cost'] = 0
 
         subscription_term_total_fee = ((row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12) + (
@@ -655,7 +655,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         "Cloud Service Description": ["Total Licensing Cost"],
         "Unit Quantity": [df["Unit Quantity"].sum()],
         "Additional Licenses": [df["Additional Licenses"].sum()],
-        "Current Prepaid Cost": [df["Current Prepaid Cost"].sum()],  # ✅ Fix: Ensure this is included
+        "Current Prepaid Cost": [df["Current Prepaid Cost"].sum()],  # ✅ Ensure this is summed correctly
         "Prepaid Co-Termed Cost": [df["Prepaid Co-Termed Cost"].sum()],
         "Subscription Term Total Service Fee": [df["Subscription Term Total Service Fee"].sum()]
     })
