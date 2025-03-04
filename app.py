@@ -1483,7 +1483,7 @@ if st.session_state.active_tab == 'calculator':
                     st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
                 
                             
-                 with st.expander("Current vs. New Cost Summary", expanded=True):
+                with st.expander("Current vs. New Cost Summary", expanded=True):
                     if billing_term == "Monthly":
                         current_cost = total_current_cost / 12
                         new_cost = total_updated_annual_cost / 12
