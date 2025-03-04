@@ -1292,6 +1292,7 @@ if st.session_state.active_tab == 'calculator':
                     "Prepaid Co-Termed Cost": "${:,.2f}",
                     "First Year Co-Termed Cost": "${:,.2f}",
                     "Updated Annual Cost": "${:,.2f}",
+                    "Current Annual Cost": "${:,.2f}",
                     "Subscription Term Total Service Fee": "${:,.2f}",
                     "Monthly Co-Termed Cost": "${:,.2f}",
                     "First Month Co-Termed Cost": "${:,.2f}"
