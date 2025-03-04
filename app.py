@@ -1687,7 +1687,7 @@ with tabs[0]:
                     mime="application/pdf",
                     key="pdf_download"
                 )
-    with tabs[3]:
+with tabs[3]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
         # Check if we have calculation results
