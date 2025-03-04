@@ -1529,6 +1529,8 @@ if st.session_state.active_tab == 'calculator':
             total_first_year_cost = results["total_first_year_cost"]
             total_updated_annual_cost = results["total_updated_annual_cost"] 
             total_subscription_term_fee = results["total_subscription_term_fee"]
+            total_first_year_co_termed_cost = total_first_year_cost  
+
             
             # Determine which cost value to use based on billing term
             if billing_term == 'Monthly':
