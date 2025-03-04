@@ -1096,55 +1096,54 @@ if st.session_state.active_tab == 'calculator':
     tabs = st.tabs(["Agreement Info", "Licensing", "Results", "Email Template"])
     
     with tabs[0]:
-        st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
-        
-        # Add a separator
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-        
-        # Agreement info section
-        left_col, right_col = st.columns(2)
-        
-        with left_col:
-            # Agreement start date with consistent styling
-            st.markdown('<p class="field-label">Agreement Start Date:</p>', unsafe_allow_html=True)
-            default_start_date = datetime.today() - pd.DateOffset(months=6)
-            agreement_start_date = st.date_input(
-                "",  # Empty label since we're using custom styling
-                value=default_start_date,
-                max_value=datetime.today(),
-                key="agreement_start_date",
-                label_visibility="collapsed"
-            )
+    st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
 
-            # ✅ Co-Terming Start Date Selection
-            st.markdown('<p class="field-label">Co-Termed Start Date:</p>', unsafe_allow_html=True)
-            
-            # Default Co-Termed Start Date (set to today or future)
-            default_co_termed_start_date = datetime.today()
-            
-            # ✅ Allow user to manually select a future co-termed start date
-            co_termed_start_date = st.date_input(
-                "Select Co-Termed Start Date:",
-                value=default_co_termed_start_date,
-                min_value=datetime.today(),  # ✅ Ensure co-termed start date is in the future
-                max_value=datetime.today() + pd.DateOffset(years=5),  # Optional: Limit selection
-                key="co_termed_start_date"
-            )
-            
-            st.markdown(f"**Selected Co-Termed Start Date:** {co_termed_start_date.strftime('%Y-%m-%d')}")
+    # Add a separator
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
 
-            
-            # Billing term with consistent styling
-            st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
-            billing_term = st.selectbox(
-                "", 
-                ["Annual", "Prepaid", "Monthly"],
-                key="billing_term",
-                label_visibility="collapsed"
-            )
+    # Agreement info section
+    left_col, right_col = st.columns(2)
 
+    with left_col:
+        # Agreement start date with consistent styling
+        st.markdown('<p class="field-label">Agreement Start Date:</p>', unsafe_allow_html=True)
+        default_start_date = datetime.today() - pd.DateOffset(months=6)
+        agreement_start_date = st.date_input(
+            "",  # Empty label since we're using custom styling
+            value=default_start_date,
+            max_value=datetime.today(),
+            key="agreement_start_date",
+            label_visibility="collapsed"
+        )
 
-     with right_col:
+        # ✅ Co-Terming Start Date Selection
+        st.markdown('<p class="field-label">Co-Termed Start Date:</p>', unsafe_allow_html=True)
+
+        # Default Co-Termed Start Date (set to today or future)
+        default_co_termed_start_date = datetime.today()
+
+        # ✅ Allow user to manually select a future co-termed start date
+        co_termed_start_date = st.date_input(
+            "Select Co-Termed Start Date:",
+            value=default_co_termed_start_date,
+            min_value=datetime.today(),  # ✅ Ensure co-termed start date is in the future
+            max_value=datetime.today() + pd.DateOffset(years=5),  # Optional: Limit selection
+            key="co_termed_start_date"
+        )
+
+        st.markdown(f"**Selected Co-Termed Start Date:** {co_termed_start_date.strftime('%Y-%m-%d')}")
+
+        # Billing term with consistent styling
+        st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
+        billing_term = st.selectbox(
+            "", 
+            ["Annual", "Prepaid", "Monthly"],
+            key="billing_term",
+            label_visibility="collapsed"
+        )
+
+    # ✅ Fix indentation: `with right_col:` must be inside `tabs[0]`
+    with right_col:
         # Agreement term with consistent styling
         st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
         agreement_term = st.number_input(
@@ -1156,26 +1155,26 @@ if st.session_state.active_tab == 'calculator':
             key="agreement_term",
             label_visibility="collapsed"
         )
-    
+
         # ✅ Convert dates to pandas timestamps
         co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
         agreement_start_datetime = pd.Timestamp(agreement_start_date)
-    
+
         # ✅ Calculate co-termed months remaining
         co_termed_months_remaining = calculate_co_termed_months_remaining(
             co_termed_start_datetime, agreement_start_datetime, agreement_term
         )
-    
+
         # ✅ Display the correct months remaining
         st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
-    
+
         # ✅ Place the checkbox BEFORE using `use_calculated_months`
         use_calculated_months = st.checkbox(
             "Use calculated months remaining", 
             value=True,
             key="use_calculated_months_checkbox"  # ✅ Unique key to prevent duplication
         )
-    
+
         # ✅ Use calculated months if checked, otherwise allow manual input
         if use_calculated_months:
             months_remaining = co_termed_months_remaining  # ✅ Use correct variable name
@@ -1187,7 +1186,7 @@ if st.session_state.active_tab == 'calculator':
         else:
             months_remaining = st.number_input(
                 "", 
-                min_value=0.01, 
+                min_value=0,  # ✅ Fix: Allow zero remaining months
                 max_value=float(agreement_term), 
                 value=co_termed_months_remaining,  # ✅ Use the correct variable name
                 step=0.01, 
