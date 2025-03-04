@@ -1287,7 +1287,7 @@ if st.session_state.active_tab == 'calculator':
                     displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
 
                  # After creating displayed_data and before displaying it with st.dataframe()
-                if 'Current Annual Cost' in displayed_data.columns and 'Updated Annual Cost' in displayed_data.columns:
+                if 'Current Annual Cost' in displayed_data.columns and 'First Year Co-Termed Cost' in displayed_data.columns:
                     # Get all column names
                     cols = displayed_data.columns.tolist()
                     
@@ -1295,10 +1295,10 @@ if st.session_state.active_tab == 'calculator':
                     if 'Current Annual Cost' in cols:
                         cols.remove('Current Annual Cost')
                     
-                    # Find the position of 'Updated Annual Cost'
-                    if 'Updated Annual Cost' in cols:
-                        updated_pos = cols.index('Updated Annual Cost')
-                        # Insert 'Current Annual Cost' right after 'Updated Annual Cost'
+                    # Find the position of 'First Year Co-Termed Cost'
+                    if 'First Year Co-Termed Cost' in cols:
+                        updated_pos = cols.index('First Year Co-Termed Cost')
+                        # Insert 'Current Annual Cost' right after 'First Year Co-Termed Cost'
                         cols.insert(updated_pos + 1, 'Current Annual Cost')
                         
                         # Reorder the DataFrame
