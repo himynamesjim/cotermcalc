@@ -1144,57 +1144,57 @@ if st.session_state.active_tab == 'calculator':
             )
 
 
-         with right_col:
-            # Agreement term with consistent styling
-            st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
-            agreement_term = st.number_input(
-                "",
-                min_value=1, 
-                value=36, 
-                step=1, 
-                format="%d",
-                key="agreement_term",
+     with right_col:
+        # Agreement term with consistent styling
+        st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
+        agreement_term = st.number_input(
+            "",
+            min_value=1, 
+            value=36, 
+            step=1, 
+            format="%d",
+            key="agreement_term",
+            label_visibility="collapsed"
+        )
+    
+        # ✅ Convert dates to pandas timestamps
+        co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
+        agreement_start_datetime = pd.Timestamp(agreement_start_date)
+    
+        # ✅ Calculate co-termed months remaining
+        co_termed_months_remaining = calculate_co_termed_months_remaining(
+            co_termed_start_datetime, agreement_start_datetime, agreement_term
+        )
+    
+        # ✅ Display the correct months remaining
+        st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
+    
+        # ✅ Place the checkbox BEFORE using `use_calculated_months`
+        use_calculated_months = st.checkbox(
+            "Use calculated months remaining", 
+            value=True,
+            key="use_calculated_months_checkbox"  # ✅ Unique key to prevent duplication
+        )
+    
+        # ✅ Use calculated months if checked, otherwise allow manual input
+        if use_calculated_months:
+            months_remaining = co_termed_months_remaining  # ✅ Use correct variable name
+            st.markdown(f"""
+            <div class="info-display">
+                <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            months_remaining = st.number_input(
+                "", 
+                min_value=0.01, 
+                max_value=float(agreement_term), 
+                value=co_termed_months_remaining,  # ✅ Use the correct variable name
+                step=0.01, 
+                format="%.2f",
+                key="manual_months_input",  # ✅ Unique key
                 label_visibility="collapsed"
             )
-        
-            # ✅ Convert dates to pandas timestamps
-            co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
-            agreement_start_datetime = pd.Timestamp(agreement_start_date)
-        
-            # ✅ Calculate co-termed months remaining
-            co_termed_months_remaining = calculate_co_termed_months_remaining(
-                co_termed_start_datetime, agreement_start_datetime, agreement_term
-            )
-        
-            # ✅ Display the correct months remaining
-            st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
-        
-            # ✅ Place the checkbox BEFORE using `use_calculated_months`
-            use_calculated_months = st.checkbox(
-                "Use calculated months remaining", 
-                value=True,
-                key="use_calculated_months_checkbox"  # ✅ Unique key to prevent duplication
-            )
-        
-            # ✅ Use calculated months if checked, otherwise allow manual input
-            if use_calculated_months:
-                months_remaining = co_termed_months_remaining  # ✅ Use correct variable name
-                st.markdown(f"""
-                <div class="info-display">
-                    <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                months_remaining = st.number_input(
-                    "", 
-                    min_value=0.01, 
-                    max_value=float(agreement_term), 
-                    value=co_termed_months_remaining,  # ✅ Use the correct variable name
-                    step=0.01, 
-                    format="%.2f",
-                    key="manual_months_input",  # ✅ Unique key
-                    label_visibility="collapsed"
-                )
 
 
 
