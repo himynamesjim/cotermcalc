@@ -1,4 +1,5 @@
 import streamlit as st
+import pyperclip
 import pandas as pd
 from datetime import datetime, timedelta, date
 from fpdf import FPDF
@@ -7,6 +8,12 @@ import base64
 import io
 import os
 
+# Define the function for copying the email to clipboard
+def copy_email_to_clipboard(email_text):
+    """ Copies the email text to clipboard """
+    pyperclip.copy(email_text)
+    st.success("Email copied to clipboard!")
+    
 # Set page configuration and theme options
 st.set_page_config(
     page_title="Co-Terming Cost Calculator",
@@ -1556,12 +1563,13 @@ if st.session_state.active_tab == 'calculator':
                 total_first_year_co_termed_cost
             )
             
-            # **🔹 Display the Email Content in a Styled Box**
+            # Display the email template
             st.markdown("### Email Template Preview")
-            st.markdown('<div class="email-template">' + email_content.replace('\n', '<br>') + '</div>', unsafe_allow_html=True)
-    
-            # **🖱 Add the "Copy Email" Button**
-            st.markdown(copy_to_clipboard_button(email_content, "Copy Email"), unsafe_allow_html=True)
+            st.code(email_content, language="text")  # Display email as formatted text
+            
+            # **🖱 Copy Email Button**
+            if st.button("Copy Email"):
+                copy_email_to_clipboard(email_content)
     
             # **📩 Suggested Subject Line**
             st.markdown("### Suggested Email Subject")
