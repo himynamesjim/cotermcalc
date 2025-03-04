@@ -1297,6 +1297,7 @@ if st.session_state.active_tab == 'calculator':
                  if col in displayed_data.columns:
                     displayed_data[col] = pd.to_numeric(displayed_data[col], errors='coerce')
 
+                               
                  # After creating displayed_data and before displaying it with st.dataframe()
                 if 'Current Annual Cost' in displayed_data.columns and 'First Year Co-Termed Cost' in displayed_data.columns:
                     # Get all column names
@@ -1314,7 +1315,18 @@ if st.session_state.active_tab == 'calculator':
                         
                         # Reorder the DataFrame
                         displayed_data = displayed_data[cols]
-                        
+
+                # Adjust column order for Monthly billing
+                if billing_term == 'Monthly':
+                    column_order = [
+                        "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
+                        "First Month Co-Termed Cost", "Current Monthly Cost", 
+                        "Monthly Co-Termed Cost", "Subscription Term Total Service Fee"
+                    ]
+                
+                    # Keep only columns that exist in the DataFrame to avoid errors
+                    displayed_data = displayed_data[[col for col in column_order if col in displayed_data.columns]]
+                    
                 # Display the dataframe with formatting
                 st.dataframe(displayed_data.style.format({
                     "Annual Unit Fee": "${:,.2f}",
