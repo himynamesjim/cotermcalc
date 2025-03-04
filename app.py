@@ -1483,11 +1483,13 @@ if st.session_state.active_tab == 'calculator':
                     st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
                 
                             
-                with st.expander("Current vs. New Cost Summary", expanded=True):
+                 with st.expander("Current vs. New Cost Summary", expanded=True):
                     if billing_term == "Monthly":
                         current_cost = total_current_cost / 12
                         new_cost = total_updated_annual_cost / 12
                         cost_label = "Monthly Cost"
+                
+                        # ✅ Calculate Total Cost of Ownership (TCO) for Monthly Billing
                         current_tco = current_cost * 12  # Annualized cost for current subscription
                         new_tco = new_cost * 12  # Annualized cost for new subscription
                 
@@ -1496,43 +1498,53 @@ if st.session_state.active_tab == 'calculator':
                         new_cost = total_updated_annual_cost
                         cost_label = "Annual Cost"
                 
+                        # ✅ Total Cost of Ownership for Annual Billing is simply the annual cost
+                        current_tco = current_cost
+                        new_tco = new_cost
+                
                     elif billing_term == "Prepaid":
                         current_cost = total_current_cost
                         new_cost = total_current_cost + total_prepaid_cost  # ✅ Fix for Prepaid
                         cost_label = "Prepaid Cost"
                 
-                    comparison_data = {
-                            "Cost Type": [
-                                f"Current {cost_label}",
-                                f"New {cost_label}",
-                                "Difference",
-                                "Percentage Change",
-                                "Current Total Cost of Ownership (Annualized)",
-                                "New Total Cost of Ownership (Annualized)"
-                            ],
-                            "Amount": [
-                                f"${current_cost:,.2f}",
-                                f"${new_cost:,.2f}",
-                                f"${new_cost - current_cost:,.2f}",
-                                f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%",
-                                f"${current_tco:,.2f}",
-                                f"${new_tco:,.2f}"
-                            ]
-                        }
-
+                        # ✅ Total Cost of Ownership for Prepaid is the total prepaid amount
+                        current_tco = current_cost
+                        new_tco = new_cost
                 
+                    # ✅ Create a comparison table including Total Cost of Ownership
+                    comparison_data = {
+                        "Cost Type": [
+                            f"Current {cost_label}",
+                            f"New {cost_label}",
+                            "Difference",
+                            "Percentage Change",
+                            f"Current Total Cost of Ownership ({cost_label})",
+                            f"New Total Cost of Ownership ({cost_label})"
+                        ],
+                        "Amount": [
+                            f"${current_cost:,.2f}",
+                            f"${new_cost:,.2f}",
+                            f"${new_cost - current_cost:,.2f}",
+                            f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%",
+                            f"${current_tco:,.2f}",
+                            f"${new_tco:,.2f}"
+                        ]
+                    }
+                
+                    # ✅ Display the updated cost summary table
                     comparison_df = pd.DataFrame(comparison_data)
                     st.table(comparison_df)
                 
-                    # Add insight about the cost change
-                    if new_cost > current_cost:
-                        change_pct = ((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0
-                        st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current cost.")
-                    elif new_cost < current_cost:
-                        change_pct = ((current_cost - new_cost) / current_cost * 100) if current_cost > 0 else 0
-                        st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current cost.")
+                    # ✅ Add insight about the cost change
+                    if new_tco > current_tco:
+                        change_pct = ((new_tco - current_tco) / current_tco * 100) if current_tco > 0 else 0
+                        st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current total cost of ownership.")
+                    elif new_tco < current_tco:
+                        change_pct = ((current_tco - new_tco) / current_tco * 100) if current_tco > 0 else 0
+                        st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current total cost of ownership.")
                     else:
-                        st.info(f"The new {billing_term.lower()} cost is identical to the current cost.")
+                        st.info(f"The new {billing_term.lower()} cost is identical to the current total cost of ownership.")
+
 
 
 
