@@ -1,4 +1,4 @@
-clipdatetime
-fpdf
 streamlit
 pandas
+fpdf
+rich
