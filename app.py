@@ -1488,28 +1488,25 @@ if st.session_state.active_tab == 'calculator':
                         current_cost = total_current_cost / 12
                         new_cost = total_updated_annual_cost / 12
                         cost_label = "Monthly Cost"
-                
-                        # ✅ Calculate Total Cost of Ownership (TCO) for Monthly Billing
-                        current_tco = current_cost * 12  # Annualized cost for current subscription
-                        new_tco = new_cost * 12  # Annualized cost for new subscription
+                        total_term = months_remaining + extension_months  # ✅ Include extension months
+                        current_tco = current_cost * total_term  # ✅ Adjusted for full agreement duration
+                        new_tco = new_cost * total_term
                 
                     elif billing_term == "Annual":
                         current_cost = total_current_cost
                         new_cost = total_updated_annual_cost
                         cost_label = "Annual Cost"
-                
-                        # ✅ Total Cost of Ownership for Annual Billing is simply the annual cost
-                        current_tco = current_cost
-                        new_tco = new_cost
+                        total_term_years = (months_remaining + extension_months) / 12  # Convert to years
+                        current_tco = current_cost * total_term_years
+                        new_tco = new_cost * total_term_years
                 
                     elif billing_term == "Prepaid":
                         current_cost = total_current_cost
                         new_cost = total_current_cost + total_prepaid_cost  # ✅ Fix for Prepaid
                         cost_label = "Prepaid Cost"
-                
-                        # ✅ Total Cost of Ownership for Prepaid is the total prepaid amount
-                        current_tco = current_cost
-                        new_tco = new_cost
+                        total_term_years = (months_remaining + extension_months) / 12  # Convert to years
+                        current_tco = current_cost * total_term_years
+                        new_tco = new_cost * total_term_years
                 
                     # ✅ Create a comparison table including Total Cost of Ownership
                     comparison_data = {
