@@ -1485,20 +1485,7 @@ if st.session_state.active_tab == 'calculator':
                         else:
                             st.info("The new prepaid cost is identical to the current prepaid cost.")
 
-                        
-                        comparison_df = pd.DataFrame(comparison_data)
-                        st.table(comparison_df)
-                        
-                        # Add insight about the cost change
-                        if total_updated_annual_cost > total_current_cost:
-                            change_pct = ((total_updated_annual_cost - total_current_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
-                            st.info(f"The new annual cost represents a {change_pct:.1f}% increase from the current cost.")
-                        elif total_updated_annual_cost < total_current_cost:
-                            change_pct = ((total_current_cost - total_updated_annual_cost) / total_current_cost * 100) if total_current_cost > 0 else 0
-                            st.success(f"The new annual cost represents a {change_pct:.1f}% decrease from the current cost.")
-                        else:
-                            st.info("The new annual cost is identical to the current cost.")
-                
+                           
                 st.markdown("### Cost Comparison")
                 
                 # Prepare chart data based on billing term
