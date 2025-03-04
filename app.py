@@ -935,8 +935,8 @@ We are writing to inform you about the updated co-terming cost for your annual b
 We appreciate your continued business and look forward to your approval.
 
 Best regards,  
-Your Signature"""
-    }
+Your Signature""",
+    
 
         'Prepaid': f"""Dear Customer,
 
