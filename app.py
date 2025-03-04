@@ -910,27 +910,33 @@ Your Signature""",
 
 We are writing to inform you about the updated co-terming cost for your annual billing arrangement.
 
-Current Agreement:
-- Current Annual Cost: ${current_cost:,.2f}
+### Current Agreement:
+- **Current Annual Cost:** ${current_cost:,.2f}
 
-Updated Cost Summary:
-- First Year Co-Termed Cost: ${first_cost:,.2f}
-- Updated Annual Cost: ${updated_annual_cost:,.2f}
-- Total Subscription Cost: ${total_subscription_cost:,.2f}
+### License Cost Breakdown:
+{''.join([f"- {license['name']} - Co-Termed Cost: ${license['co_termed_cost']:,.2f}\n" + 
+          (f"  - First Year Co-Termed Cost: ${license['first_year_cost']:,.2f}\n" if 'first_year_cost' in license and license['first_year_cost'] else '') 
+          for license in license_list])}
 
-Key Details:
+### Updated Cost Summary:
+- **Total First Year Co-Termed Cost:** ${total_first_year_co_termed_cost:,.2f}
+- **Updated Annual Cost:** ${updated_annual_cost:,.2f}
+- **Total Subscription Cost:** ${total_subscription_cost:,.2f}
+
+### Key Details:
 - The first year's co-termed cost reflects your current service adjustments.
 - Your total subscription cost covers the entire term of the agreement.
 
-Next Steps:
+### Next Steps:
 1. Please carefully review the cost breakdown above.
 2. If you approve these terms, kindly reply to this email with your confirmation.
 3. If you have any questions or concerns, please contact our sales team.
 
 We appreciate your continued business and look forward to your approval.
 
-Best regards,
-Your Signature""",
+Best regards,  
+Your Signature"""
+
 
         'Prepaid': f"""Dear Customer,
 
