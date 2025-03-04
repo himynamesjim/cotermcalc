@@ -1483,34 +1483,6 @@ if st.session_state.active_tab == 'calculator':
                     increase_pct = (total_additional_licenses / total_current_licenses * 100) if total_current_licenses > 0 else 0
                     st.info(f"You're adding {int(total_additional_licenses)} licenses ({increase_pct:.1f}% increase).")
                 
-                with st.expander("Current vs. New Cost Summary", expanded=True):
-                    # Create a comparison table with billing term-specific labels
-                    if billing_term == 'Monthly':
-                        current_cost_monthly = total_current_cost / 12
-                        new_cost_monthly = total_updated_annual_cost / 12
-                        
-                        comparison_data = {
-                            "Cost Type": ["Current Monthly Cost", "New Monthly Cost", "Difference", "Percentage Change"],
-                            "Amount": [
-                                f"${current_cost_monthly:,.2f}",
-                                f"${new_cost_monthly:,.2f}",
-                                f"${new_cost_monthly - current_cost_monthly:,.2f}",
-                                f"{((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0:,.2f}%"
-                            ]
-                        }
-                        
-                        comparison_df = pd.DataFrame(comparison_data)
-                        st.table(comparison_df)
-                        
-                        # Add insight about the cost change
-                        if new_cost_monthly > current_cost_monthly:
-                            change_pct = ((new_cost_monthly - current_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
-                            st.info(f"The new monthly cost represents a {change_pct:.1f}% increase from the current cost.")
-                        elif new_cost_monthly < current_cost_monthly:
-                            change_pct = ((current_cost_monthly - new_cost_monthly) / current_cost_monthly * 100) if current_cost_monthly > 0 else 0
-                            st.success(f"The new monthly cost represents a {change_pct:.1f}% decrease from the current cost.")
-                        else:
-                            st.info("The new monthly cost is identical to the current cost.")
                             
                 with st.expander("Current vs. New Cost Summary", expanded=True):
                     if billing_term == "Monthly":
