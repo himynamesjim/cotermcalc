@@ -1688,55 +1688,53 @@ with tabs[0]:
                     key="pdf_download"
                 )
 with tabs[3]:
-        st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
-        
-        # Check if we have calculation results
-        if st.session_state.calculation_results:
-            results = st.session_state.calculation_results
-            total_current_cost = results["total_current_cost"]
-            total_prepaid_cost = results["total_prepaid_cost"]
-            total_first_year_cost = results["total_first_year_cost"]
-            total_updated_annual_cost = results["total_updated_annual_cost"] 
-            total_subscription_term_fee = results["total_subscription_term_fee"]
-            total_first_year_co_termed_cost = total_first_year_cost  
-
-            
-            # Determine which cost value to use based on billing term
-            if billing_term == 'Monthly':
-                first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
-            elif billing_term == 'Annual':
-                first_cost = total_first_year_cost
-            else:  # Prepaid
-                first_cost = total_prepaid_cost
-            
-            # Generate email template
-            email_content = generate_email_template(
-                billing_term,
-                processed_data,
-                total_current_cost,
-                first_cost,
-                total_subscription_term_fee,
-                total_updated_annual_cost,
-                total_first_year_co_termed_cost
-            )
-            
-            # Display the email template
-            st.markdown("### Email Template Preview")
-            st.text_area("Copy Email Content:", email_content, height=800)  # Allows manual copying
-            
+    st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
     
-            # **📩 Suggested Subject Line**
-            st.markdown("### Suggested Email Subject")
-            email_subject = f"Co-Terming Cost Proposal - Customer Name"
-            st.text_input("Subject Line:", value=email_subject, key="email_subject")
-    
-        
-        else:
-            st.info("Please calculate costs first to generate an email template.")
+    # Check if we have calculation results
+    if st.session_state.calculation_results:
+        results = st.session_state.calculation_results
+        total_current_cost = results["total_current_cost"]
+        total_prepaid_cost = results["total_prepaid_cost"]
+        total_first_year_cost = results["total_first_year_cost"]
+        total_updated_annual_cost = results["total_updated_annual_cost"]
+        total_subscription_term_fee = results["total_subscription_term_fee"]
+        total_first_year_co_termed_cost = total_first_year_cost  
 
+        # Determine which cost value to use based on billing term
+        if billing_term == 'Monthly':
+            first_cost = results["processed_data"][results["processed_data"]['Cloud Service Description'] == 'Total Licensing Cost']['First Month Co-Termed Cost'].iloc[0]
+        elif billing_term == 'Annual':
+            first_cost = total_first_year_cost
+        else:  # Prepaid
+            first_cost = total_prepaid_cost
 
+        # Generate email template
+        email_content = generate_email_template(
+            billing_term,
+            processed_data,
+            total_current_cost,
+            first_cost,
+            total_subscription_term_fee,
+            total_updated_annual_cost,
+            total_first_year_co_termed_cost
+        )
+
+        # Display the email template
+        st.markdown("### Email Template Preview")
+        st.text_area("Copy Email Content:", email_content, height=800)  # Allows manual copying
+
+        # **📩 Suggested Subject Line**
+        st.markdown("### Suggested Email Subject")
+        email_subject = f"Co-Terming Cost Proposal - Customer Name"
+        st.text_input("Subject Line:", value=email_subject, key="email_subject")
+
+    else:
+        st.info("Please calculate costs first to generate an email template.")
+
+# ✅ Move `elif` OUTSIDE of `with tabs[3]:`
 elif st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
+
             
     # Create an accordion for different help topics
     with st.expander("How to Use This Calculator", expanded=True):
