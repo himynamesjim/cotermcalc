@@ -1183,26 +1183,32 @@ with tabs[0]:
         with extension_col1:
             add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
         
+        # ✅ Ensure `months_remaining` is always defined before using it
+        months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
+        
+        # ✅ Check if user selected an extension period
         if add_extension:
             with extension_col2:
                 st.markdown('<p class="field-label">Extension Period (Months):</p>', unsafe_allow_html=True)
                 extension_months = st.number_input(
-                    "", 
-                    min_value=1, 
-                    value=12, 
-                    step=1, 
+                    "",
+                    min_value=1,
+                    value=12,
+                    step=1,
                     format="%d",
                     key="extension_months",
                     label_visibility="collapsed"
                 )
-                total_term = months_remaining + extension_months
-                
-                # Display total term with consistent styling
-                st.markdown(f"""
-                <div class="total-display">
-                    <span class="info-label">Total Term:</span> {total_term:.2f} months
-                </div>
-                """, unsafe_allow_html=True)
+        else:
+            extension_months = 0  # ✅ Set to zero if no extension is applied
+        
+        # ✅ Now `total_term` can safely use `months_remaining`
+        total_term = months_remaining + extension_months  # ✅ No more NameError!
+        
+        # ✅ `with tabs[1]:` should not be inside `else:`
+        with tabs[1]:  
+            st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+
         else:
             extension_months = 0
             months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
