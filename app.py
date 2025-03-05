@@ -1219,7 +1219,14 @@ with tabs[1]:
                 "Additional Licenses": add_lic,
             }])], ignore_index=True)
         
-        num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
+        num_items = st.number_input(
+            "Number of Line Items:", 
+            min_value=1, 
+            value=1, 
+            step=1, 
+            format="%d",
+            key="num_line_items"  # ✅ Unique key added
+        )
         
         columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses", 
                   "Prepaid Co-Termed Cost", "First Year Co-Termed Cost", "Updated Annual Cost", 
