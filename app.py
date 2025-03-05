@@ -626,19 +626,30 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             df.at[index, 'New Monthly Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
         elif billing_term == 'Annual':
             df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
-        else:  # Prepaid
-            df.at[index, 'Prepaid Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] / 12) * months_remaining
-            df.at[index, 'Current Prepaid Cost'] = row['Unit Quantity'] * row['Annual Unit Fee']
-            df.at[index, 'Updated Annual Cost'] = 0
+        elif billing_term == 'Prepaid':  # ✅ THIS IS WHERE THE UPDATED CODE GOES
+            # ✅ Convert the annual cost into a monthly cost
+            monthly_license_cost = row['Annual Unit Fee'] / 12
 
-        subscription_term_total_fee = ((row['Unit Quantity'] * row['Annual Unit Fee'] * total_term) / 12) + (
-            (row['Additional Licenses'] * row['Annual Unit Fee'] * total_term) / 12)
-        df.at[index, 'Subscription Term Total Service Fee'] = subscription_term_total_fee
+            # ✅ Base Prepaid Cost (only applies to current licenses, no new ones)
+            base_prepaid_cost = monthly_license_cost * months_remaining * row['Unit Quantity']
+
+            # ✅ Calculate Co-Termed Cost for additional licenses
+            co_termed_prepaid_cost = monthly_license_cost * months_remaining * row['Additional Licenses']
+
+            # ✅ Fix Subscription Term Total Service Fee Calculation
+            if row['Additional Licenses'] > 0:
+                total_service_fee = base_prepaid_cost + co_termed_prepaid_cost
+            else:
+                total_service_fee = base_prepaid_cost  # ✅ Stays the same if no licenses are added
+
+            # ✅ Store calculated values in the dataframe
+            df.at[index, 'Current Prepaid Cost'] = base_prepaid_cost
+            df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
+            df.at[index, 'Subscription Term Total Service Fee'] = total_service_fee  # ✅ Fixed
 
     # Remove any existing total row
     df = df[df["Cloud Service Description"] != "Total Licensing Cost"].copy()
 
-    # Ensure "Cloud Service Description" remains a string
     df["Cloud Service Description"] = df["Cloud Service Description"].astype(str)
 
     # Create Total Licensing Cost row with conditional columns based on billing term
