@@ -1664,30 +1664,7 @@ if st.session_state.active_tab == 'calculator':
                 # ✅ Only display table if defined
                 st.table(pd.DataFrame(comparison_data))
 
-
-
-
-
-            
-                # ✅ Display the updated cost summary table
-                comparison_df = pd.DataFrame(comparison_data)
-                st.table(comparison_df)
-            
-                # ✅ Add insight about the cost change
-                if new_tco > current_tco:
-                    change_pct = ((new_tco - current_tco) / current_tco * 100) if current_tco > 0 else 0
-                    st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current total cost of ownership.")
-                elif new_tco < current_tco:
-                    change_pct = ((current_tco - new_tco) / current_tco * 100) if current_tco > 0 else 0
-                    st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current total cost of ownership.")
-                else:
-                    st.info(f"The new {billing_term.lower()} cost is identical to the current total cost of ownership.")
-
-
-
-
-
-                           
+                          
                 st.markdown("### Cost Comparison")
                 
                 # Prepare chart data based on billing term
