@@ -1203,9 +1203,9 @@ with tabs[0]:
                     <span class="info-label">Total Term:</span> {total_term:.2f} months
                 </div>
                 """, unsafe_allow_html=True)
-    else:
-        extension_months = 0
-        months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
+        else:
+            extension_months = 0
+            months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
     
     # ✅ `total_term` calculation is now outside `else:` to avoid indentation issues
     total_term = months_remaining
