@@ -1203,12 +1203,16 @@ with tabs[0]:
                     <span class="info-label">Total Term:</span> {total_term:.2f} months
                 </div>
                 """, unsafe_allow_html=True)
-        else:
-            extension_months = 0
-            total_term = months_remaining
-            
-    with tabs[1]: 
+    else:
+        extension_months = 0
+        months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
+    
+    # ✅ `total_term` calculation is now outside `else:` to avoid indentation issues
+    total_term = months_remaining
+    
+    with tabs[1]:  # ✅ Correct indentation level
         st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+
         
         num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
         
