@@ -1144,7 +1144,7 @@ with tabs[0]:
 
     # ✅ Fix indentation: `with right_col:` must be inside `tabs[0]`
     with right_col:
-        # Agreement term with consistent styling
+        # Agreement term input
         st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
         agreement_term = st.number_input(
             "",
@@ -1155,34 +1155,23 @@ with tabs[0]:
             key="agreement_term",
             label_visibility="collapsed"
         )
-
+    
         # ✅ Convert dates to pandas timestamps
         co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
         agreement_start_datetime = pd.Timestamp(agreement_start_date)
-
+    
         # ✅ Calculate co-termed months remaining
         co_termed_months_remaining = calculate_co_termed_months_remaining(
             co_termed_start_datetime, agreement_start_datetime, agreement_term
         )
+    
+        # ✅ Always use the calculated months remaining
+        st.markdown(f"""
+        <div class="info-display">
+            <span class="info-label">Calculated Months Remaining:</span> {co_termed_months_remaining:.2f}
+        </div>
+        """, unsafe_allow_html=True)
 
-        # ✅ Display the correct months remaining
-        st.markdown(f"**Calculated Months Remaining:** {co_termed_months_remaining:.2f}")
-
-        # ✅ Place the checkbox BEFORE using `use_calculated_months`
-        use_calculated_months = st.checkbox(
-            "Use calculated months remaining", 
-            value=True,
-            key="use_calculated_months_checkbox"  # ✅ Unique key to prevent duplication
-        )
-
-        # ✅ Use calculated months if checked, otherwise allow manual input
-        if use_calculated_months:
-            months_remaining = co_termed_months_remaining  # ✅ Use correct variable name
-            st.markdown(f"""
-            <div class="info-display">
-                <span class="info-label">Calculated Months Remaining:</span> {months_remaining:.2f}
-            </div>
-            """, unsafe_allow_html=True)
         else:
             months_remaining = st.number_input(
                 "", 
