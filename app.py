@@ -1614,7 +1614,7 @@ if st.session_state.active_tab == 'calculator':
                         ]
                     }
                 
-                    # ✅ Skip TCO calculations for Prepaid
+                    # ✅ Prevent NameError: Skip TCO calculations for Prepaid
                     current_tco = None
                     new_tco = None  # ✅ Prevents NameError later
                 
@@ -1660,6 +1660,10 @@ if st.session_state.active_tab == 'calculator':
                         st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current total cost of ownership.")
                     else:
                         st.info(f"The new {billing_term.lower()} cost is identical to the current total cost of ownership.")
+                
+                # ✅ Only display table if defined
+                st.table(pd.DataFrame(comparison_data))
+
 
 
 
