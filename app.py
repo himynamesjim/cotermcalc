@@ -1144,7 +1144,7 @@ if st.session_state.active_tab == 'calculator':
             )
 
 
-         with right_col:
+        with right_col:
             # Agreement term with consistent styling
             st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
             agreement_term = st.number_input(
