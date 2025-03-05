@@ -940,7 +940,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         
     return pdf_buffer
 
-def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0):
+def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0, agreement_term=0, months_remaining=0):
     license_list = []
     
     # Ensure df is a valid Pandas DataFrame
@@ -953,40 +953,44 @@ def generate_email_template(billing_term, df, current_cost, first_cost, total_su
         first_year_co_termed = row.get("First Year Co-Termed Cost", 0)
         first_month_co_termed = row.get("First Month Co-Termed Cost", 0)
         new_monthly_cost = row.get("New Monthly Cost", 0)
-
-        if billing_term == "Annual":
-            co_termed_cost = row.get("First Year Co-Termed Cost", 0)
-        elif billing_term == "Prepaid":
-            co_termed_cost = row.get("Prepaid Co-Termed Cost", 0)
-        else:  # Monthly
-            co_termed_cost = row.get("First Month Co-Termed Cost", 0)
+        current_prepaid_cost = row.get("Current Prepaid Cost", 0)
+        prepaid_co_termed_cost = row.get("Prepaid Co-Termed Cost", 0)
 
         license_entry = {
             "name": license_name,
             "first_year_co_termed": first_year_co_termed,
             "first_month_co_termed": first_month_co_termed,
-            "new_monthly_cost": new_monthly_cost
+            "new_monthly_cost": new_monthly_cost,
+            "current_prepaid_cost": current_prepaid_cost,
+            "prepaid_co_termed_cost": prepaid_co_termed_cost
         }
 
         license_list.append(license_entry)
 
-    # ✅ Rename the last license to "Total Co-Termed Cost"
+    # ✅ Rename the last license to "Total"
     if license_list:
         license_list[-1]["name"] = "Total"
 
-# ✅ Generate the License Cost Breakdown for Annual Billing
+    # ✅ Generate the License Cost Breakdown for Prepaid Billing
+    prepaid_license_cost_breakdown = '\n'.join([
+        f"- {license['name']} - Current Prepaid Cost: ${license['current_prepaid_cost']:,.2f}, "
+        f"Additional Licenses Cost: ${license['prepaid_co_termed_cost']:,.2f}"
+        for license in license_list if license['name'] != 'Total'
+    ])
+
+    # ✅ Generate the License Cost Breakdown for Annual Billing
     annual_license_cost_breakdown = ""
     if billing_term == "Annual":
-        annual_license_cost_breakdown = ''.join([
-            f"- {license['name']} - First Year Co-Termed Cost: ${license['first_year_co_termed']:,.2f}\n"
+        annual_license_cost_breakdown = '\n'.join([
+            f"- {license['name']} - First Year Co-Termed Cost: ${license['first_year_co_termed']:,.2f}"
             for license in license_list
         ])
 
     # ✅ Generate the License Cost Breakdown for Monthly Billing
     monthly_license_cost_breakdown = ""
     if billing_term == "Monthly":
-        monthly_license_cost_breakdown = ''.join([
-            f"- {license['name']} - First Month Co-Termed Cost: ${license['first_month_co_termed']:,.2f}, New Monthly Cost: ${license['new_monthly_cost']:,.2f}\n"
+        monthly_license_cost_breakdown = '\n'.join([
+            f"- {license['name']} - First Month Co-Termed Cost: ${license['first_month_co_termed']:,.2f}, New Monthly Cost: ${license['new_monthly_cost']:,.2f}"
             for license in license_list
         ])
 
@@ -1051,9 +1055,6 @@ We appreciate your continued business and look forward to your approval.
 Best regards,  
 Your Signature""",
     
-
-        # Updated Prepaid email template section
-
         'Prepaid': f"""Dear Customer,
 
 We are writing to inform you about the updated co-terming cost for your prepaid billing arrangement.
@@ -1064,12 +1065,7 @@ We are writing to inform you about the updated co-terming cost for your prepaid 
 - **Current Prepaid Cost (Remaining Months):** ${current_cost:,.2f}
 
 ### Prepaid License Cost Breakdown:
-prepaid_license_cost_breakdown = '\n'.join([
-    f"- {license['name']} - Current Prepaid Cost: ${row.get('Current Prepaid Cost', 0):,.2f}, "
-    f"Additional Licenses Cost: ${row.get('Prepaid Co-Termed Cost', 0):,.2f}"
-    for license, (_, row) in zip(license_list, df.iterrows()) if license['name'] != 'Total'
-])
-
+{prepaid_license_cost_breakdown}
 
 ### Updated Cost Summary:
 - **Additional Licenses Prepaid Cost:** ${first_cost:,.2f}
@@ -1092,6 +1088,7 @@ Your Signature"""
     
     # Return the appropriate template based on billing term
     return email_templates.get(billing_term, "Invalid billing term")
+
 
 def copy_to_clipboard_button(text, button_text="Copy to Clipboard"):
     # Unique button ID to prevent conflicts
