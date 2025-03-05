@@ -636,24 +636,15 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             df.at[index, 'Subscription Term Total Service Fee'] = new_annual_cost * years_remaining
             
         elif billing_term == 'Prepaid':
-            # For Prepaid, we need to recalculate based on the actual months remaining
+            # ✅ Keep the user-inputted Prepaid License Cost as-is
+            df.at[index, 'Current Prepaid Cost'] = row['Annual Unit Fee']  # ✅ Use the entered cost directly
             
-            # Calculate the true monthly cost
-            monthly_rate = row['Annual Unit Fee'] / 12
+            # ✅ Calculate Co-Termed Cost for additional licenses only
+            df.at[index, 'Prepaid Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'])
             
-            # Current prepaid cost for existing licenses for the remaining months
-            current_prepaid_cost = monthly_rate * months_remaining * row['Unit Quantity']
-            
-            # Prepaid co-termed cost for additional licenses for the remaining months
-            prepaid_co_termed_cost = monthly_rate * months_remaining * row['Additional Licenses']
-            
-            # Total service fee is the sum of current prepaid cost and co-termed cost
-            total_service_fee = current_prepaid_cost + prepaid_co_termed_cost
-            
-            # Store calculated values in the dataframe
-            df.at[index, 'Current Prepaid Cost'] = current_prepaid_cost
-            df.at[index, 'Prepaid Co-Termed Cost'] = prepaid_co_termed_cost
-            df.at[index, 'Subscription Term Total Service Fee'] = total_service_fee
+            # ✅ Total Service Fee should sum Current Prepaid + Additional Licenses Cost
+            df.at[index, 'Subscription Term Total Service Fee'] = row['Current Prepaid Cost'] + row['Prepaid Co-Termed Cost']
+
 
     # Remove any existing total row
     df = df[df["Cloud Service Description"] != "Total Licensing Cost"].copy()
