@@ -1614,8 +1614,22 @@ if st.session_state.active_tab == 'calculator':
                         ]
                     }
                 
-                else:
-                    # ✅ Create a comparison table including Total Cost of Ownership (ONLY for Monthly & Annual)
+                    # ✅ Skip TCO calculations for Prepaid
+                    new_tco = None  # Prevents NameError in later checks
+                
+                else:  # ✅ Annual & Monthly Billing Terms
+                    current_cost = total_current_cost
+                    new_cost = total_updated_annual_cost
+                    cost_label = "Annual Cost" if billing_term == "Annual" else "Monthly Cost"
+                
+                    # ✅ Define Total Cost of Ownership (TCO)
+                    original_term_years = agreement_term / 12
+                    total_term_years = (months_remaining + extension_months) / 12
+                
+                    current_tco = current_cost * original_term_years
+                    new_tco = new_cost * total_term_years
+                
+                    # ✅ Create a comparison table INCLUDING Total Cost of Ownership
                     comparison_data = {
                         "Cost Type": [
                             f"Current {cost_label}",
@@ -1630,10 +1644,22 @@ if st.session_state.active_tab == 'calculator':
                             f"${new_cost:,.2f}",
                             f"${new_cost - current_cost:,.2f}",
                             f"{((new_cost - current_cost) / current_cost * 100) if current_cost > 0 else 0:,.2f}%",
-                            f"${current_tco:,.2f}",  # ✅ Uses only the original agreement term
-                            f"${new_tco:,.2f}"  # ✅ Uses the extended term if applicable
+                            f"${current_tco:,.2f}",
+                            f"${new_tco:,.2f}"
                         ]
                     }
+                
+                # ✅ Check before using `new_tco`
+                if new_tco is not None:
+                    if new_tco > current_tco:
+                        change_pct = ((new_tco - current_tco) / current_tco * 100) if current_tco > 0 else 0
+                        st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current total cost of ownership.")
+                    elif new_tco < current_tco:
+                        change_pct = ((current_tco - new_tco) / current_tco * 100) if current_tco > 0 else 0
+                        st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current total cost of ownership.")
+                    else:
+                        st.info(f"The new {billing_term.lower()} cost is identical to the current total cost of ownership.")
+
 
 
             
