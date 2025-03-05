@@ -1637,8 +1637,8 @@ if st.session_state.active_tab == 'calculator':
                             f"New {cost_label}",
                             "Difference",
                             "Percentage Change",
-                            f"Current Total Cost of Ownership ({cost_label})",
-                            f"New Total Cost of Ownership ({cost_label})"
+                            f"New Total Cost of Ownership ({cost_label})",
+                            f"Current Total Cost of Ownership ({cost_label})"
                         ],
                         "Amount": [
                             f"${current_cost:,.2f}",
