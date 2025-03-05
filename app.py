@@ -1213,8 +1213,8 @@ with tabs[0]:
             extension_months = 0
             months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
     
-    # ✅ `total_term` calculation is now outside `else:` to avoid indentation issues
-    total_term = months_remaining
+        # ✅ `total_term` calculation is now outside `else:` to avoid indentation issues
+        total_term = months_remaining
     
     with tabs[1]:  # ✅ Correct indentation level
         st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
