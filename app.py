@@ -943,6 +943,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0):
     license_list = []
     
+    # Ensure df is a valid Pandas DataFrame
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("generate_email_template(): 'df' is not a valid Pandas DataFrame")
+
     # Extract correct co-term cost and actual license names from df
     for index, row in df.iterrows():
         license_name = row.get("Cloud Service Description", f"License {index + 1}")  # Get actual license name
@@ -1061,9 +1065,11 @@ We are writing to inform you about the updated co-terming cost for your prepaid 
 
 ### Prepaid License Cost Breakdown:
 prepaid_license_cost_breakdown = '\n'.join([
-    f"- {license['name']} - Current Prepaid Cost: ${row['Current Prepaid Cost']:,.2f}, Additional Licenses Cost: ${row['Prepaid Co-Termed Cost']:,.2f}"
+    f"- {license['name']} - Current Prepaid Cost: ${row.get('Current Prepaid Cost', 0):,.2f}, "
+    f"Additional Licenses Cost: ${row.get('Prepaid Co-Termed Cost', 0):,.2f}"
     for license, (_, row) in zip(license_list, df.iterrows()) if license['name'] != 'Total'
 ])
+
 
 ### Updated Cost Summary:
 - **Additional Licenses Prepaid Cost:** ${first_cost:,.2f}
