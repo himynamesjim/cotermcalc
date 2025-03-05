@@ -463,8 +463,8 @@ CHART_HTML = """
             else if (billingTerm === 'Prepaid') {
                 datasets = [
                     {
-                        label: 'Current Prepaid Cost (Remaining Term)',
-                        data: [data.currentPrepaidRemaining || 0],
+                        label: 'Current Prepaid Cost (Remaining Months)',
+                        data: [data.currentCost || 0],
                         backgroundColor: colors.barColors[0]
                     },
                     {
@@ -609,7 +609,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_subscription_term_fee = 0
 
     for index, row in df.iterrows():
-        # Calculate costs
+        # Calculate basic values for all billing terms
         current_monthly_cost = (row['Annual Unit Fee'] / 12) * row['Unit Quantity']
         current_annual_cost = row['Unit Quantity'] * row['Annual Unit Fee']
         new_annual_cost = (row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']
@@ -624,30 +624,36 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             df.at[index, 'First Month Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee'] / 12) * first_month_factor
             df.at[index, 'Monthly Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
             df.at[index, 'New Monthly Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
+            
+            # Calculate subscription term fee for Monthly
+            df.at[index, 'Subscription Term Total Service Fee'] = df.at[index, 'New Monthly Cost'] * total_term
+            
         elif billing_term == 'Annual':
             df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
+            
+            # Calculate subscription term fee for Annual
+            years_remaining = total_term / 12
+            df.at[index, 'Subscription Term Total Service Fee'] = new_annual_cost * years_remaining
+            
         elif billing_term == 'Prepaid':
-            # Calculate monthly unit cost
-            monthly_unit_cost = row['Annual Unit Fee'] / 12
+            # For Prepaid, we need to recalculate based on the actual months remaining
             
-            # Original pre-paid cost for existing licenses for the entire agreement term
-            original_prepaid_cost = monthly_unit_cost * agreement_term * row['Unit Quantity']
+            # Calculate the true monthly cost
+            monthly_rate = row['Annual Unit Fee'] / 12
             
-            # Current pre-paid cost for existing licenses for the remaining months
-            current_prepaid_cost = monthly_unit_cost * months_remaining * row['Unit Quantity']
+            # Current prepaid cost for existing licenses for the remaining months
+            current_prepaid_cost = monthly_rate * months_remaining * row['Unit Quantity']
             
-            # Pre-paid cost for additional licenses for the remaining months only
-            additional_prepaid_cost = monthly_unit_cost * months_remaining * row['Additional Licenses']
+            # Prepaid co-termed cost for additional licenses for the remaining months
+            prepaid_co_termed_cost = monthly_rate * months_remaining * row['Additional Licenses']
             
-            # Total subscription fee is the cost of existing licenses plus additional licenses
-            # for the remaining months of the agreement
-            total_subscription_fee = current_prepaid_cost + additional_prepaid_cost
+            # Total service fee is the sum of current prepaid cost and co-termed cost
+            total_service_fee = current_prepaid_cost + prepaid_co_termed_cost
             
             # Store calculated values in the dataframe
-            df.at[index, 'Original Prepaid Cost'] = original_prepaid_cost
             df.at[index, 'Current Prepaid Cost'] = current_prepaid_cost
-            df.at[index, 'Prepaid Co-Termed Cost'] = additional_prepaid_cost
-            df.at[index, 'Subscription Term Total Service Fee'] = total_subscription_fee
+            df.at[index, 'Prepaid Co-Termed Cost'] = prepaid_co_termed_cost
+            df.at[index, 'Subscription Term Total Service Fee'] = total_service_fee
 
     # Remove any existing total row
     df = df[df["Cloud Service Description"] != "Total Licensing Cost"].copy()
@@ -660,35 +666,37 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         "Unit Quantity": [df["Unit Quantity"].sum()],
         "Additional Licenses": [df["Additional Licenses"].sum()],
         "Annual Unit Fee": [df["Annual Unit Fee"].mean()],  # Using mean for the total row
-        "Subscription Term Total Service Fee": [df["Subscription Term Total Service Fee"].sum()]
     }
     
-    # Only include billing term specific columns
+    # Add billing term specific columns and calculate the sum
     if billing_term == "Prepaid":
-        total_row_data["Original Prepaid Cost"] = [df["Original Prepaid Cost"].sum()]
-        total_row_data["Current Prepaid Cost"] = [df["Current Prepaid Cost"].sum()]
-        total_row_data["Prepaid Co-Termed Cost"] = [df["Prepaid Co-Termed Cost"].sum()]
+        if "Current Prepaid Cost" in df.columns:
+            total_row_data["Current Prepaid Cost"] = [df["Current Prepaid Cost"].sum()]
+        if "Prepaid Co-Termed Cost" in df.columns:
+            total_row_data["Prepaid Co-Termed Cost"] = [df["Prepaid Co-Termed Cost"].sum()]
     
     if billing_term == "Annual":
-        total_row_data["First Year Co-Termed Cost"] = [df["First Year Co-Termed Cost"].sum()]
-        total_row_data["Current Annual Cost"] = [df["Current Annual Cost"].sum()]
-        total_row_data["Updated Annual Cost"] = [df["Updated Annual Cost"].sum()]
+        if "First Year Co-Termed Cost" in df.columns:
+            total_row_data["First Year Co-Termed Cost"] = [df["First Year Co-Termed Cost"].sum()]
+        if "Current Annual Cost" in df.columns:
+            total_row_data["Current Annual Cost"] = [df["Current Annual Cost"].sum()]
+        if "Updated Annual Cost" in df.columns:
+            total_row_data["Updated Annual Cost"] = [df["Updated Annual Cost"].sum()]
     
     if billing_term == "Monthly":
-        total_row_data["First Month Co-Termed Cost"] = [df["First Month Co-Termed Cost"].sum()]
-        total_row_data["Current Monthly Cost"] = [df["Current Monthly Cost"].sum()]
-        total_row_data["New Monthly Cost"] = [df["New Monthly Cost"].sum()]
+        if "First Month Co-Termed Cost" in df.columns:
+            total_row_data["First Month Co-Termed Cost"] = [df["First Month Co-Termed Cost"].sum()]
+        if "Current Monthly Cost" in df.columns:
+            total_row_data["Current Monthly Cost"] = [df["Current Monthly Cost"].sum()]
+        if "New Monthly Cost" in df.columns:
+            total_row_data["New Monthly Cost"] = [df["New Monthly Cost"].sum()]
+    
+    # Always add the subscription term total
+    if "Subscription Term Total Service Fee" in df.columns:
+        total_row_data["Subscription Term Total Service Fee"] = [df["Subscription Term Total Service Fee"].sum()]
     
     # Convert dictionary to DataFrame
     total_row = pd.DataFrame(total_row_data)
-
-    # Add numeric totals for any remaining columns
-    numeric_cols = [col for col in df.columns if col not in total_row.columns 
-                   and col not in ["Cloud Service Description", "Unit Quantity", "Additional Licenses"]
-                   and df[col].dtype in ['int64', 'float64']]
-
-    for col in numeric_cols:
-        total_row[col] = df[col].sum()
 
     # Append the total row back
     df = pd.concat([df, total_row], ignore_index=True)
@@ -697,15 +705,32 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
     total_current_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Current Annual Cost'].sum()
     
     if billing_term == 'Prepaid':
-        total_prepaid_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Prepaid Co-Termed Cost'].sum()
-        total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
+        # For Prepaid, set total_current_cost to the sum of Current Prepaid Cost
+        if 'Current Prepaid Cost' in df.columns:
+            total_current_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Current Prepaid Cost'].sum()
+        
+        if 'Prepaid Co-Termed Cost' in df.columns:
+            total_prepaid_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Prepaid Co-Termed Cost'].sum()
+        
+        if 'Subscription Term Total Service Fee' in df.columns:
+            total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
+            
     elif billing_term == 'Annual':
-        total_first_year_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'First Year Co-Termed Cost'].sum()
-        total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
-        total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
+        if 'First Year Co-Termed Cost' in df.columns:
+            total_first_year_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'First Year Co-Termed Cost'].sum()
+        
+        if 'Updated Annual Cost' in df.columns:
+            total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
+        
+        if 'Subscription Term Total Service Fee' in df.columns:
+            total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
+            
     else:  # Monthly
-        total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
-        total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
+        if 'Subscription Term Total Service Fee' in df.columns:
+            total_subscription_term_fee = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Subscription Term Total Service Fee'].sum()
+        
+        if 'Updated Annual Cost' in df.columns:
+            total_updated_annual_cost = df.loc[df['Cloud Service Description'] != 'Total Licensing Cost', 'Updated Annual Cost'].sum()
 
     return df, total_current_cost, total_prepaid_cost, total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee
 
@@ -1032,16 +1057,18 @@ We are writing to inform you about the updated co-terming cost for your prepaid 
 ### Current Agreement:
 - **Original Agreement Term:** {agreement_term} months
 - **Remaining Months:** {months_remaining:.2f} months
-- **Current Prepaid Cost (For Remaining Term):** ${current_cost:,.2f}
+- **Current Prepaid Cost (Remaining Months):** ${current_cost:,.2f}
+
+### Prepaid License Cost Breakdown:
+{' '.join([f"- {license['name']} - Current Prepaid Cost: ${row.get('Current Prepaid Cost', 0):,.2f}, Additional Licenses Cost: ${row.get('Prepaid Co-Termed Cost', 0):,.2f}" for license, row in zip(license_list, df.iterrows()) if license['name'] != 'Total'])}
 
 ### Updated Cost Summary:
 - **Additional Licenses Prepaid Cost:** ${first_cost:,.2f}
-- **Total Subscription Cost (All Licenses, Remaining Term):** ${total_subscription_cost:,.2f}
-{f"- **Updated Annual Equivalent Cost:** ${updated_annual_cost:,.2f}" if updated_annual_cost > 0 else ""}
+- **Total Subscription Cost (All Licenses, Remaining Months):** ${total_subscription_cost:,.2f}
 
 ### Key Details:
-- The prepaid cost covers all licenses for the remaining {months_remaining:.2f} months of your service term.
-- Your total subscription cost reflects the full remaining agreement period.
+- The prepaid costs shown are for the remaining {months_remaining:.2f} months of your service term.
+- Your total subscription cost covers all licenses for the remaining term.
 
 ### Next Steps:
 1. Please carefully review the cost breakdown above.
@@ -1632,11 +1659,11 @@ if st.session_state.active_tab == 'calculator':
                     }
                 # For the Prepaid billing term
                 elif billing_term == 'Prepaid':
-                    # Get prepaid-specific values from the Total Licensing Cost row
+                    # Get the values from the Total Licensing Cost row
                     total_row = processed_data[processed_data['Cloud Service Description'] == 'Total Licensing Cost']
                     
-                    # Get the current prepaid cost for remaining months
-                    current_prepaid_remaining = float(total_row['Current Prepaid Cost'].iloc[0]) if 'Current Prepaid Cost' in total_row.columns else 0.0
+                    # Get the current prepaid cost (remaining months)
+                    current_prepaid_cost = float(total_row['Current Prepaid Cost'].iloc[0]) if 'Current Prepaid Cost' in total_row.columns else 0.0
                     
                     # Get the additional licenses prepaid cost
                     additional_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0]) if 'Prepaid Co-Termed Cost' in total_row.columns else 0.0
@@ -1644,11 +1671,11 @@ if st.session_state.active_tab == 'calculator':
                     # Total subscription cost
                     subscription_total = float(total_row['Subscription Term Total Service Fee'].iloc[0]) if 'Subscription Term Total Service Fee' in total_row.columns else 0.0
                     
-                    # Create chart data specifically for prepaid view
+                    # Create chart data for prepaid view
                     chart_data = {
-                        "currentPrepaidRemaining": current_prepaid_remaining,
-                        "coTermedPrepaid": additional_prepaid,
-                        "subscription": subscription_total
+                        "currentCost": current_prepaid_cost,  # Current prepaid cost for remaining months
+                        "coTermedPrepaid": additional_prepaid,  # Additional licenses prepaid cost
+                        "subscription": subscription_total  # Total subscription cost
                     }
                 
                 # Now generate the chart using the updated chart data
