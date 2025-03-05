@@ -1218,20 +1218,6 @@ with tabs[1]:
                 "Annual Unit Fee": fee,
                 "Additional Licenses": add_lic,
             }])], ignore_index=True)
-
-# ✅ Properly align `elif` statements at the same level as `if`
-elif st.session_state.active_tab == 'help_documentation':
-    st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
-
-elif st.session_state.active_tab == 'about':
-    st.markdown('<div class="main-header">About This Application</div>', unsafe_allow_html=True)
-    st.markdown("""
-    ### Co-Terming Cost Calculator
-    - **v1.1** (Current): Added customer information, email templates, and theme options.
-    - **v1.0**: Initial release.
-    """)
-
-
         
         num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
         
