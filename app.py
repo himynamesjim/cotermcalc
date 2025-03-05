@@ -1060,7 +1060,10 @@ We are writing to inform you about the updated co-terming cost for your prepaid 
 - **Current Prepaid Cost (Remaining Months):** ${current_cost:,.2f}
 
 ### Prepaid License Cost Breakdown:
-{' '.join([f"- {license['name']} - Current Prepaid Cost: ${row.get('Current Prepaid Cost', 0):,.2f}, Additional Licenses Cost: ${row.get('Prepaid Co-Termed Cost', 0):,.2f}" for license, row in zip(license_list, df.iterrows()) if license['name'] != 'Total'])}
+prepaid_license_cost_breakdown = '\n'.join([
+    f"- {license['name']} - Current Prepaid Cost: ${row['Current Prepaid Cost']:,.2f}, Additional Licenses Cost: ${row['Prepaid Co-Termed Cost']:,.2f}"
+    for license, (_, row) in zip(license_list, df.iterrows()) if license['name'] != 'Total'
+])
 
 ### Updated Cost Summary:
 - **Additional Licenses Prepaid Cost:** ${first_cost:,.2f}
