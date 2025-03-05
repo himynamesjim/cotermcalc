@@ -1095,6 +1095,7 @@ if st.session_state.active_tab == 'calculator':
     # Create tabs without the Customer Info tab
     tabs = st.tabs(["Agreement Info", "Licensing", "Results", "Email Template"])
     
+# ✅ Ensure `with tabs[0]:` is properly indented
 with tabs[0]:
     st.markdown('<div class="sub-header">Agreement Information</div>', unsafe_allow_html=True)
 
@@ -1109,7 +1110,7 @@ with tabs[0]:
         st.markdown('<p class="field-label">Agreement Start Date:</p>', unsafe_allow_html=True)
         default_start_date = datetime.today() - pd.DateOffset(months=6)
         agreement_start_date = st.date_input(
-            "",  # Empty label since we're using custom styling
+            "",
             value=default_start_date,
             max_value=datetime.today(),
             key="agreement_start_date",
@@ -1118,31 +1119,25 @@ with tabs[0]:
 
         # ✅ Co-Terming Start Date Selection
         st.markdown('<p class="field-label">Co-Termed Start Date:</p>', unsafe_allow_html=True)
-
-        # Default Co-Termed Start Date (set to today or future)
         default_co_termed_start_date = datetime.today()
-
-        # ✅ Allow user to manually select a future co-termed start date
         co_termed_start_date = st.date_input(
             "Select Co-Termed Start Date:",
             value=default_co_termed_start_date,
-            min_value=datetime.today(),  # ✅ Ensure co-termed start date is in the future
-            max_value=datetime.today() + pd.DateOffset(years=5),  # Optional: Limit selection
+            min_value=datetime.today(),
+            max_value=datetime.today() + pd.DateOffset(years=5),
             key="co_termed_start_date"
         )
-
         st.markdown(f"**Selected Co-Termed Start Date:** {co_termed_start_date.strftime('%Y-%m-%d')}")
 
-        # Billing term with consistent styling
+        # Billing term
         st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
         billing_term = st.selectbox(
-            "", 
+            "",
             ["Annual", "Prepaid", "Monthly"],
             key="billing_term",
             label_visibility="collapsed"
         )
 
-    # ✅ Fix indentation: `with right_col:` must be inside `tabs[0]`
     with right_col:
         # Agreement term input
         st.markdown('<p class="field-label">Agreement Term (Months):</p>', unsafe_allow_html=True)
@@ -1155,38 +1150,28 @@ with tabs[0]:
             key="agreement_term",
             label_visibility="collapsed"
         )
-    
-        # ✅ Convert dates to pandas timestamps
+
+        # ✅ Convert dates to timestamps and calculate months remaining
         co_termed_start_datetime = pd.Timestamp(co_termed_start_date)
         agreement_start_datetime = pd.Timestamp(agreement_start_date)
-    
-        # ✅ Calculate co-termed months remaining
         co_termed_months_remaining = calculate_co_termed_months_remaining(
             co_termed_start_datetime, agreement_start_datetime, agreement_term
         )
-    
-        # ✅ Always use the calculated months remaining
+
+        # ✅ Display calculated months remaining
         st.markdown(f"""
         <div class="info-display">
             <span class="info-label">Calculated Months Remaining:</span> {co_termed_months_remaining:.2f}
         </div>
         """, unsafe_allow_html=True)
 
-
-        
-        # Add a separator with consistent styling
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-        
-        # Extension option with better styling
+        # ✅ Agreement Extension Checkbox
         extension_col1, extension_col2 = st.columns([1, 3])
-        
         with extension_col1:
             add_extension = st.checkbox("Add Agreement Extension?", key="add_extension")
-        
-        # ✅ Ensure `months_remaining` is always defined before using it
-        months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
-        
-        # ✅ Check if user selected an extension period
+
+        months_remaining = co_termed_months_remaining  # ✅ Ensure this is always defined
+
         if add_extension:
             with extension_col2:
                 st.markdown('<p class="field-label">Extension Period (Months):</p>', unsafe_allow_html=True)
@@ -1200,24 +1185,52 @@ with tabs[0]:
                     label_visibility="collapsed"
                 )
         else:
-            extension_months = 0  # ✅ Set to zero if no extension is applied
-        
-        # ✅ Now `total_term` can safely use `months_remaining`
-        total_term = months_remaining + extension_months  # ✅ No more NameError!
-        
-        # ✅ `with tabs[1]:` should not be inside `else:`
-    with tabs[1]:  
-        st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+            extension_months = 0  # ✅ Set to zero if no extension
 
-        else:
-            extension_months = 0
-            months_remaining = co_termed_months_remaining  # ✅ Explicit assignment
-    
-        # ✅ `total_term` calculation is now outside `else:` to avoid indentation issues
-        total_term = months_remaining
-    
-    with tabs[1]:  # ✅ Correct indentation level
-        st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+        # ✅ Calculate total term
+        total_term = months_remaining + extension_months
+
+# ✅ Ensure `with tabs[1]:` is properly placed
+with tabs[1]:  
+    st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+
+    num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
+    columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"]
+    data = pd.DataFrame(columns=columns)
+
+    # Create a container for the line items
+    line_items_container = st.container()
+
+    with line_items_container:
+        for i in range(num_items):
+            st.markdown(f"**Item {i+1}**")
+            col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+
+            service = col1.text_input("Service Description", key=f"service_{i}", placeholder="Enter service name")
+            qty = col2.number_input("Quantity", min_value=0, value=1, step=1, format="%d", key=f"qty_{i}")
+            fee = col3.number_input("License Cost ($)", min_value=0.0, value=0.00, step=100.0, format="%.2f", key=f"fee_{i}")
+            add_lic = col4.number_input("Add. Licenses", min_value=0, value=0, step=1, format="%d", key=f"add_lic_{i}")
+
+            # Add to DataFrame
+            data = pd.concat([data, pd.DataFrame([{
+                "Cloud Service Description": service,
+                "Unit Quantity": qty,
+                "Annual Unit Fee": fee,
+                "Additional Licenses": add_lic,
+            }])], ignore_index=True)
+
+# ✅ Properly align `elif` statements at the same level as `if`
+elif st.session_state.active_tab == 'help_documentation':
+    st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
+
+elif st.session_state.active_tab == 'about':
+    st.markdown('<div class="main-header">About This Application</div>', unsafe_allow_html=True)
+    st.markdown("""
+    ### Co-Terming Cost Calculator
+    - **v1.1** (Current): Added customer information, email templates, and theme options.
+    - **v1.0**: Initial release.
+    """)
+
 
         
         num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
