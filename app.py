@@ -1172,19 +1172,6 @@ with tabs[0]:
         </div>
         """, unsafe_allow_html=True)
 
-        else:
-            months_remaining = st.number_input(
-                "", 
-                min_value=0,  # ✅ Fix: Allow zero remaining months
-                max_value=float(agreement_term), 
-                value=co_termed_months_remaining,  # ✅ Use the correct variable name
-                step=0.01, 
-                format="%.2f",
-                key="manual_months_input",  # ✅ Unique key
-                label_visibility="collapsed"
-            )
-
-
 
         
         # Add a separator with consistent styling
