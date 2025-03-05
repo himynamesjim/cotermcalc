@@ -1206,8 +1206,8 @@ with tabs[0]:
         total_term = months_remaining + extension_months  # ✅ No more NameError!
         
         # ✅ `with tabs[1]:` should not be inside `else:`
-        with tabs[1]:  
-            st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+    with tabs[1]:  
+        st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
 
         else:
             extension_months = 0
