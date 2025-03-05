@@ -1593,7 +1593,7 @@ if st.session_state.active_tab == 'calculator':
                     current_tco = current_cost * original_term_years
                     new_tco = new_cost * total_term_years
             
-                elif billing_term == "Prepaid":
+                if billing_term == "Prepaid":
                     current_cost = total_current_cost
                     new_cost = total_current_cost + total_prepaid_cost  # ✅ Fix for Prepaid
                     cost_label = "Prepaid Cost"
@@ -1615,7 +1615,8 @@ if st.session_state.active_tab == 'calculator':
                     }
                 
                     # ✅ Skip TCO calculations for Prepaid
-                    new_tco = None  # Prevents NameError in later checks
+                    current_tco = None
+                    new_tco = None  # ✅ Prevents NameError later
                 
                 else:  # ✅ Annual & Monthly Billing Terms
                     current_cost = total_current_cost
@@ -1649,8 +1650,8 @@ if st.session_state.active_tab == 'calculator':
                         ]
                     }
                 
-                # ✅ Check before using `new_tco`
-                if new_tco is not None:
+                # ✅ Check before using `new_tco` and `current_tco`
+                if new_tco is not None and current_tco is not None:
                     if new_tco > current_tco:
                         change_pct = ((new_tco - current_tco) / current_tco * 100) if current_tco > 0 else 0
                         st.info(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% increase from the current total cost of ownership.")
@@ -1659,6 +1660,7 @@ if st.session_state.active_tab == 'calculator':
                         st.success(f"The new {billing_term.lower()} cost represents a {change_pct:.1f}% decrease from the current total cost of ownership.")
                     else:
                         st.info(f"The new {billing_term.lower()} cost is identical to the current total cost of ownership.")
+
 
 
 
