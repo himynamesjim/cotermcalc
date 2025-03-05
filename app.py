@@ -1590,8 +1590,8 @@ if st.session_state.active_tab == 'calculator':
                     cost_label = "Annual Cost"
             
                     # ✅ Current TCO (Original Agreement Term) & New TCO (Extended Term)
-                    current_tco = current_cost * original_term_years
-                    new_tco = new_cost * total_term_years
+                    current_tco = new_cost * total_term_years 
+                    new_tco = current_cost * original_term_years
             
                 if billing_term == "Prepaid":
                     current_cost = total_current_cost
