@@ -630,26 +630,26 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             # ✅ Convert the annual unit fee into a monthly unit cost
             monthly_unit_cost = row['Annual Unit Fee'] / 12
         
-            # ✅ Original Prepaid Cost (before adding licenses)
-            original_prepaid_cost = monthly_unit_cost * agreement_term * row['Unit Quantity']
+            # ✅ Current Prepaid Cost (Original Cost for Existing Licenses)
+            current_prepaid_cost = monthly_unit_cost * agreement_term * row['Unit Quantity']
         
-            # ✅ Base Prepaid Cost (based on remaining months, excluding new licenses)
+            # ✅ Base Prepaid Cost (Adjusted for Remaining Term of Existing Licenses)
             base_prepaid_cost = monthly_unit_cost * months_remaining * row['Unit Quantity']
         
-            # ✅ Co-Termed Prepaid Cost (only applies to additional licenses)
+            # ✅ Prepaid Co-Termed Cost (Only for Additional Licenses)
             co_termed_prepaid_cost = monthly_unit_cost * months_remaining * row['Additional Licenses']
         
             # ✅ Subscription Term Total Service Fee Fix
-            # If no new licenses are added, keep it equal to the original total prepaid cost
             if row['Additional Licenses'] > 0:
-                total_service_fee = base_prepaid_cost + co_termed_prepaid_cost
+                total_service_fee = base_prepaid_cost + co_termed_prepaid_cost  # ✅ Only increase when adding licenses
             else:
-                total_service_fee = original_prepaid_cost  # ✅ Keeps the original value
+                total_service_fee = base_prepaid_cost  # ✅ Otherwise, keep it equal to the base prepaid cost
         
             # ✅ Store calculated values in the dataframe
-            df.at[index, 'Current Prepaid Cost'] = base_prepaid_cost  # ✅ Preserves the original
+            df.at[index, 'Current Prepaid Cost'] = base_prepaid_cost  # ✅ Adjusted for the remaining months
             df.at[index, 'Prepaid Co-Termed Cost'] = co_termed_prepaid_cost
-            df.at[index, 'Subscription Term Total Service Fee'] = total_service_fee  # ✅ Fixed total fee calculation
+            df.at[index, 'Subscription Term Total Service Fee'] = total_service_fee  # ✅ Fixed to prevent overinflation
+
 
 
     # Remove any existing total row
