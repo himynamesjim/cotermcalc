@@ -644,8 +644,6 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             # ✅ Convert manually entered cost back to full agreement cost
             full_agreement_cost_per_license = (row['Annual Unit Fee'] / 12) * agreement_term
             
-            # ✅ Store the full agreement cost as the 'Current Prepaid Cost'
-            current_prepaid_cost = full_agreement_cost_per_license * row['Unit Quantity']
         
             # ✅ Correct Prepaid Co-Termed Cost Calculation
             prepaid_co_termed_cost = row['Annual Unit Fee'] * row['Additional Licenses']  
