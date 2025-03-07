@@ -621,7 +621,7 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         if billing_term == 'Monthly':
             fractional_month = months_remaining % 1
             first_month_factor = fractional_month if fractional_month > 0 else 1.0
-            df.at[index, 'First Month Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee'] / 12) * first_month_factor
+            df.at[index, 'First Month Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] / 12) * first_month_factor
             df.at[index, 'Monthly Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
             df.at[index, 'New Monthly Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
             
