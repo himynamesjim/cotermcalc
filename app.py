@@ -1274,7 +1274,7 @@ with tabs[1]:
         - **Billing Term must be selected** to calculate costs properly.
         - **Unit Quantity**: The number of licenses currently in use.
         - **Additional Licenses**: New licenses being added (leave as 0 if no new licenses).
-        ⚠️ **Make sure all fields are correctly filled before calculating costs.**
+        - ⚠️ **Make sure all fields are correctly filled before calculating costs.**
         """)
 
     with col2:
