@@ -1488,8 +1488,19 @@ with tabs[2]:
             
                 # Keep only columns that exist in the DataFrame to avoid errors
                 displayed_data = displayed_data[[col for col in column_order if col in displayed_data.columns]]
+                
+            elif billing_term == 'Annual':  # ✅ Add missing Annual column order
+                column_order = [
+                    "Cloud Service Description",
+                    "Unit Quantity", "Annual Unit Fee", "Additional Licenses",
+                    "Current Annual Cost",  # ✅ Move Current Annual Cost before Updated Annual Cost
+                    "Updated Annual Cost",  # ✅ Move Updated Annual Cost after Current Annual Cost
+                    "First Year Co-Termed Cost",
+                    "Remaining Subscription Total"
+                ]
+                displayed_data = displayed_data[[col for col in column_order if col in displayed_data.columns]]
 
-            if billing_term == 'Prepaid':
+            elif billing_term == 'Prepaid':
                 column_order = [
                     "Cloud Service Description",
                     "Unit Quantity",
