@@ -7,6 +7,12 @@ import base64
 import io
 import os
 
+def conditional_round(value, threshold=0.01):
+    """Rounds values close to whole numbers based on a threshold."""
+    if abs(value - round(value)) < threshold:
+        return round(value)
+    return round(value, 2)  # Keep two decimal places otherwise
+
 # Set page configuration and theme options
 st.set_page_config(
     page_title="Co-Terming Cost Calculator",
@@ -621,39 +627,66 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         if billing_term == 'Monthly':
             fractional_month = months_remaining % 1
             first_month_factor = fractional_month if fractional_month > 0 else 1.0
-            df.at[index, 'First Month Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] / 12) * first_month_factor
-            df.at[index, 'Monthly Co-Termed Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
-            df.at[index, 'New Monthly Cost'] = ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
-            
-            # Calculate subscription term fee for Monthly
-            df.at[index, 'Subscription Term Total Service Fee'] = df.at[index, 'New Monthly Cost'] * total_term
-            
+        
+            # ✅ Only calculate First Month Co-Termed Cost for additional licenses
+            df.at[index, 'First Month Co-Termed Cost'] = conditional_round(
+                (row['Additional Licenses'] * row['Annual Unit Fee'] / 12) * first_month_factor
+            )
+        
+            # ✅ Monthly Co-Termed Cost includes both current + new licenses
+            df.at[index, 'Monthly Co-Termed Cost'] = conditional_round(
+                ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
+            )
+        
+            # ✅ New Monthly Cost includes both current + new licenses
+            df.at[index, 'New Monthly Cost'] = conditional_round(
+                ((row['Unit Quantity'] + row['Additional Licenses']) * row['Annual Unit Fee']) / 12
+            )
+        
+            # ✅ Subscription term total (total months)
+            df.at[index, 'Subscription Term Total Service Fee'] = conditional_round(
+                df.at[index, 'New Monthly Cost'] * total_term
+            )
+        
         elif billing_term == 'Annual':
-            df.at[index, 'First Year Co-Termed Cost'] = (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
-            
-            # Calculate subscription term fee for Annual
+            # ✅ First Year Co-Termed Cost ONLY for additional licenses
+            df.at[index, 'First Year Co-Termed Cost'] = conditional_round(
+                (row['Additional Licenses'] * row['Annual Unit Fee'] * (12 - (months_elapsed % 12))) / 12
+            )
+        
+            # ✅ Subscription Term Total Service Fee based on years remaining
             years_remaining = total_term / 12
-            df.at[index, 'Subscription Term Total Service Fee'] = new_annual_cost * years_remaining
-            
+            df.at[index, 'Subscription Term Total Service Fee'] = conditional_round(
+                new_annual_cost * years_remaining
+            )
+        
         elif billing_term == 'Prepaid':
             # ✅ Ensure necessary columns exist
             for col in ['Current Prepaid Cost', 'Prepaid Co-Termed Cost', 'Subscription Term Total Service Fee']:
                 if col not in df.columns:
                     df[col] = 0.0
         
-           # ✅ Convert manually entered cost back to full agreement cost
-            current_prepaid_cost = (row['Annual Unit Fee'] / 12) * agreement_term * row['Unit Quantity']
+            # ✅ Correct Prepaid Cost Calculation
+            full_agreement_cost_per_license = (row['Annual Unit Fee'] / 12) * agreement_term
             
-            # ✅ Correct Prepaid Co-Termed Cost Calculation
-            prepaid_co_termed_cost = (row['Annual Unit Fee'] / 12) * agreement_term * row['Additional Licenses']
-            
-            # ✅ Subscription Term Total Service Fee = Original Prepaid Cost + Co-Termed Cost
-            total_service_fee = current_prepaid_cost + prepaid_co_termed_cost
-            
+            # ✅ Store the full agreement cost as the 'Current Prepaid Cost' (current licenses only)
+            current_prepaid_cost = conditional_round(
+                full_agreement_cost_per_license * row['Unit Quantity']
+            )
+        
+            # ✅ Additional Licenses Prepaid Cost (New Licenses Only)
+            prepaid_co_termed_cost = conditional_round(
+                (row['Annual Unit Fee'] / 12) * agreement_term * row['Additional Licenses']
+            )
+        
+            # ✅ Subscription Term Total Service Fee = Current + Additional Costs
+            total_service_fee = conditional_round(current_prepaid_cost + prepaid_co_termed_cost)
+        
             # ✅ Store values in DataFrame
             df.at[index, 'Current Prepaid Cost'] = current_prepaid_cost
             df.at[index, 'Prepaid Co-Termed Cost'] = prepaid_co_termed_cost
             df.at[index, 'Subscription Term Total Service Fee'] = total_service_fee
+
 
 
 
