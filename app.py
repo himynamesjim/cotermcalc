@@ -1662,8 +1662,8 @@ with tabs[2]:
                         f"New {cost_label}",
                         "Difference",
                         "Percentage Change",
-                        f"New Total Cost of Ownership ({cost_label})",
-                        f"Current Total Cost of Ownership ({cost_label})"
+                        f"Current Total Cost of Ownership",
+                        f"New Total Cost of Ownership"
                     ],
                     "Amount": [
                         f"${current_cost:,.2f}",
