@@ -1218,7 +1218,7 @@ if st.session_state.active_tab == 'calculator':
             billing_term = st.selectbox(
                 "", 
                 ["Annual", "Prepaid", "Monthly"],
-                key="billing_term",
+                key="billing_term_agreement",  # Unique key for agreement section
                 label_visibility="collapsed"
             )
 
@@ -1320,7 +1320,7 @@ with tabs[1]:
     st.session_state.num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
     billing_term = st.selectbox(
-        "Billing Term", ["Annual", "Prepaid", "Monthly"], key="billing_term"
+        "Billing Term", ["Annual", "Prepaid", "Monthly"], key="billing_term_licensing"
     )
 
 
