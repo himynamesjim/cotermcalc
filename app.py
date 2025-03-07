@@ -1263,7 +1263,20 @@ if st.session_state.active_tab == 'calculator':
 
 with tabs[1]: 
     st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
-
+    
+    # ✅ Add Disclaimer / Instructions
+    st.markdown("""
+    ### 📢 Important Instructions:
+    - **Enter the number of line items** based on the licenses you need to co-term.
+    - **Billing Term must be selected** to calculate costs properly.
+    - **Unit Quantity**: The number of licenses currently in use.
+    - **Annual Unit Fee**: The cost per license per year.
+    - **Additional Licenses**: New licenses being added (leave as 0 if no new licenses).
+    - **Prepaid Billing**: The cost should reflect the **full term of the agreement**.
+    
+    ⚠️ **Make sure all fields are correctly filled before calculating costs.**
+    """, unsafe_allow_html=True)
+    
     # Initialize the dataframe to store licensing data
     columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"]
     data = pd.DataFrame(columns=columns)  # ✅ Fix: Initialize an empty DataFrame
