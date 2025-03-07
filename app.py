@@ -793,6 +793,13 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
             pdf.image(logo_path, x=10, y=10, w=50)
         except Exception as e:
             print(f"Could not add logo: {e}")
+
+
+    if 'Remaining Subscription Total' in row:
+        pdf.cell(w_total, 6, f"${float(row['Remaining Subscription Total']):,.2f}", 1, 1, 'R')
+    else:
+        pdf.cell(w_total, 6, "N/A", 1, 1, 'R')  # Fallback if column is missing
+
     
     # Add title
     pdf.cell(280, 8, "Co-Terming Cost Report", ln=True, align="C")
@@ -942,7 +949,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
             cost_value = row.get('Prepaid Co-Termed Cost', 0)
         
         pdf.cell(w_cost, 6, f"${float(cost_value):,.2f}", 1, 0, 'R')
-        pdf.cell(w_total, 6, f"${float(row['Subscription Term Total Service Fee']):,.2f}", 1, 1, 'R')
+        pdf.cell(w_total, 6, f"${float(row['Remaining Subscription Total']):,.2f}", 1, 1, 'R')
         
         pdf.set_font("Arial", "", 7)
 
