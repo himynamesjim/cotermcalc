@@ -1461,7 +1461,7 @@ with tabs[2]:
                     "Additional Licenses",
                     "Current Prepaid Cost",
                     "Prepaid Co-Termed Cost",
-                    "Subscription Term Total Service Fee"
+                    "Remaining Subscription Total"
                 ]
             
                 # Keep only columns that exist in the DataFrame to avoid errors
