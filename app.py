@@ -1496,7 +1496,7 @@ with tabs[2]:
                     "Current Annual Cost",  # ✅ Move Current Annual Cost before Updated Annual Cost
                     "Updated Annual Cost",  # ✅ Move Updated Annual Cost after Current Annual Cost
                     "First Year Co-Termed Cost",
-                    "Remaining Subscription Total"
+                    "Subscription Term Total Service Fee"
                 ]
                 displayed_data = displayed_data[[col for col in column_order if col in displayed_data.columns]]
 
