@@ -1290,8 +1290,8 @@ with tabs[1]:
         
         """)
 
-    # Add a separator for better layout
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+        # Add a separator for better layout
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
     # Initialize the dataframe to store licensing data
     columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"]
