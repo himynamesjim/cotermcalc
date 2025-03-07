@@ -1367,7 +1367,7 @@ with tabs[1]:
             data = pd.concat([data, new_row], ignore_index=True)
         
             
-    with tabs[2]:
+with tabs[2]:
         st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
         
         # Check if we have valid data before calculating
@@ -1801,7 +1801,7 @@ with tabs[1]:
                     mime="application/pdf",
                     key="pdf_download"
                 )
-    with tabs[3]:
+with tabs[3]:
         st.markdown('<div class="sub-header">Email Template</div>', unsafe_allow_html=True)
         
         # Check if we have calculation results
