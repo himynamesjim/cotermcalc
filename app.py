@@ -1518,24 +1518,26 @@ with tabs[2]:
             # ✅ Ensure only existing columns are formatted
             columns_to_format = {
                 "Annual Unit Fee": "${:,.2f}",
-                "Subscription Term Total Service Fee": "${:,.2f}"
+                "Remaining Subscription Total": "${:,.2f}"
             }
             
             # ✅ Conditionally add columns based on the billing term
             if billing_term == "Prepaid":
                 columns_to_format["Current Prepaid Cost"] = "${:,.2f}"
                 columns_to_format["Prepaid Co-Termed Cost"] = "${:,.2f}"
-                columns_to_format["Remaining Subscription Total"] = "${:,.2f}"
+
             
             if billing_term == "Annual":
                 columns_to_format["First Year Co-Termed Cost"] = "${:,.2f}"
                 columns_to_format["Updated Annual Cost"] = "${:,.2f}"
                 columns_to_format["Current Annual Cost"] = "${:,.2f}"
+
             
             if billing_term == "Monthly":
                 columns_to_format["First Month Co-Termed Cost"] = "${:,.2f}"
                 columns_to_format["Current Monthly Cost"] = "${:,.2f}"
                 columns_to_format["New Monthly Cost"] = "${:,.2f}"
+
             
             # Rename the column before displaying
             displayed_data = displayed_data.rename(columns={"Subscription Term Total Service Fee": "Remaining Subscription Total"})
