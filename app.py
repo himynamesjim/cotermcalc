@@ -666,9 +666,9 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
                 if col not in df.columns:
                     df[col] = 0.0
         
-            # ✅ Calculate Current Prepaid Cost ONLY for the remaining term
+            # ✅ Current Prepaid Cost stays as is (user manually inputs full-term prepaid cost)
             current_prepaid_cost = conditional_round(
-                (row['Annual Unit Fee'] / 12) * months_remaining * row['Unit Quantity']
+                (row['Annual Unit Fee'] / 12) * total_term * row['Unit Quantity']
             )
         
             # ✅ Prepaid Co-Termed Cost (Only applies if additional licenses are added)
@@ -679,15 +679,16 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
             else:
                 prepaid_co_termed_cost = 0.0  # No additional licenses, so no extra charge
         
-            # ✅ Remaining Subscription Total = What has already been paid + additional licenses (if any)
+            # ✅ Remaining Subscription Total = Current Prepaid Cost + Prepaid Co-Termed Cost (Remaining Months)
             remaining_subscription_total = conditional_round(
-                current_prepaid_cost + prepaid_co_termed_cost
+                ((row['Annual Unit Fee'] / 12) * months_remaining * row['Unit Quantity']) + prepaid_co_termed_cost
             )
         
             # ✅ Store values in DataFrame
             df.at[index, 'Current Prepaid Cost'] = current_prepaid_cost
             df.at[index, 'Prepaid Co-Termed Cost'] = prepaid_co_termed_cost
             df.at[index, 'Remaining Subscription Total'] = remaining_subscription_total
+
 
 
 
