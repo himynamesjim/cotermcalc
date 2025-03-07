@@ -1316,14 +1316,16 @@ if st.session_state.active_tab == 'calculator':
 with tabs[1]: 
     st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
 
+    # Initialize the dataframe to store licensing data
+    columns = ["Cloud Service Description", "Unit Quantity", "Annual Unit Fee", "Additional Licenses"]
+    data = pd.DataFrame(columns=columns)  # ✅ Fix: Initialize an empty DataFrame
+
     # Number of items
     st.session_state.num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
     billing_term = st.selectbox(
         "Billing Term", ["Annual", "Prepaid", "Monthly"], key="billing_term_licensing"
     )
-
-
 
     # Create a container for the line items
     line_items_container = st.container()
@@ -1363,9 +1365,9 @@ with tabs[1]:
                 "Additional Licenses": add_lic,
             }
             
-            # Append to the dataframe
+            # ✅ Fix: Append new row to the dataframe
             new_row = pd.DataFrame([row_data])
-            data = pd.concat([data, new_row], ignore_index=True)
+            data = pd.concat([data, new_row], ignore_index=True)  # ✅ No more NameError
         
             
 with tabs[2]:
