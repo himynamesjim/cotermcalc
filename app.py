@@ -1262,7 +1262,7 @@ if st.session_state.active_tab == 'calculator':
 
 
 with tabs[1]: 
-     st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
 
     # ✅ Create two columns for instructions
     col1, col2 = st.columns(2)
