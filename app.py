@@ -1846,7 +1846,7 @@ with tabs[3]:
         st.info("Please calculate costs first to generate an email template.")
 
 # ✅ Move 'elif' outside the previous 'with' block
-elif st.session_state.active_tab == 'help_documentation':
+if st.session_state.active_tab == 'help_documentation':
     st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
 
     # Create an accordion for different help topics
