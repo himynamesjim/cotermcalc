@@ -1262,27 +1262,36 @@ if st.session_state.active_tab == 'calculator':
 
 
 with tabs[1]: 
-    st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+     st.markdown('<div class="sub-header">Service Information</div>', unsafe_allow_html=True)
+
+    # ✅ Create two columns for instructions
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("""
+        ### 📢 Important Instructions:
+        - **Enter the number of line items** based on the licenses you need to co-term.
+        - **Billing Term must be selected** to calculate costs properly.
+        - **Unit Quantity**: The number of licenses currently in use.
+        - **Additional Licenses**: New licenses being added (leave as 0 if no new licenses).
+        ⚠️ **Make sure all fields are correctly filled before calculating costs.**
+        """)
+
+    with col2:
+        st.markdown("""
+        ### For Monthly Agreements:
+        - **Enter the Monthly license cost in the "License Cost ($) field.
     
-    # ✅ Add Disclaimer / Instructions
-    st.markdown("""
-    ### 📢 Important Instructions:
-    - **Enter the number of line items** based on the licenses you need to co-term.
-    - **Billing Term must be selected** to calculate costs properly.
-    - **Unit Quantity**: The number of licenses currently in use.
-    - **Additional Licenses**: New licenses being added (leave as 0 if no new licenses).
-
-    ### For Monthly Agreements:
-    - **Enter the Monthly license cost in the "License Cost ($) field.
-
-    ### For Annual Agreements:
-    - **Enter the Annual license cost in the "License Cost ($) field.
-
-    ## For Pre-Paid Agreements:
-
-    - **Enter the FULL Pre-Paid cost for each license.  (Vision calculates the remaining term for the cost of the license in the BOM.  You will need to find the full pre-paid cost for each license and add that to the calculator below)
+        ### For Annual Agreements:
+        - **Enter the Annual license cost in the "License Cost ($) field.
     
-    ⚠️ **Make sure all fields are correctly filled before calculating costs.**
+        ### For Pre-Paid Agreements:
+        - **Enter the FULL Pre-Paid cost for each license.  (Vision calculates the remaining term for the cost of the license in the BOM.  You will need to find the full pre-paid cost for each license and add that to the calculator below)
+        
+        """)
+
+
+
     """, unsafe_allow_html=True)
     
     # Initialize the dataframe to store licensing data
