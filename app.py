@@ -1372,7 +1372,10 @@ with tabs[1]:
             
 with tabs[2]:
     st.markdown('<div class="sub-header">Results</div>', unsafe_allow_html=True)
-    
+
+    # ✅ Fix: Check for empty service descriptions
+    empty_services = data["Cloud Service Description"].isnull() | (data["Cloud Service Description"] == "")
+
     # Check if we have valid data before calculating
     valid_data = not empty_services.any() and len(data) > 0
     
