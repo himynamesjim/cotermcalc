@@ -1525,6 +1525,7 @@ with tabs[2]:
             if billing_term == "Prepaid":
                 columns_to_format["Current Prepaid Cost"] = "${:,.2f}"
                 columns_to_format["Prepaid Co-Termed Cost"] = "${:,.2f}"
+                columns_to_format["Remaining Subscription Total"] = "${:,.2f}"
             
             if billing_term == "Annual":
                 columns_to_format["First Year Co-Termed Cost"] = "${:,.2f}"
