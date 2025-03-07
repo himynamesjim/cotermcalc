@@ -1536,6 +1536,10 @@ with tabs[2]:
                 columns_to_format["Current Monthly Cost"] = "${:,.2f}"
                 columns_to_format["New Monthly Cost"] = "${:,.2f}"
             
+            # Rename the column before displaying
+            displayed_data = displayed_data.rename(columns={"Subscription Term Total Service Fee": "Remaining Subscription Total"})
+            
+            # Format and display the DataFrame
             st.dataframe(displayed_data.style.format(columns_to_format).set_properties(**{"white-space": "normal"}))
 
 
