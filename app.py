@@ -7,7 +7,7 @@ import base64
 import io
 import os
 
-def conditional_round(value, threshold=0.01):
+def conditional_round(value, threshold=0.25):
     """Rounds values close to whole numbers based on a threshold."""
     if abs(value - round(value)) < threshold:
         return round(value)
