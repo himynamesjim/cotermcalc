@@ -701,16 +701,18 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
         "Cloud Service Description": ["Total Licensing Cost"],
         "Unit Quantity": [df["Unit Quantity"].sum()],
         "Additional Licenses": [df["Additional Licenses"].sum()],
-        "Annual Unit Fee": [df["Annual Unit Fee"].mean()],  # Using mean for the total row
+        "Annual Unit Fee": [df["Annual Unit Fee"].mean()],  # Use mean for unit fee
     }
     
-    # Add billing term specific columns and calculate the sum
+    # ✅ Add billing term specific columns
     if billing_term == "Prepaid":
         if "Current Prepaid Cost" in df.columns:
             total_row_data["Current Prepaid Cost"] = [df["Current Prepaid Cost"].sum()]
         if "Prepaid Co-Termed Cost" in df.columns:
             total_row_data["Prepaid Co-Termed Cost"] = [df["Prepaid Co-Termed Cost"].sum()]
-    
+        if "Remaining Subscription Total" in df.columns:
+            total_row_data["Remaining Subscription Total"] = [df["Remaining Subscription Total"].sum()]  # ✅ Fix missing value
+
     if billing_term == "Annual":
         if "First Year Co-Termed Cost" in df.columns:
             total_row_data["First Year Co-Termed Cost"] = [df["First Year Co-Termed Cost"].sum()]
