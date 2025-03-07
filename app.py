@@ -1212,16 +1212,6 @@ if st.session_state.active_tab == 'calculator':
             
             st.markdown(f"**Selected Co-Termed Start Date:** {co_termed_start_date.strftime('%Y-%m-%d')}")
 
-            
-            # Billing term with consistent styling
-            st.markdown('<p class="field-label">Billing Term:</p>', unsafe_allow_html=True)
-            billing_term = st.selectbox(
-                "", 
-                ["Annual", "Prepaid", "Monthly"],
-                key="billing_term_agreement",  # Unique key for agreement section
-                label_visibility="collapsed"
-            )
-
 
         with right_col:
             # Agreement term with consistent styling
