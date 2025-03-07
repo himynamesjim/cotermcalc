@@ -793,13 +793,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
             pdf.image(logo_path, x=10, y=10, w=50)
         except Exception as e:
             print(f"Could not add logo: {e}")
-
-
-    if 'Remaining Subscription Total' in row:
-        pdf.cell(w_total, 6, f"${float(row['Remaining Subscription Total']):,.2f}", 1, 1, 'R')
-    else:
-        pdf.cell(w_total, 6, "N/A", 1, 1, 'R')  # Fallback if column is missing
-
     
     # Add title
     pdf.cell(280, 8, "Co-Terming Cost Report", ln=True, align="C")
@@ -842,79 +835,13 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(0, 6, f"Current Annual Cost (Before Additional Licenses): ${total_current_cost:,.2f}", ln=True)
     pdf.set_font("Arial", "", 10)
     pdf.ln(5)
-    
-    # Dynamically adjust columns based on billing term
-    if billing_term == 'Monthly':
-        columns = [
-            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
-            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
-            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
-            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
-            {'width': w_cost, 'title': 'First Month Co-Termed Cost', 'align': 'C'},
-            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
-        ]
-    elif billing_term == 'Annual':
-        columns = [
-            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
-            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
-            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
-            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
-            {'width': w_cost, 'title': 'First Year Co-Termed Cost', 'align': 'C'},
-            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
-        ]
-    else:  # Prepaid
-        columns = [
-            {'width': w_desc, 'title': 'Cloud Service Description', 'align': 'L'},
-            {'width': w_qty, 'title': 'Unit Quantity', 'align': 'C'},
-            {'width': w_fee, 'title': 'Annual Unit Fee', 'align': 'C'},
-            {'width': w_lic, 'title': 'Additional Licenses', 'align': 'C'},
-            {'width': w_cost, 'title': 'Prepaid Co-Termed Cost', 'align': 'C'},
-            {'width': w_total, 'title': 'Subscription Term Total Service Fee', 'align': 'C'}
-        ]
-    
-    # Dynamically adjust cost summary based on billing term
-    if billing_term == 'Monthly':
-        # Find the first month co-termed cost from the Total Services Cost row
-        total_row = data[data['Cloud Service Description'] == 'Total Licensing Cost']
-        first_month_co_termed = float(total_row['First Month Co-Termed Cost'].iloc[0])
-        
-        first_cost_label = "First Month Co-Termed Cost"
-        first_cost_value = first_month_co_termed
-        second_cost_label = "Subscription Term Total"
-        second_cost_value = total_subscription_term_fee
-    elif billing_term == 'Annual':
-        first_cost_label = "First Year Co-Termed Cost"
-        first_cost_value = total_first_year_cost
-        second_cost_label = "Updated Annual Cost"
-        second_cost_value = total_updated_annual_cost
-        third_cost_label = "Subscription Term Total"
-        third_cost_value = total_subscription_term_fee
-    else:  # Prepaid
-        first_cost_label = "Total Pre-Paid Cost"
-        first_cost_value = total_prepaid_cost
-        second_cost_label = "Subscription Term Total"
-        second_cost_value = total_subscription_term_fee
-    
-    # Left side of cost summary
-    pdf.cell(100, 6, f"{first_cost_label}: ${first_cost_value:,.2f}", ln=False)
-    pdf.cell(0, 6, f"{second_cost_label}: ${second_cost_value:,.2f}", ln=True)
-    
-    # For Annual billing, add Subscription Term Total
-    if billing_term == 'Annual':
-        pdf.cell(100, 6, "", ln=False)  # Empty left column
-        pdf.cell(0, 6, f"{third_cost_label}: ${third_cost_value:,.2f}", ln=True)
-    
-    # For Monthly and Prepaid, show updated annual cost if non-zero
-    if billing_term in ['Monthly', 'Prepaid'] and total_updated_annual_cost > 0:
-        pdf.cell(100, 6, "", ln=False)  # Empty left column
-        pdf.cell(0, 6, f"Updated Annual Cost: ${total_updated_annual_cost:,.2f}", ln=True)
-    
-    pdf.ln(10)
-    
-    # Detailed Line Items
-    pdf.set_font("Arial", "B", 7)
-    pdf.cell(200, 5, "Detailed Line Items", ln=True)
-    
+
+    # ✅ FIX: Ensure column exists before referencing it
+    if 'Remaining Subscription Total' in data.columns:
+        remaining_total = float(data['Remaining Subscription Total'].sum())
+    else:
+        remaining_total = 0.0  # Default value if column is missing
+
     # Print headers
     pdf.set_font("Arial", "B", 7)
     
@@ -923,22 +850,19 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(w_qty, 6, 'Unit Quantity', 1, 0, 'C')
     pdf.cell(w_fee, 6, 'Annual Unit Fee', 1, 0, 'C')
     pdf.cell(w_lic, 6, 'Additional Licenses', 1, 0, 'C')
-    pdf.cell(w_cost, 6, columns[-2]['title'], 1, 0, 'C')
-    pdf.cell(w_total, 6, columns[-1]['title'], 1, 1, 'C')
+    pdf.cell(w_cost, 6, "Cost", 1, 0, 'C')
+    pdf.cell(w_total, 6, "Remaining Subscription Total", 1, 1, 'C')
     
     # Add a small line break
     pdf.ln(1)
 
-    # Print data
+    # ✅ FIX: Ensure we process rows correctly
     pdf.set_font("Arial", "", 7)
     for _, row in data.iterrows():
-        if row['Cloud Service Description'] == 'Total Licensing Cost':
-            pdf.set_font("Arial", "B", 7)
-        
-        pdf.cell(w_desc, 6, str(row['Cloud Service Description']), 1, 0, 'L')
-        pdf.cell(w_qty, 6, str(row['Unit Quantity']), 1, 0, 'C')
-        pdf.cell(w_fee, 6, f"${float(row['Annual Unit Fee']):,.2f}", 1, 0, 'R')
-        pdf.cell(w_lic, 6, str(row['Additional Licenses']), 1, 0, 'C')
+        pdf.cell(w_desc, 6, str(row.get('Cloud Service Description', 'N/A')), 1, 0, 'L')
+        pdf.cell(w_qty, 6, str(row.get('Unit Quantity', 0)), 1, 0, 'C')
+        pdf.cell(w_fee, 6, f"${float(row.get('Annual Unit Fee', 0)):.2f}", 1, 0, 'R')
+        pdf.cell(w_lic, 6, str(row.get('Additional Licenses', 0)), 1, 0, 'C')
         
         # Dynamically select the appropriate cost column
         if billing_term == 'Monthly':
@@ -949,11 +873,11 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
             cost_value = row.get('Prepaid Co-Termed Cost', 0)
         
         pdf.cell(w_cost, 6, f"${float(cost_value):,.2f}", 1, 0, 'R')
-        pdf.cell(w_total, 6, f"${float(row['Remaining Subscription Total']):,.2f}", 1, 1, 'R')
+        pdf.cell(w_total, 6, f"${remaining_total:,.2f}", 1, 1, 'R')  # ✅ Use calculated value
         
         pdf.set_font("Arial", "", 7)
 
-                    # Licensing Summary
+    # Licensing Summary
     pdf.set_font("Arial", "B", 12)
     pdf.cell(0, 10, "Licensing Summary", ln=True)
     pdf.set_font("Arial", "", 10)
@@ -977,20 +901,13 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(0, 6, "(Chart to be generated separately in the app UI)", ln=True)
     pdf.ln(10)
     
-    return pdf.output(dest='S').encode('latin1')
-    # Add footer with company information
-    pdf.ln(10)
-    pdf.set_font("Arial", "I", 8)
-    pdf.cell(0, 6, "Generated by Co-Terming Cost Calculator", 0, 0, 'C')
-
-    # Create BytesIO buffer and output PDF to it
+    # ✅ FIX: Move return statement to the end
     pdf_buffer = io.BytesIO()
     pdf_data = pdf.output(dest='S').encode('latin1')  # Get as string and encode
     pdf_buffer.write(pdf_data)
     pdf_buffer.seek(0)
         
     return pdf_buffer
-
 def generate_email_template(billing_term, df, current_cost, first_cost, total_subscription_cost, updated_annual_cost=0, total_first_year_co_termed_cost=0, agreement_term=0, months_remaining=0):
     license_list = []
     
