@@ -1849,8 +1849,7 @@ with tabs[1]:
             st.info("Please calculate costs first to generate an email template.")
 
     
-        elif st.session_state.active_tab == 'help_documentation':
-            st.markdown('<div class="main-header">Help & Documentation</div>', unsafe_allow_html=True)
+
     
     # Create an accordion for different help topics
     with st.expander("How to Use This Calculator", expanded=True):
