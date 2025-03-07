@@ -436,7 +436,7 @@ CHART_HTML = """
                         backgroundColor: colors.barColors[2]
                     },
                     {
-                        label: 'Total Subscription Cost',
+                        label: 'Remaining Total Subscription Cost',
                         data: [data.subscription || 0],
                         backgroundColor: '#ff7f50'  // Coral color for total subscription
                     }
@@ -460,7 +460,7 @@ CHART_HTML = """
                         backgroundColor: colors.barColors[2]
                     },
                     {
-                        label: 'Total Subscription Cost',
+                        label: 'Remaining Total Subscription Cost',
                         data: [data.subscription || 0],
                         backgroundColor: '#ff7f50'
                     }
@@ -479,7 +479,7 @@ CHART_HTML = """
                         backgroundColor: colors.barColors[1]
                     },
                     {
-                        label: 'Total Subscription Cost',
+                        label: 'Remaining Total Subscription Cost',
                         data: [data.subscription || 0],
                         backgroundColor: '#ff7f50'
                     }
