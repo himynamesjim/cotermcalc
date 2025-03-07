@@ -1319,10 +1319,10 @@ with tabs[1]:
     # Number of items
     st.session_state.num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
-    # Auto-update license cost when Billing Term changes
     st.session_state.billing_term = st.selectbox(
-        "Billing Term", ["Annual", "Prepaid", "Monthly"], key="billing_term", on_change=update_license_cost
+        "Billing Term", ["Annual", "Prepaid", "Monthly"], key="billing_term_selectbox"
     )
+
 
     # Create a container for the line items
     line_items_container = st.container()
