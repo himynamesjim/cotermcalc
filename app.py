@@ -1319,9 +1319,10 @@ with tabs[1]:
     # Number of items
     st.session_state.num_items = st.number_input("Number of Line Items:", min_value=1, value=1, step=1, format="%d")
 
-    st.session_state.billing_term = st.selectbox(
-        "Billing Term", ["Annual", "Prepaid", "Monthly"], key="billing_term_selectbox"
+    billing_term = st.selectbox(
+        "Billing Term", ["Annual", "Prepaid", "Monthly"], key="billing_term"
     )
+
 
 
     # Create a container for the line items
