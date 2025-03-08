@@ -17,15 +17,15 @@ class PDF(FPDF):
     def __init__(self, logo_path=None, **kwargs):
         super().__init__(**kwargs)
         self.logo_path = logo_path
+        self.has_header_logo = False  # Track if we've added the logo already
         
     def header(self):
-        # Add the logo at the top left on every page if the path is provided
-        if self.logo_path and os.path.exists(self.logo_path):
-            # Position the logo in the upper left corner
+        # Only add the logo in the header if specified
+        # We'll set has_header_logo to True to indicate the logo will be handled by the header
+        if self.logo_path and os.path.exists(self.logo_path) and self.has_header_logo:
             self.image(self.logo_path, x=15, y=8, w=40)
-            # Add a small amount of space after the logo - reduced from 45
-            self.ln(20)  # More modest space after logo
-            
+            self.ln(20)
+        
     def footer(self):
         self.set_y(-15)
         self.set_font("Arial", "I", 8)
@@ -35,11 +35,11 @@ class PDF(FPDF):
     # Style functions remain unchanged
     def header_style(self):
         self.set_font("Arial", "B", 11)
-        self.set_text_color(52, 73, 94)  # Dark blue-gray
+        self.set_text_color(52, 73, 94)
         
     def section_header_style(self):
         self.set_font("Arial", "B", 12)
-        self.set_text_color(41, 128, 185)  # Blue
+        self.set_text_color(41, 128, 185)
         
     def normal_style(self):
         self.set_font("Arial", "", 9)
@@ -47,7 +47,7 @@ class PDF(FPDF):
         
     def highlight_style(self):
         self.set_font("Arial", "B", 10)
-        self.set_text_color(39, 174, 96)  # Green
+        self.set_text_color(39, 174, 96)
 
 
 # Set page configuration and theme options
