@@ -823,7 +823,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     """
 
         # Create PDF object using our custom subclass and pass the logo_path
-    pdf = PDF(orientation='L', logo_path=logo_path)
+    pdf = PDF(orientation='L', logo_path=logo.png)
     pdf.alias_nb_pages()  # Enable the {nb} alias for total pages
 
     # Set margins, add pages, and add your content as before...
