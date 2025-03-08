@@ -891,12 +891,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_draw_color(*border_color)
     pdf.set_line_width(0.5)
     pdf.line(15, pdf.get_y(), pdf.w - 15, pdf.get_y())
-
-    # Add date on the right
-    pdf.set_y(pdf.get_y() + 10)
-    pdf.set_x(pdf.w - 80)
-    pdf.normal_style()
-    pdf.cell(65, 6, f"Generated on: {datetime.today().strftime('%B %d, %Y')}", 0, 1, 'R')
     
     # Agreement Summary Section
     pdf.set_y(pdf.get_y() + 10)
