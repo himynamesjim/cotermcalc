@@ -1010,6 +1010,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_y(summary_top + box_height + 10)  # Add spacing after boxes
     
     # ------ REPORT NOTES SECTION ------
+    pdf.ln(15)
+    pdf.section_header_style()
+    pdf.cell(0, 10, "Notes", 0, 1, 'L')
+    
     pdf.set_font("Arial", "", 9)
     pdf.set_text_color(80, 80, 80)
     pdf.cell(0, 8, "- This report was generated automatically by the Co-Terming Cost Calculator.", 0, 1, 'L')
@@ -1341,17 +1345,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_text_color(*accent_color)
     pdf.cell(100, 10, "Total Subscription Term Fee:", 0, 0)
     pdf.cell(50, 10, money_format(total_subscription_term_fee), 0, 1)
-    
-    # ------ FOOTER NOTES SECTION ------
-    pdf.ln(15)
-    pdf.section_header_style()
-    pdf.cell(0, 10, "Notes", 0, 1, 'L')
-    
-    pdf.set_font("Arial", "", 9)
-    pdf.set_text_color(80, 80, 80)
-    pdf.cell(0, 8, "- This report was generated automatically by the Co-Terming Cost Calculator.", 0, 1, 'L')
-    pdf.cell(0, 8, "- All figures are based on the information provided and may be subject to change.", 0, 1, 'L')
-    pdf.cell(0, 8, f"- This proposal is valid for 30 days from {datetime.today().strftime('%B %d, %Y')}.", 0, 1, 'L')
+
     
     # Output the PDF to a buffer
     pdf_buffer = io.BytesIO()
