@@ -1732,15 +1732,19 @@ with tabs[2]:
                 # Get the additional licenses prepaid cost
                 additional_prepaid = float(total_row['Prepaid Co-Termed Cost'].iloc[0]) if 'Prepaid Co-Termed Cost' in total_row.columns else 0.0
                 
-                # Total subscription cost
-                subscription_total = float(total_row['Subscription Term Total Service Fee'].iloc[0]) if 'Subscription Term Total Service Fee' in total_row.columns else 0.0
+                # Get the remaining subscription total
+                remaining_subscription_total = float(total_row['Remaining Subscription Total'].iloc[0]) if 'Remaining Subscription Total' in total_row.columns else 0.0
                 
-                # Create chart data for prepaid view
+                # ✅ Ensure the value is properly calculated and not NaN
+                remaining_subscription_total = 0.0 if pd.isna(remaining_subscription_total) else remaining_subscription_total
+                
+                # ✅ Create chart data for prepaid view
                 chart_data = {
                     "currentCost": current_prepaid_cost,  # Current prepaid cost for remaining months
                     "coTermedPrepaid": additional_prepaid,  # Additional licenses prepaid cost
-                    "subscription": subscription_total  # Total subscription cost
+                    "subscription": remaining_subscription_total  # ✅ Corrected Remaining Subscription Total
                 }
+
             
             # Now generate the chart using the updated chart data
             try:
