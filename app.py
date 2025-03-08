@@ -980,7 +980,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.cell(80, 6, f"New Monthly Cost:", 0, 0)
         pdf.cell(col_width - 90, 6, money_format(total_updated_annual_cost/12), 0, 1)
     
-    else:  # Prepaid
+    if billing_term == 'Prepaid':
         pdf.cell(80, 6, f"Current Prepaid Cost:", 0, 0)
         pdf.cell(col_width - 90, 6, money_format(total_current_cost), 0, 1)
         
@@ -991,17 +991,23 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.set_x(20 + col_width + 5)
         pdf.cell(80, 6, f"Total Remaining Cost:", 0, 0)
         
-        # Get remaining subscription total if it exists
+        # Compute remaining_total from data if available
         remaining_total = 0
         if 'Remaining Subscription Total' in data.columns:
             remaining_total = float(data['Remaining Subscription Total'].sum())
         
         pdf.cell(col_width - 90, 6, money_format(remaining_total), 0, 1)
+        
+        # For prepaid, compute the total using the individual components
+        computed_total = total_current_cost + total_prepaid_cost + remaining_total
+    else:
+        # For Annual and Monthly, simply use total_subscription_term_fee
+        computed_total = total_subscription_term_fee
     
     # Total subscription cost for all billing terms
     pdf.set_y(pdf.get_y() + 10)  # Add some space
     highlight_style()
-    pdf.cell(0, 8, f"Total Subscription Term Fee: {money_format(remaining_total)}", 0, 1, 'C')
+    pdf.cell(0, 8, f"Total Subscription Term Fee: {money_format(computed_total)}", 0, 1, 'C')
     
     # Now add the service details table on the same page
     pdf.add_page()
