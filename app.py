@@ -905,11 +905,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_line_width(0.5)
     pdf.line(15, pdf.get_y(), pdf.w - 15, pdf.get_y())
     
-    # Agreement Summary Section
-    pdf.set_y(top_y + 70)
-    section_header_style()
-    pdf.cell(0, 10, "Agreement Summary", 0, 1, 'L')
-    
     # Create two columns for agreement details
     normal_style()
     col_width = (pdf.w - 30) / 2
