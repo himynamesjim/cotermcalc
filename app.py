@@ -938,10 +938,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.cell(80, 6, f"Extension Period:", 0, 0)
         pdf.cell(col_width - 90, 6, f"{extension_months} months", 0, 1)
     
-    pdf.set_x(20)
-    pdf.cell(80, 6, f"Total Term:", 0, 0)
-    pdf.cell(col_width - 90, 6, f"{months_remaining + extension_months:.2f} months", 0, 1)
-    
     # Right Column - Cost Summary
     pdf.set_y(pdf.get_y() - 28)  # Align with left column
     pdf.set_x(15 + col_width + 5)
@@ -1005,7 +1001,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     # Total subscription cost for all billing terms
     pdf.set_y(pdf.get_y() + 10)  # Add some space
     highlight_style()
-    pdf.cell(0, 8, f"Total Subscription Term Fee: {money_format(total_subscription_term_fee)}", 0, 1, 'C')
+    pdf.cell(0, 8, f"Total Subscription Term Fee: {money_format(remaining_total)}", 0, 1, 'C')
     
     # Now add the service details table on the same page
     pdf.add_page()
