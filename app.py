@@ -868,7 +868,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
             # Position the logo in the top left
             pdf.image(logo_path, x=15, y=15, w=40)
             # Set position after logo
-            pdf.set_y(65)  # Ensure content starts below logo
+            pdf.set_y(35)  # Ensure content starts below logo
         except Exception as e:
             print(f"Could not add logo: {e}")
             pdf.set_y(30)  # Default position if logo fails
