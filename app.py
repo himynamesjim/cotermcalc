@@ -877,7 +877,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(65, 6, f"Generated on: {datetime.today().strftime('%B %d, %Y')}", 0, 1, 'R')
     
     # Document title
-    pdf.set_y(60)  # Start content well below the logo
+    pdf.set_y(20)  # Start content well below the logo
     pdf.set_font("Arial", "B", 24)
     pdf.set_text_color(*primary_color)
     pdf.cell(0, 20, "Co-Terming Cost Report", 0, 1, 'C')
