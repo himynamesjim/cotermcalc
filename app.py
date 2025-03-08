@@ -13,39 +13,42 @@ def conditional_round(value, threshold=0.25):
         return round(value)
     return round(value, 2)  # Keep two decimal places otherwise
 
+# In the PDF class, we'll ensure the logo is positioned properly
 class PDF(FPDF):
     def __init__(self, logo_path=None, **kwargs):
         super().__init__(**kwargs)
         self.logo_path = logo_path
-
+        
     def header(self):
         # Add the logo at the top left on every page if the path is provided
         if self.logo_path and os.path.exists(self.logo_path):
-            self.image(self.logo_path, x=15, y=8, w=40)
-
+            # Increase y position to 10 for better spacing
+            self.image(self.logo_path, x=15, y=10, w=40)
+            # Add some extra space after the logo
+            self.ln(45)  # This ensures content starts below the logo
+            
     def footer(self):
         self.set_y(-15)
         self.set_font("Arial", "I", 8)
         self.set_text_color(128, 128, 128)
         self.cell(0, 10, f"Page {self.page_no()} of {{nb}}", 0, 0, 'C')
-
-    # ✅ Ensure all styling functions exist inside the PDF class
+        
+    # Style functions remain unchanged
     def header_style(self):
         self.set_font("Arial", "B", 11)
         self.set_text_color(52, 73, 94)  # Dark blue-gray
-
+        
     def section_header_style(self):
         self.set_font("Arial", "B", 12)
         self.set_text_color(41, 128, 185)  # Blue
-
+        
     def normal_style(self):
         self.set_font("Arial", "", 9)
         self.set_text_color(0, 0, 0)
-
-    def highlight_style(self):  # ✅ Missing function added
+        
+    def highlight_style(self):
         self.set_font("Arial", "B", 10)
         self.set_text_color(39, 174, 96)  # Green
-
 
 
 # Set page configuration and theme options
@@ -850,7 +853,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     # Set margins
     pdf.set_left_margin(15)
     pdf.set_right_margin(15)
-    pdf.set_top_margin(15)
+    pdf.set_top_margin(20)  # Increased from 15 to 20
 
     # Define colors
     primary_color = (41, 128, 185)    # Blue
@@ -874,7 +877,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(65, 6, f"Generated on: {datetime.today().strftime('%B %d, %Y')}", 0, 1, 'R')
     
     # Document title
-    pdf.set_y(top_y + 20)
+    pdf.set_y(60)  # Start content well below the logo
     pdf.set_font("Arial", "B", 24)
     pdf.set_text_color(*primary_color)
     pdf.cell(0, 20, "Co-Terming Cost Report", 0, 1, 'C')
@@ -885,13 +888,19 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(0, 15, f"{billing_term} Billing", 0, 1, 'C')
     
     # Add a horizontal divider
-    pdf.set_y(top_y + 60)
+    pdf.set_y(pdf.get_y() + 5)
     pdf.set_draw_color(*border_color)
     pdf.set_line_width(0.5)
     pdf.line(15, pdf.get_y(), pdf.w - 15, pdf.get_y())
+
+    # Add date on the right
+    pdf.set_y(pdf.get_y() + 10)
+    pdf.set_x(pdf.w - 80)
+    pdf.normal_style()
+    pdf.cell(65, 6, f"Generated on: {datetime.today().strftime('%B %d, %Y')}", 0, 1, 'R')
     
-    # Set the top position for the section
-    pdf.set_y(top_y + 70)
+    # Agreement Summary Section
+    pdf.set_y(pdf.get_y() + 10)
     pdf.section_header_style()
     pdf.cell(0, 10, "Agreement Summary", 0, 1, 'L')
 
