@@ -914,22 +914,23 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     light_bg = (245, 247, 250)        # Light background
     border_color = (189, 195, 199)    # Light gray
     
-    # Set up custom styles
+    # Define custom styles
     def header_style():
         pdf.set_font("Arial", "B", 11)
-        pdf.set_text_color(*secondary_color)
+        pdf.set_text_color(52, 73, 94)  # Dark blue-gray
     
     def section_header_style():
         pdf.set_font("Arial", "B", 12)
-        pdf.set_text_color(*primary_color)
-        
+        pdf.set_text_color(41, 128, 185)  # Blue
+    
     def normal_style():
         pdf.set_font("Arial", "", 9)
         pdf.set_text_color(0, 0, 0)
-        
+    
     def highlight_style():
         pdf.set_font("Arial", "B", 10)
-        pdf.set_text_color(*accent_color)
+        pdf.set_text_color(39, 174, 96)  # Green
+
     
     def money_format(value):
         return "${:,.2f}".format(value)
