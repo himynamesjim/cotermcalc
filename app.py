@@ -1419,45 +1419,21 @@ with tabs[2]:
                 st.success("Calculations completed successfully!")
 
         # ✅ Ensure session state variable is initialized before access
-        if "calculation_results" not in st.session_state:
-            st.session_state.calculation_results = None  # ✅ Initializes it safely
-        
-        if st.session_state.calculation_results is not None:  # ✅ Prevents KeyError
-            results = st.session_state.calculation_results
-            processed_data = results["processed_data"]
-        
-            # Apply conditional rounding to numerical cost columns
-            cost_columns = [
-                "Current Prepaid Cost", "Prepaid Co-Termed Cost", "Remaining Subscription Total",
-                "First Month Co-Termed Cost", "New Monthly Cost", "Current Monthly Cost",
-                "Subscription Term Total Service Fee", "First Year Co-Termed Cost",
-                "Updated Annual Cost", "Current Annual Cost"
-            ]
-        
-            for col in cost_columns:
-                if col in processed_data.columns:
-                    processed_data[col] = processed_data[col].apply(lambda x: conditional_round(x))
-        
-            with results_placeholder.container():
-                st.subheader("Detailed Line Items")
-        
-                # Apply formatting to display rounded values
-                columns_to_format = {
-                    "Current Prepaid Cost": "${:,.2f}",
-                    "Prepaid Co-Termed Cost": "${:,.2f}",
-                    "Remaining Subscription Total": "${:,.2f}",
-                    "First Month Co-Termed Cost": "${:,.2f}",
-                    "New Monthly Cost": "${:,.2f}",
-                    "Current Monthly Cost": "${:,.2f}",
-                    "Subscription Term Total Service Fee": "${:,.2f}",
-                    "First Year Co-Termed Cost": "${:,.2f}",
-                    "Updated Annual Cost": "${:,.2f}",
-                    "Current Annual Cost": "${:,.2f}"
-                }
-        
-                # ✅ Display rounded values in dataframe
-                st.dataframe(processed_data.style.format(columns_to_format).set_properties(**{"white-space": "normal"}))
+    if "calculation_results" not in st.session_state:
+        st.session_state.calculation_results = None  # ✅ Initializes it safely
 
+    if st.session_state.calculation_results is not None:  # ✅ Prevents KeyError
+        results = st.session_state.calculation_results
+        processed_data = results["processed_data"]
+        total_current_cost = results["total_current_cost"]
+        total_prepaid_cost = results["total_prepaid_cost"]
+        total_first_year_cost = results["total_first_year_cost"]
+        total_updated_annual_cost = results["total_updated_annual_cost"]
+        total_subscription_term_fee = results["total_subscription_term_fee"]
+
+        
+        with results_placeholder.container():
+            st.subheader("Detailed Line Items")
             
             # Handle column dropping more thoroughly
             columns_to_drop = []
