@@ -1006,15 +1006,15 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     
     # Adjust column widths for landscape
     if billing_term == 'Annual':
-        col_widths = [80, 22, 30, 25, 40, 40, 40]
+        col_widths = [65, 22, 30, 25, 40, 40, 40]
         headers = ['Service Description', 'Quantity', 'Unit Fee', 'Add. Licenses', 
                    'First Year Cost', 'Current Annual', 'Updated Annual']
     elif billing_term == 'Monthly':
-        col_widths = [80, 22, 30, 25, 35, 35, 35]
+        col_widths = [65, 22, 30, 25, 35, 35, 35]
         headers = ['Service Description', 'Quantity', 'Unit Fee', 'Add. Licenses', 
                    'First Month Cost', 'Current Monthly', 'New Monthly']
     else:  # Prepaid
-        col_widths = [100, 25, 40, 30, 40, 40]
+        col_widths = [65, 25, 40, 30, 40, 40]
         headers = ['Service Description', 'Quantity', 'Unit Fee', 'Add. Licenses', 
                    'Current Prepaid', 'Additional Cost']
     
