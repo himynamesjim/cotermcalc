@@ -899,12 +899,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_text_color(*secondary_color)
     pdf.cell(0, 15, f"{billing_term} Billing", 0, 1, 'C')
     
-    # Add a horizontal divider
-    pdf.set_y(top_y + 60)
-    pdf.set_draw_color(*border_color)
-    pdf.set_line_width(0.5)
-    pdf.line(15, pdf.get_y(), pdf.w - 15, pdf.get_y())
-    
     # Create two columns for agreement details
     normal_style()
     col_width = (pdf.w - 30) / 2
