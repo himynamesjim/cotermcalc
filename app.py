@@ -838,36 +838,67 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     --------
     BytesIO: A buffer containing the PDF data
     """
-
     # Create PDF object using our custom subclass and pass the logo_path
     pdf = PDF(orientation='L', logo_path=logo_path)
     pdf.alias_nb_pages()
     pdf.add_page()
 
-    # ✅ Define column width before using it
-    page_width = pdf.w - 30  # Account for left & right margins
-    col_width = page_width / 2  # Two equal columns
-     
-    # ✅ Define colors at the beginning
+    # Define a helper function for money formatting
+    def money_format(value):
+        return "${:,.2f}".format(value)
+    
+    # Set margins
+    pdf.set_left_margin(15)
+    pdf.set_right_margin(15)
+    pdf.set_top_margin(15)
+
+    # Define colors
     primary_color = (41, 128, 185)    # Blue
     secondary_color = (52, 73, 94)    # Dark blue-gray
     accent_color = (39, 174, 96)      # Green
     light_bg = (245, 247, 250)        # Light background
     border_color = (189, 195, 199)    # Light gray
 
-    # Set margins
-    pdf.set_left_margin(15)
-    pdf.set_right_margin(15)
-    pdf.set_top_margin(15)
-
+    # Add header with date
+    top_y = 15
+    if logo_path and os.path.exists(logo_path):
+        try:
+            pdf.image(logo_path, x=15, y=15, w=40)
+            top_y = 25
+        except Exception as e:
+            print(f"Could not add logo: {e}")
+    
+    pdf.set_y(top_y)
+    pdf.set_x(pdf.w - 80)
+    pdf.normal_style()
+    pdf.cell(65, 6, f"Generated on: {datetime.today().strftime('%B %d, %Y')}", 0, 1, 'R')
+    
+    # Document title
+    pdf.set_y(top_y + 20)
+    pdf.set_font("Arial", "B", 24)
+    pdf.set_text_color(*primary_color)
+    pdf.cell(0, 20, "Co-Terming Cost Report", 0, 1, 'C')
+    
+    # Billing term subtitle
+    pdf.set_font("Arial", "B", 16)
+    pdf.set_text_color(*secondary_color)
+    pdf.cell(0, 15, f"{billing_term} Billing", 0, 1, 'C')
+    
+    # Add a horizontal divider
+    pdf.set_y(top_y + 60)
+    pdf.set_draw_color(*border_color)
+    pdf.set_line_width(0.5)
+    pdf.line(15, pdf.get_y(), pdf.w - 15, pdf.get_y())
+    
     # Set the top position for the section
-    top_y = pdf.get_y()
-
-    # Add "Agreement Summary" title before the boxes
     pdf.set_y(top_y + 70)
-    pdf.section_header_style()  # ✅ Now correctly calls the method
+    pdf.section_header_style()
     pdf.cell(0, 10, "Agreement Summary", 0, 1, 'L')
 
+    # Define column width
+    page_width = pdf.w - 30  # Account for left & right margins
+    col_width = page_width / 2  # Two equal columns
+    
     # Capture the current Y position for the top of both boxes
     summary_top = pdf.get_y()
 
@@ -884,7 +915,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.highlight_style()
     pdf.cell(col_width - 10, 7, "Agreement Details", 0, 1)
 
-    normal_style()
+    pdf.normal_style()
     pdf.set_x(20)
     pdf.cell(80, 6, f"Agreement Term:", 0, 0)
     pdf.cell(col_width - 90, 6, f"{agreement_term:.2f} months", 0, 1)
@@ -910,10 +941,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 
     pdf.set_y(summary_top + 5)
     pdf.set_x(20 + col_width + 5)
-    highlight_style()
+    pdf.highlight_style()
     pdf.cell(col_width - 10, 7, "Cost Overview", 0, 1)
 
-    normal_style()
+    pdf.normal_style()
     pdf.set_x(20 + col_width + 5)
     pdf.cell(80, 6, f"Current Annual Cost:", 0, 0)
     pdf.cell(col_width - 90, 6, money_format(total_current_cost), 0, 1)
@@ -928,190 +959,12 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 
     # Ensure the next content starts below both boxes
     pdf.set_y(summary_top + box_height + 10)  # Adds spacing after both boxes
-                     
-    # Create PDF object using our custom subclass (landscape orientation for more space)
-    pdf = PDF(orientation='L')
-    pdf.alias_nb_pages()  # Enable the {nb} alias for total pages
-
-    # Set up colors
-    primary_color = (41, 128, 185)    # Blue
-    secondary_color = (52, 73, 94)    # Dark blue-gray
-    accent_color = (39, 174, 96)      # Green
-    light_bg = (245, 247, 250)        # Light background
-    border_color = (189, 195, 199)    # Light gray
     
-    # Define custom styles
-    def header_style():
-        pdf.set_font("Arial", "B", 11)
-        pdf.set_text_color(52, 73, 94)  # Dark blue-gray
-    
-    def section_header_style():
-        pdf.set_font("Arial", "B", 12)
-        pdf.set_text_color(41, 128, 185)  # Blue
-    
-    def normal_style():
-        pdf.set_font("Arial", "", 9)
-        pdf.set_text_color(0, 0, 0)
-    
-    def highlight_style():
-        pdf.set_font("Arial", "B", 10)
-        pdf.set_text_color(39, 174, 96)  # Green
-
-    
-    def money_format(value):
-        return "${:,.2f}".format(value)
-    
-    # Add a cover page with a professional header
+    # Now add the service details table on a new page
     pdf.add_page()
-    
-    # Set margins
-    pdf.set_left_margin(15)
-    pdf.set_right_margin(15)
-    pdf.set_top_margin(15)
-    
-    # Add logo if provided
-    if logo_path and os.path.exists(logo_path):
-        try:
-            pdf.image(logo_path, x=15, y=15, w=40)
-            top_y = 25
-        except Exception as e:
-            top_y = 15
-            print(f"Could not add logo: {e}")
-    else:
-        top_y = 15
-    
-    # Add header with date
-    pdf.set_y(top_y)
-    pdf.set_x(pdf.w - 80)
-    normal_style()
-    pdf.cell(65, 6, f"Generated on: {datetime.today().strftime('%B %d, %Y')}", 0, 1, 'R')
-    
-    # Document title
-    pdf.set_y(top_y + 20)
-    pdf.set_font("Arial", "B", 24)
-    pdf.set_text_color(*primary_color)
-    pdf.cell(0, 20, "Co-Terming Cost Report", 0, 1, 'C')
-    
-    # Billing term subtitle
-    pdf.set_font("Arial", "B", 16)
-    pdf.set_text_color(*secondary_color)
-    pdf.cell(0, 15, f"{billing_term} Billing", 0, 1, 'C')
-    
-    # Add a horizontal divider
-    pdf.set_y(top_y + 60)
-    pdf.set_draw_color(*border_color)
-    pdf.set_line_width(0.5)
-    pdf.line(15, pdf.get_y(), pdf.w - 15, pdf.get_y())
-    
-    # Agreement Summary Section
-    pdf.set_y(top_y + 70)
-    section_header_style()
-    pdf.cell(0, 10, "Agreement Summary", 0, 1, 'L')
-    
-    # Create two columns for agreement details
-    normal_style()
-    col_width = (pdf.w - 30) / 2
-    
-    # Left Column - Agreement details
-    pdf.set_x(15)
-    pdf.set_fill_color(*light_bg)
-    pdf.rect(15, pdf.get_y(), col_width - 5, 40, 'F')
-    
-    pdf.set_y(pdf.get_y() + 5)
-    pdf.set_x(20)
-    highlight_style()
-    pdf.cell(col_width - 10, 7, "Agreement Details", 0, 1)
-    
-    normal_style()
-    pdf.set_x(20)
-    pdf.cell(80, 6, f"Agreement Term:", 0, 0)
-    pdf.cell(col_width - 90, 6, f"{agreement_term:.2f} months", 0, 1)
-    
-    pdf.set_x(20)
-    pdf.cell(80, 6, f"Remaining Months:", 0, 0)
-    pdf.cell(col_width - 90, 6, f"{months_remaining:.2f} months", 0, 1)
-    
-    pdf.set_x(20)
-    if extension_months > 0:
-        pdf.cell(80, 6, f"Extension Period:", 0, 0)
-        pdf.cell(col_width - 90, 6, f"{extension_months} months", 0, 1)
-    
-    # Right Column - Cost Summary
-    pdf.set_y(pdf.get_y() - 28)  # Align with left column
-    pdf.set_x(15 + col_width + 5)
-    pdf.set_fill_color(*light_bg)
-    pdf.rect(15 + col_width + 5, pdf.get_y(), col_width - 5, 40, 'F')
-    
-    pdf.set_y(pdf.get_y() + 5)
-    pdf.set_x(20 + col_width + 5)
-    highlight_style()
-    pdf.cell(col_width - 10, 7, "Cost Overview", 0, 1)
-    
-    normal_style()
-    pdf.set_x(20 + col_width + 5)
-    
-    # Display costs based on billing term
-    if billing_term == 'Annual':
-        pdf.cell(80, 6, f"Current Annual Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(total_current_cost), 0, 1)
-        
-        pdf.set_x(20 + col_width + 5)
-        pdf.cell(80, 6, f"First Year Co-Termed Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(total_first_year_cost), 0, 1)
-        
-        pdf.set_x(20 + col_width + 5)
-        pdf.cell(80, 6, f"Updated Annual Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(total_updated_annual_cost), 0, 1)
-    
-    elif billing_term == 'Monthly':
-        pdf.cell(80, 6, f"Current Monthly Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(total_current_cost/12), 0, 1)
-        
-        pdf.set_x(20 + col_width + 5)
-        first_month_co_termed = 0
-        if 'First Month Co-Termed Cost' in data.columns:
-            first_month_co_termed = data['First Month Co-Termed Cost'].sum()
-        pdf.cell(80, 6, f"First Month Co-Termed Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(first_month_co_termed), 0, 1)
-        
-        pdf.set_x(20 + col_width + 5)
-        pdf.cell(80, 6, f"New Monthly Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(total_updated_annual_cost/12), 0, 1)
-    
-    if billing_term == 'Prepaid':
-        pdf.cell(80, 6, f"Current Prepaid Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(total_current_cost), 0, 1)
-        
-        pdf.set_x(20 + col_width + 5)
-        pdf.cell(80, 6, f"Additional Licenses Cost:", 0, 0)
-        pdf.cell(col_width - 90, 6, money_format(total_prepaid_cost), 0, 1)
-        
-        pdf.set_x(20 + col_width + 5)
-        pdf.cell(80, 6, f"Total Remaining Cost:", 0, 0)
-        
-        # Compute remaining_total from data if available
-        remaining_total = 0
-        if 'Remaining Subscription Total' in data.columns:
-            remaining_total = float(data['Remaining Subscription Total'].sum())
-        
-        pdf.cell(col_width - 90, 6, money_format(remaining_total), 0, 1)
-        
-        # For prepaid, compute the total using the individual components
-        computed_total = total_current_cost + total_prepaid_cost + remaining_total
-    else:
-        # For Annual and Monthly, simply use total_subscription_term_fee
-        computed_total = total_subscription_term_fee
-    
-    # Total subscription cost for all billing terms
-    pdf.set_y(pdf.get_y() + 10)  # Add some space
-    highlight_style()
-    pdf.cell(0, 8, f"Total Subscription Term Fee: {money_format(computed_total)}", 0, 1, 'C')
-    
-    # Now add the service details table on the same page
-    pdf.add_page()
-    section_header_style()
+    pdf.section_header_style()
     pdf.cell(0, 10, "Detailed Service Information", 0, 1, 'L')
-    normal_style()
+    pdf.normal_style()
     pdf.cell(0, 5, "The following table details all services included in this agreement:", 0, 1, 'L')
     pdf.ln(5)
     
@@ -1310,14 +1163,14 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     
     # License Summary Section - on a new page
     pdf.add_page()
-    section_header_style()
+    pdf.section_header_style()
     pdf.cell(0, 10, "License Summary", 0, 1, 'L')
     
     pdf.set_fill_color(*light_bg)
     pdf.rect(15, pdf.get_y(), pdf.w - 30, 50, 'F')
     
     pdf.set_y(pdf.get_y() + 5)
-    normal_style()
+    pdf.normal_style()
     
     total_current = data[data['Cloud Service Description'] != 'Total Licensing Cost']['Unit Quantity'].sum()
     total_additional = data[data['Cloud Service Description'] != 'Total Licensing Cost']['Additional Licenses'].sum()
@@ -1344,7 +1197,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     
     # Cost impact section
     pdf.ln(15)
-    section_header_style()
+    pdf.section_header_style()
     pdf.cell(0, 10, "Financial Summary", 0, 1, 'L')
     
     pdf.set_fill_color(*light_bg)
@@ -1426,7 +1279,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(50, 10, money_format(total_subscription_term_fee), 0, 1)
     
     pdf.ln(15)
-    section_header_style()
+    pdf.section_header_style()
     pdf.cell(0, 10, "Notes", 0, 1, 'L')
     
     pdf.set_font("Arial", "", 9)
