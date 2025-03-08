@@ -14,7 +14,7 @@ def conditional_round(value, threshold=0.25):
     return round(value, 2)  # Keep two decimal places otherwise
 
 class PDF(FPDF):
-    def __init__(self, logo_path=None, **kwargs):
+    def __init__(self, logo_path=logo.png, **kwargs):
         super().__init__(**kwargs)
         self.logo_path = logo_path
 
@@ -823,7 +823,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     """
 
         # Create PDF object using our custom subclass and pass the logo_path
-    pdf = PDF(orientation='L', logo_path=logo.png)
+    pdf = PDF(orientation='L', logo_path=logo_path)
     pdf.alias_nb_pages()  # Enable the {nb} alias for total pages
 
     # Set margins, add pages, and add your content as before...
