@@ -838,10 +838,14 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     BytesIO: A buffer containing the PDF data
     """
 
-        # Create PDF object using our custom subclass and pass the logo_path
+    # Create PDF object using our custom subclass and pass the logo_path
     pdf = PDF(orientation='L', logo_path=logo_path)
     pdf.alias_nb_pages()
     pdf.add_page()
+
+    # ✅ Define column width before using it
+    page_width = pdf.w - 30  # Account for left & right margins
+    col_width = page_width / 2  # Two equal columns
      
     # ✅ Define colors at the beginning
     primary_color = (41, 128, 185)    # Blue
