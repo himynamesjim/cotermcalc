@@ -862,14 +862,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     light_bg = (245, 247, 250)        # Light background
     border_color = (189, 195, 199)    # Light gray
 
-    # Add header with date
-    top_y = 15
-    if logo_path and os.path.exists(logo_path):
-        try:
-            pdf.image(logo_path, x=15, y=15, w=40)
-            top_y = 25
-        except Exception as e:
-            print(f"Could not add logo: {e}")
     
     pdf.set_y(top_y)
     pdf.set_x(pdf.w - 80)
