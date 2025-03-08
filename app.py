@@ -14,7 +14,7 @@ def conditional_round(value, threshold=0.25):
     return round(value, 2)  # Keep two decimal places otherwise
 
 class PDF(FPDF):
-    def __init__(self, logo_path=logo.png, **kwargs):
+    def __init__(self, logo_path=None, **kwargs):
         super().__init__(**kwargs)
         self.logo_path = logo_path
 
