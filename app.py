@@ -667,8 +667,9 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
                     df[col] = 0.0
         
             # ✅ Calculate Current Prepaid Cost for the **full agreement term**
-            current_prepaid_cost = row['Annual Unit Fee'] * row['Unit Quantity']
-
+            current_prepaid_cost = conditional_round(
+                row['Annual Unit Fee'] * row['Unit Quantity']
+            )
         
             # ✅ Correct **Prepaid Co-Termed Cost Calculation** (based on remaining months)
             prepaid_co_termed_cost = conditional_round(
