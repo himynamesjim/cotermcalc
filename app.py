@@ -2233,6 +2233,7 @@ with tabs[2]:
                 total_subscription_term_fee,
                 processed_data,
                 agreement_term,
+                logo_path="logo.png" 
             )
                 
             # In the Results tab, update the download button
