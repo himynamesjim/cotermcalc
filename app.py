@@ -977,14 +977,11 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     highlight_style()
     pdf.cell(0, 8, f"Total Subscription Term Fee: {money_format(total_subscription_term_fee)}", 0, 1, 'C')
     
-    # Now add the detailed license table
-    pdf.add_page()
-    
-    # Service details table
+    # Now add the service details table on the same page
+    pdf.ln(15)
     section_header_style()
     pdf.cell(0, 10, "Detailed Service Information", 0, 1, 'L')
     normal_style()
-    pdf.set_text_color(80, 80, 80)
     pdf.cell(0, 5, "The following table details all services included in this agreement:", 0, 1, 'L')
     pdf.ln(5)
     
@@ -993,6 +990,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_fill_color(*header_fill_color)
     pdf.set_text_color(255, 255, 255)
     pdf.set_font('Arial', 'B', 9)
+    
+    # Check if we're approaching the bottom of the page
+    if pdf.get_y() > pdf.h - 60:  # If less than 60 units from bottom
+        pdf.add_page()  # Add a new page
     
     # Adjust column widths for landscape
     if billing_term == 'Annual':
@@ -1016,11 +1017,11 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         x_positions.append(running_width)
     
     # Draw header row
-    pdf.set_y(pdf.get_y())
+    current_y = pdf.get_y()
     for i, header in enumerate(headers):
         pdf.set_x(x_positions[i])
         pdf.cell(col_widths[i], 10, header, 1, 0, 'C', 1)
-    pdf.ln()
+    pdf.ln(10)  # Move down after header row
     
     # Table data rows
     pdf.set_font('Arial', '', 8)
@@ -1033,6 +1034,24 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     
     # Process each service row
     for idx, row in regular_rows.iterrows():
+        # Check if we need a new page
+        if pdf.get_y() > pdf.h - 20:  # Near bottom of page
+            pdf.add_page()
+            
+            # Redraw header on new page
+            pdf.set_fill_color(*header_fill_color)
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_font('Arial', 'B', 9)
+            
+            for i, header in enumerate(headers):
+                pdf.set_x(x_positions[i])
+                pdf.cell(col_widths[i], 10, header, 1, 0, 'C', 1)
+            pdf.ln(10)
+            
+            # Reset styles for data
+            pdf.set_font('Arial', '', 8)
+            pdf.set_text_color(0, 0, 0)
+        
         # Alternate row colors
         if alternate_fill:
             pdf.set_fill_color(240, 240, 240)
@@ -1043,22 +1062,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         # Reset text color for data rows
         pdf.set_text_color(0, 0, 0)
         
-        # First column (description) - may need text wrapping
+        # Service Description column
         service_desc = str(row.get('Cloud Service Description', ''))
         pdf.set_x(x_positions[0])
-        
-        # Check if text is too long and needs wrapping
-        if pdf.get_string_width(service_desc) > col_widths[0] - 4:
-            # Save current position
-            current_y = pdf.get_y()
-            pdf.multi_cell(col_widths[0], line_height/2, service_desc, 1, 'L', 1)
-            # Move to the next column
-            pdf.set_y(current_y)
-            # Adjust line height for wrapped text
-            actual_height = pdf.get_y() - current_y
-            line_height = max(line_height, actual_height)
-        else:
-            pdf.cell(col_widths[0], line_height, service_desc, 1, 0, 'L', 1)
+        pdf.cell(col_widths[0], line_height, service_desc, 1, 0, 'L', 1)
         
         # Quantity column
         pdf.set_x(x_positions[1])
@@ -1121,6 +1128,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     
     # Add total row with different styling
     if not total_row.empty:
+        # Check if we need a new page for the total row
+        if pdf.get_y() > pdf.h - 20:  # Near bottom of page
+            pdf.add_page()
+        
         # Fill color for total row
         pdf.set_fill_color(*secondary_color)
         pdf.set_text_color(255, 255, 255)
@@ -1187,11 +1198,11 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
             pdf.set_x(x_positions[5])
             prepaid_co_termed = row.get('Prepaid Co-Termed Cost', 0)
             pdf.cell(col_widths[5], line_height, money_format(prepaid_co_termed), 1, 0, 'R', 1)
+        
+        pdf.ln(line_height + 5)  # Extra space after total row
     
-    # Add a third page for summary and notes
+    # License Summary Section - on a new page
     pdf.add_page()
-    
-    # License Summary
     section_header_style()
     pdf.cell(0, 10, "License Summary", 0, 1, 'L')
     
@@ -1327,13 +1338,13 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(0, 8, "• All figures are based on the information provided and may be subject to change.", 0, 1, 'L')
     pdf.cell(0, 8, f"• This proposal is valid for 30 days from {datetime.today().strftime('%B %d, %Y')}.", 0, 1, 'L')
     
-    # Footer with page numbers
+    # Add page numbers
     for i in range(1, pdf.page + 1):
         pdf.page = i
         pdf.set_y(pdf.h - 15)
         pdf.set_font("Arial", "I", 8)
         pdf.set_text_color(128, 128, 128)
-        pdf.cell(0, 10, f"Page {i} of {pdf.page_no()}", 0, 0, 'C')
+        pdf.cell(0, 10, f"Page {i} of {pdf.page}", 0, 0, 'C')
     
     # Output the PDF to a buffer
     pdf_buffer = io.BytesIO()
