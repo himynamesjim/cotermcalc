@@ -1310,9 +1310,9 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     
     pdf.set_font("Arial", "", 9)
     pdf.set_text_color(80, 80, 80)
-    pdf.cell(0, 8, "• This report was generated automatically by the Co-Terming Cost Calculator.", 0, 1, 'L')
-    pdf.cell(0, 8, "• All figures are based on the information provided and may be subject to change.", 0, 1, 'L')
-    pdf.cell(0, 8, f"• This proposal is valid for 30 days from {datetime.today().strftime('%B %d, %Y')}.", 0, 1, 'L')
+    pdf.cell(0, 8, "- This report was generated automatically by the Co-Terming Cost Calculator.", 0, 1, 'L')
+    pdf.cell(0, 8, "- All figures are based on the information provided and may be subject to change.", 0, 1, 'L')
+    pdf.cell(0, 8, f"- This proposal is valid for 30 days from {datetime.today().strftime('%B %d, %Y')}.", 0, 1, 'L')
     
     # Output the PDF to a buffer
     pdf_buffer = io.BytesIO()
