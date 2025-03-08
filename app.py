@@ -13,7 +13,6 @@ def conditional_round(value, threshold=0.25):
         return round(value)
     return round(value, 2)  # Keep two decimal places otherwise
 
-# In the PDF class, we'll ensure the logo is positioned properly
 class PDF(FPDF):
     def __init__(self, logo_path=None, **kwargs):
         super().__init__(**kwargs)
@@ -22,10 +21,10 @@ class PDF(FPDF):
     def header(self):
         # Add the logo at the top left on every page if the path is provided
         if self.logo_path and os.path.exists(self.logo_path):
-            # Increase y position to 10 for better spacing
-            self.image(self.logo_path, x=15, y=10, w=40)
-            # Add some extra space after the logo
-            self.ln(45)  # This ensures content starts below the logo
+            # Position the logo in the upper left corner
+            self.image(self.logo_path, x=15, y=8, w=40)
+            # Add a small amount of space after the logo - reduced from 45
+            self.ln(20)  # More modest space after logo
             
     def footer(self):
         self.set_y(-15)
@@ -853,7 +852,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     # Set margins
     pdf.set_left_margin(15)
     pdf.set_right_margin(15)
-    pdf.set_top_margin(20)  # Increased from 15 to 20
+    pdf.set_top_margin(15)  # Increased from 15 to 20
 
     # Define colors
     primary_color = (41, 128, 185)    # Blue
@@ -862,6 +861,14 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     light_bg = (245, 247, 250)        # Light background
     border_color = (189, 195, 199)    # Light gray
 
+    # Add header with date
+    top_y = 15
+    if logo_path and os.path.exists(logo_path):
+        try:
+            pdf.image(logo_path, x=15, y=15, w=40)
+            top_y = 25
+        except Exception as e:
+            print(f"Could not add logo: {e}")
     
     pdf.set_y(top_y)
     pdf.set_x(pdf.w - 80)
