@@ -21,15 +21,31 @@ class PDF(FPDF):
     def header(self):
         # Add the logo at the top left on every page if the path is provided
         if self.logo_path and os.path.exists(self.logo_path):
-            # Adjust x, y, and width as needed
             self.image(self.logo_path, x=15, y=8, w=40)
-        # Optionally, add other header content here
 
     def footer(self):
         self.set_y(-15)
         self.set_font("Arial", "I", 8)
         self.set_text_color(128, 128, 128)
         self.cell(0, 10, f"Page {self.page_no()} of {{nb}}", 0, 0, 'C')
+
+    # ✅ Add missing styling methods
+    def header_style(self):
+        self.set_font("Arial", "B", 11)
+        self.set_text_color(52, 73, 94)  # Dark blue-gray
+
+    def section_header_style(self):
+        self.set_font("Arial", "B", 12)
+        self.set_text_color(41, 128, 185)  # Blue
+
+    def normal_style(self):
+        self.set_font("Arial", "", 9)
+        self.set_text_color(0, 0, 0)
+
+    def highlight_style(self):
+        self.set_font("Arial", "B", 10)
+        self.set_text_color(39, 174, 96)  # Green
+
 
 # Set page configuration and theme options
 st.set_page_config(
@@ -824,10 +840,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 
         # Create PDF object using our custom subclass and pass the logo_path
     pdf = PDF(orientation='L', logo_path=logo_path)
-    pdf.alias_nb_pages()  # Enable the {nb} alias for total pages
-
-    # Set margins, add pages, and add your content as before...
+    pdf.alias_nb_pages()
     pdf.add_page()
+
+    # Set margins
     pdf.set_left_margin(15)
     pdf.set_right_margin(15)
     pdf.set_top_margin(15)
@@ -835,11 +851,9 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     # Set the top position for the section
     top_y = pdf.get_y()
 
-    # ADD THE FIXED ALIGNMENT CODE HERE 👇
-    
     # Add "Agreement Summary" title before the boxes
     pdf.set_y(top_y + 70)
-    section_header_style()
+    pdf.section_header_style()  # ✅ Now correctly calls the method
     pdf.cell(0, 10, "Agreement Summary", 0, 1, 'L')
 
     # Capture the current Y position for the top of both boxes
