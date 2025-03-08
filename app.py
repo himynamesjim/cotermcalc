@@ -1214,70 +1214,62 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_y(pdf.get_y() + 5)
     pdf.set_x(30)
     
-    if billing_term == 'Annual':
-        pdf.set_font("Arial", "B", 10)
-        pdf.cell(100, 8, "Current Annual Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(total_current_cost), 0, 1)
-        
-        pdf.set_x(30)
-        pdf.cell(100, 8, "First Year Co-Termed Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(total_first_year_cost), 0, 1)
-        
-        pdf.set_x(30)
-        pdf.cell(100, 8, "Updated Annual Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(total_updated_annual_cost), 0, 1)
-        
-        if total_current_cost > 0:
-            percentage = ((total_updated_annual_cost - total_current_cost) / total_current_cost * 100)
-            pdf.set_x(30)
-            pdf.set_font("Arial", "I", 9)
-            change_text = "increase" if percentage > 0 else "decrease"
-            pdf.cell(0, 8, f"The updated annual cost represents a {abs(percentage):.1f}% {change_text}", 0, 1)
+    # Find this part in your generate_pdf function - it appears earlier in the function
+# This is for the first page "Cost Overview" box on the right side:
+
+    pdf.normal_style()
+    pdf.set_x(20 + col_width + 5)
     
-    elif billing_term == 'Monthly':
+    # Display costs based on billing term
+    if billing_term == 'Monthly':
+        # Monthly costs
         current_monthly = total_current_cost / 12
         new_monthly = total_updated_annual_cost / 12
         
-        pdf.set_font("Arial", "B", 10)
-        pdf.set_x(30)
-        pdf.cell(100, 8, "Current Monthly Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(current_monthly), 0, 1)
+        # Get the first month co-termed cost
+        total_row = data[data['Cloud Service Description'] == 'Total Licensing Cost']
+        first_month_co_termed = 0
+        if 'First Month Co-Termed Cost' in total_row.columns:
+            first_month_co_termed = total_row['First Month Co-Termed Cost'].iloc[0]
         
-        pdf.set_x(30)
-        first_month_total = 0
-        if 'First Month Co-Termed Cost' in data.columns:
-            first_month_total = data['First Month Co-Termed Cost'].sum()
-        pdf.cell(100, 8, "First Month Co-Termed Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(first_month_total), 0, 1)
+        pdf.cell(80, 6, f"Current Monthly Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(current_monthly), 0, 1)
         
-        pdf.set_x(30)
-        pdf.cell(100, 8, "New Monthly Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(new_monthly), 0, 1)
+        pdf.set_x(20 + col_width + 5)
+        pdf.cell(80, 6, f"First Month Co-Termed Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(first_month_co_termed), 0, 1)
         
-        if current_monthly > 0:
-            percentage = ((new_monthly - current_monthly) / current_monthly * 100)
-            pdf.set_x(30)
-            pdf.set_font("Arial", "I", 9)
-            change_text = "increase" if percentage > 0 else "decrease"
-            pdf.cell(0, 8, f"The new monthly cost represents a {abs(percentage):.1f}% {change_text}", 0, 1)
-            
+        pdf.set_x(20 + col_width + 5)
+        pdf.cell(80, 6, f"New Monthly Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(new_monthly), 0, 1)
+    elif billing_term == 'Annual':
+        pdf.cell(80, 6, f"Current Annual Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(total_current_cost), 0, 1)
+        
+        pdf.set_x(20 + col_width + 5)
+        pdf.cell(80, 6, f"First Year Co-Termed Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(total_first_year_cost), 0, 1)
+        
+        pdf.set_x(20 + col_width + 5)
+        pdf.cell(80, 6, f"Updated Annual Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(total_updated_annual_cost), 0, 1)
     else:  # Prepaid
-        pdf.set_font("Arial", "B", 10)
-        pdf.set_x(30)
-        pdf.cell(100, 8, "Current Prepaid Cost (Remaining):", 0, 0)
-        pdf.cell(50, 8, money_format(total_current_cost), 0, 1)
+        pdf.cell(80, 6, f"Current Prepaid Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(total_current_cost), 0, 1)
         
-        pdf.set_x(30)
-        pdf.cell(100, 8, "Additional Licenses Prepaid Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(total_prepaid_cost), 0, 1)
+        pdf.set_x(20 + col_width + 5)
+        pdf.cell(80, 6, f"Additional Licenses Cost:", 0, 0)
+        pdf.cell(col_width - 90, 6, money_format(total_prepaid_cost), 0, 1)
         
+        pdf.set_x(20 + col_width + 5)
+        pdf.cell(80, 6, f"Total Remaining Cost:", 0, 0)
+        
+        # Calculate remaining total from data
         remaining_total = 0
         if 'Remaining Subscription Total' in data.columns:
             remaining_total = float(data['Remaining Subscription Total'].sum())
         
-        pdf.set_x(30)
-        pdf.cell(100, 8, "Total Remaining Subscription Cost:", 0, 0)
-        pdf.cell(50, 8, money_format(remaining_total), 0, 1)
+        pdf.cell(col_width - 90, 6, money_format(remaining_total), 0, 1)
     
     pdf.ln(5)
     pdf.set_x(30)
