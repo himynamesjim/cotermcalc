@@ -987,7 +987,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(0, 8, f"Total Subscription Term Fee: {money_format(total_subscription_term_fee)}", 0, 1, 'C')
     
     # Now add the service details table on the same page
-    pdf.ln(15)
+    pdf.add_page()
     section_header_style()
     pdf.cell(0, 10, "Detailed Service Information", 0, 1, 'L')
     normal_style()
