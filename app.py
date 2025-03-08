@@ -13,6 +13,14 @@ def conditional_round(value, threshold=0.25):
         return round(value)
     return round(value, 2)  # Keep two decimal places otherwise
 
+class PDF(FPDF):
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Arial", "I", 8)
+        self.set_text_color(128, 128, 128)
+        # The {nb} alias will be replaced with the total number of pages
+        self.cell(0, 10, f"Page {self.page_no()} of {{nb}}", 0, 0, 'C')
+
 # Set page configuration and theme options
 st.set_page_config(
     page_title="Co-Terming Cost Calculator",
@@ -780,8 +788,8 @@ def calculate_costs(df, agreement_term, months_remaining, extension_months, bill
 
 
 def generate_pdf(billing_term, months_remaining, extension_months, total_current_cost, total_prepaid_cost, 
-                total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term, 
-                logo_path=None):
+                 total_first_year_cost, total_updated_annual_cost, total_subscription_term_fee, data, agreement_term, 
+                 logo_path=None):
     """
     Creates a professionally formatted PDF report for co-terming cost calculation results.
     
@@ -803,9 +811,10 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     --------
     BytesIO: A buffer containing the PDF data
     """
-    # Create PDF object (landscape orientation for more space)
-    pdf = FPDF(orientation='L')
-    
+    # Create PDF object using our custom subclass (landscape orientation for more space)
+    pdf = PDF(orientation='L')
+    pdf.alias_nb_pages()  # Enable the {nb} alias for total pages
+
     # Set up colors
     primary_color = (41, 128, 185)    # Blue
     secondary_color = (52, 73, 94)    # Dark blue-gray
@@ -999,15 +1008,15 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     if billing_term == 'Annual':
         col_widths = [80, 22, 30, 25, 40, 40, 40]
         headers = ['Service Description', 'Quantity', 'Unit Fee', 'Add. Licenses', 
-                  'First Year Cost', 'Current Annual', 'Updated Annual']
+                   'First Year Cost', 'Current Annual', 'Updated Annual']
     elif billing_term == 'Monthly':
         col_widths = [80, 22, 30, 25, 35, 35, 35]
         headers = ['Service Description', 'Quantity', 'Unit Fee', 'Add. Licenses', 
-                  'First Month Cost', 'Current Monthly', 'New Monthly']
+                   'First Month Cost', 'Current Monthly', 'New Monthly']
     else:  # Prepaid
         col_widths = [100, 25, 40, 30, 40, 40]
         headers = ['Service Description', 'Quantity', 'Unit Fee', 'Add. Licenses', 
-                  'Current Prepaid', 'Additional Cost']
+                   'Current Prepaid', 'Additional Cost']
     
     # Calculate x positions for each column
     x_positions = [15]
@@ -1082,44 +1091,36 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         
         # Remaining columns depend on billing term
         if billing_term == 'Annual':
-            # First Year Co-Termed Cost
             pdf.set_x(x_positions[4])
             first_year = row.get('First Year Co-Termed Cost', 0)
             pdf.cell(col_widths[4], line_height, money_format(first_year), 1, 0, 'R', 1)
             
-            # Current Annual Cost
             pdf.set_x(x_positions[5])
             current_annual = row.get('Current Annual Cost', 0)
             pdf.cell(col_widths[5], line_height, money_format(current_annual), 1, 0, 'R', 1)
             
-            # Updated Annual Cost
             pdf.set_x(x_positions[6])
             updated_annual = row.get('Updated Annual Cost', 0)
             pdf.cell(col_widths[6], line_height, money_format(updated_annual), 1, 0, 'R', 1)
             
         elif billing_term == 'Monthly':
-            # First Month Co-Termed Cost
             pdf.set_x(x_positions[4])
             first_month = row.get('First Month Co-Termed Cost', 0)
             pdf.cell(col_widths[4], line_height, money_format(first_month), 1, 0, 'R', 1)
             
-            # Current Monthly Cost
             pdf.set_x(x_positions[5])
             current_monthly = row.get('Current Monthly Cost', 0)
             pdf.cell(col_widths[5], line_height, money_format(current_monthly), 1, 0, 'R', 1)
             
-            # New Monthly Cost
             pdf.set_x(x_positions[6])
             new_monthly = row.get('New Monthly Cost', 0)
             pdf.cell(col_widths[6], line_height, money_format(new_monthly), 1, 0, 'R', 1)
             
         else:  # Prepaid
-            # Current Prepaid Cost
             pdf.set_x(x_positions[4])
             current_prepaid = row.get('Current Prepaid Cost', 0)
             pdf.cell(col_widths[4], line_height, money_format(current_prepaid), 1, 0, 'R', 1)
             
-            # Prepaid Co-Termed Cost
             pdf.set_x(x_positions[5])
             prepaid_co_termed = row.get('Prepaid Co-Termed Cost', 0)
             pdf.cell(col_widths[5], line_height, money_format(prepaid_co_termed), 1, 0, 'R', 1)
@@ -1128,97 +1129,79 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     
     # Add total row with different styling
     if not total_row.empty:
-        # Check if we need a new page for the total row
-        if pdf.get_y() > pdf.h - 20:  # Near bottom of page
+        if pdf.get_y() > pdf.h - 20:
             pdf.add_page()
         
-        # Fill color for total row
         pdf.set_fill_color(*secondary_color)
         pdf.set_text_color(255, 255, 255)
         pdf.set_font('Arial', 'B', 9)
         
         row = total_row.iloc[0]
         
-        # First column (Total)
         pdf.set_x(x_positions[0])
         pdf.cell(col_widths[0], line_height, 'Total Licensing Cost', 1, 0, 'L', 1)
         
-        # Quantity column
         pdf.set_x(x_positions[1])
         pdf.cell(col_widths[1], line_height, str(int(row.get('Unit Quantity', 0))), 1, 0, 'C', 1)
         
-        # Unit Fee column (leave blank for total)
         pdf.set_x(x_positions[2])
         pdf.cell(col_widths[2], line_height, "", 1, 0, 'R', 1)
         
-        # Additional Licenses column
         pdf.set_x(x_positions[3])
         pdf.cell(col_widths[3], line_height, str(int(row.get('Additional Licenses', 0))), 1, 0, 'C', 1)
         
-        # Remaining columns depend on billing term
         if billing_term == 'Annual':
-            # First Year Co-Termed Cost
             pdf.set_x(x_positions[4])
             first_year = row.get('First Year Co-Termed Cost', 0)
             pdf.cell(col_widths[4], line_height, money_format(first_year), 1, 0, 'R', 1)
             
-            # Current Annual Cost
             pdf.set_x(x_positions[5])
             current_annual = row.get('Current Annual Cost', 0)
             pdf.cell(col_widths[5], line_height, money_format(current_annual), 1, 0, 'R', 1)
             
-            # Updated Annual Cost
             pdf.set_x(x_positions[6])
             updated_annual = row.get('Updated Annual Cost', 0)
             pdf.cell(col_widths[6], line_height, money_format(updated_annual), 1, 0, 'R', 1)
             
         elif billing_term == 'Monthly':
-            # First Month Co-Termed Cost
             pdf.set_x(x_positions[4])
             first_month = row.get('First Month Co-Termed Cost', 0)
             pdf.cell(col_widths[4], line_height, money_format(first_month), 1, 0, 'R', 1)
             
-            # Current Monthly Cost
             pdf.set_x(x_positions[5])
             current_monthly = row.get('Current Monthly Cost', 0)
             pdf.cell(col_widths[5], line_height, money_format(current_monthly), 1, 0, 'R', 1)
             
-            # New Monthly Cost
             pdf.set_x(x_positions[6])
             new_monthly = row.get('New Monthly Cost', 0)
             pdf.cell(col_widths[6], line_height, money_format(new_monthly), 1, 0, 'R', 1)
             
         else:  # Prepaid
-            # Current Prepaid Cost
             pdf.set_x(x_positions[4])
             current_prepaid = row.get('Current Prepaid Cost', 0)
             pdf.cell(col_widths[4], line_height, money_format(current_prepaid), 1, 0, 'R', 1)
             
-            # Prepaid Co-Termed Cost
             pdf.set_x(x_positions[5])
             prepaid_co_termed = row.get('Prepaid Co-Termed Cost', 0)
             pdf.cell(col_widths[5], line_height, money_format(prepaid_co_termed), 1, 0, 'R', 1)
         
-        pdf.ln(line_height + 5)  # Extra space after total row
+        pdf.ln(line_height + 5)
     
     # License Summary Section - on a new page
     pdf.add_page()
     section_header_style()
     pdf.cell(0, 10, "License Summary", 0, 1, 'L')
     
-    # Create a summary box
     pdf.set_fill_color(*light_bg)
     pdf.rect(15, pdf.get_y(), pdf.w - 30, 50, 'F')
     
     pdf.set_y(pdf.get_y() + 5)
     normal_style()
     
-    # Calculate total licenses
     total_current = data[data['Cloud Service Description'] != 'Total Licensing Cost']['Unit Quantity'].sum()
     total_additional = data[data['Cloud Service Description'] != 'Total Licensing Cost']['Additional Licenses'].sum()
     total_all = total_current + total_additional
     
-    # License summary table
     pdf.set_x(30)
     pdf.cell(100, 8, "Current Licenses:", 0, 0)
     pdf.cell(50, 8, f"{int(total_current)}", 0, 1)
@@ -1243,14 +1226,12 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     section_header_style()
     pdf.cell(0, 10, "Financial Summary", 0, 1, 'L')
     
-    # Create a summary box
     pdf.set_fill_color(*light_bg)
     pdf.rect(15, pdf.get_y(), pdf.w - 30, 60, 'F')
     
     pdf.set_y(pdf.get_y() + 5)
     pdf.set_x(30)
     
-    # Detailed cost breakdown based on billing term
     if billing_term == 'Annual':
         pdf.set_font("Arial", "B", 10)
         pdf.cell(100, 8, "Current Annual Cost:", 0, 0)
@@ -1264,7 +1245,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.cell(100, 8, "Updated Annual Cost:", 0, 0)
         pdf.cell(50, 8, money_format(total_updated_annual_cost), 0, 1)
         
-        # Calculate and show the increase
         if total_current_cost > 0:
             percentage = ((total_updated_annual_cost - total_current_cost) / total_current_cost * 100)
             pdf.set_x(30)
@@ -1292,7 +1272,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.cell(100, 8, "New Monthly Cost:", 0, 0)
         pdf.cell(50, 8, money_format(new_monthly), 0, 1)
         
-        # Calculate and show the increase
         if current_monthly > 0:
             percentage = ((new_monthly - current_monthly) / current_monthly * 100)
             pdf.set_x(30)
@@ -1310,7 +1289,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.cell(100, 8, "Additional Licenses Prepaid Cost:", 0, 0)
         pdf.cell(50, 8, money_format(total_prepaid_cost), 0, 1)
         
-        # Get total subscription cost
         remaining_total = 0
         if 'Remaining Subscription Total' in data.columns:
             remaining_total = float(data['Remaining Subscription Total'].sum())
@@ -1319,7 +1297,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
         pdf.cell(100, 8, "Total Remaining Subscription Cost:", 0, 0)
         pdf.cell(50, 8, money_format(remaining_total), 0, 1)
     
-    # Always show total subscription fee
     pdf.ln(5)
     pdf.set_x(30)
     pdf.set_font("Arial", "B", 12)
@@ -1327,7 +1304,6 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(100, 10, "Total Subscription Term Fee:", 0, 0)
     pdf.cell(50, 10, money_format(total_subscription_term_fee), 0, 1)
     
-    # Add a notes section
     pdf.ln(15)
     section_header_style()
     pdf.cell(0, 10, "Notes", 0, 1, 'L')
@@ -1338,17 +1314,9 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.cell(0, 8, "• All figures are based on the information provided and may be subject to change.", 0, 1, 'L')
     pdf.cell(0, 8, f"• This proposal is valid for 30 days from {datetime.today().strftime('%B %d, %Y')}.", 0, 1, 'L')
     
-    # Add page numbers
-    for i in range(1, pdf.page + 1):
-        pdf.page = i
-        pdf.set_y(pdf.h - 15)
-        pdf.set_font("Arial", "I", 8)
-        pdf.set_text_color(128, 128, 128)
-        pdf.cell(0, 10, f"Page {i} of {pdf.page}", 0, 0, 'C')
-    
     # Output the PDF to a buffer
     pdf_buffer = io.BytesIO()
-    pdf_data = pdf.output(dest='S').encode('latin1')  # Get as string and encode
+    pdf_data = pdf.output(dest='S').encode('latin1')
     pdf_buffer.write(pdf_data)
     pdf_buffer.seek(0)
     
