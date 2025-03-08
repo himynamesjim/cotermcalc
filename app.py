@@ -29,7 +29,7 @@ class PDF(FPDF):
         self.set_text_color(128, 128, 128)
         self.cell(0, 10, f"Page {self.page_no()} of {{nb}}", 0, 0, 'C')
 
-    # ✅ Add missing styling methods
+    # ✅ Ensure all styling functions exist inside the PDF class
     def header_style(self):
         self.set_font("Arial", "B", 11)
         self.set_text_color(52, 73, 94)  # Dark blue-gray
@@ -42,9 +42,10 @@ class PDF(FPDF):
         self.set_font("Arial", "", 9)
         self.set_text_color(0, 0, 0)
 
-    def highlight_style(self):
+    def highlight_style(self):  # ✅ Missing function added
         self.set_font("Arial", "B", 10)
         self.set_text_color(39, 174, 96)  # Green
+
 
 
 # Set page configuration and theme options
@@ -880,7 +881,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
 
     pdf.set_y(summary_top + 5)
     pdf.set_x(20)
-    highlight_style()
+    pdf.highlight_style()
     pdf.cell(col_width - 10, 7, "Agreement Details", 0, 1)
 
     normal_style()
