@@ -14,11 +14,21 @@ def conditional_round(value, threshold=0.25):
     return round(value, 2)  # Keep two decimal places otherwise
 
 class PDF(FPDF):
+    def __init__(self, logo_path=None, **kwargs):
+        super().__init__(**kwargs)
+        self.logo_path = logo_path
+
+    def header(self):
+        # Add the logo at the top left on every page if the path is provided
+        if self.logo_path and os.path.exists(self.logo_path):
+            # Adjust x, y, and width as needed
+            self.image(self.logo_path, x=15, y=8, w=40)
+        # Optionally, add other header content here
+
     def footer(self):
         self.set_y(-15)
         self.set_font("Arial", "I", 8)
         self.set_text_color(128, 128, 128)
-        # The {nb} alias will be replaced with the total number of pages
         self.cell(0, 10, f"Page {self.page_no()} of {{nb}}", 0, 0, 'C')
 
 # Set page configuration and theme options
@@ -811,6 +821,17 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     --------
     BytesIO: A buffer containing the PDF data
     """
+
+        # Create PDF object using our custom subclass and pass the logo_path
+    pdf = PDF(orientation='L', logo_path=logo_path)
+    pdf.alias_nb_pages()  # Enable the {nb} alias for total pages
+
+    # Set margins, add pages, and add your content as before...
+    pdf.add_page()
+    pdf.set_left_margin(15)
+    pdf.set_right_margin(15)
+    pdf.set_top_margin(15)
+                     
     # Create PDF object using our custom subclass (landscape orientation for more space)
     pdf = PDF(orientation='L')
     pdf.alias_nb_pages()  # Enable the {nb} alias for total pages
