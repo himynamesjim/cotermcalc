@@ -831,6 +831,77 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_left_margin(15)
     pdf.set_right_margin(15)
     pdf.set_top_margin(15)
+
+    # Set the top position for the section
+    top_y = pdf.get_y()
+
+    # ADD THE FIXED ALIGNMENT CODE HERE 👇
+    
+    # Add "Agreement Summary" title before the boxes
+    pdf.set_y(top_y + 70)
+    section_header_style()
+    pdf.cell(0, 10, "Agreement Summary", 0, 1, 'L')
+
+    # Capture the current Y position for the top of both boxes
+    summary_top = pdf.get_y()
+
+    # Define a fixed box height based on the expected max content height
+    box_height = 45  # Adjust this if needed
+
+    # Left column: Agreement Details
+    pdf.set_x(15)
+    pdf.set_fill_color(*light_bg)
+    pdf.rect(15, summary_top, col_width - 5, box_height, 'F')  # Draw background
+
+    pdf.set_y(summary_top + 5)
+    pdf.set_x(20)
+    highlight_style()
+    pdf.cell(col_width - 10, 7, "Agreement Details", 0, 1)
+
+    normal_style()
+    pdf.set_x(20)
+    pdf.cell(80, 6, f"Agreement Term:", 0, 0)
+    pdf.cell(col_width - 90, 6, f"{agreement_term:.2f} months", 0, 1)
+
+    pdf.set_x(20)
+    pdf.cell(80, 6, f"Remaining Months:", 0, 0)
+    pdf.cell(col_width - 90, 6, f"{months_remaining:.2f} months", 0, 1)
+
+    if extension_months > 0:
+        pdf.set_x(20)
+        pdf.cell(80, 6, f"Extension Period:", 0, 0)
+        pdf.cell(col_width - 90, 6, f"{extension_months} months", 0, 1)
+
+    pdf.set_x(20)
+    pdf.cell(80, 6, f"Total Term:", 0, 0)
+    pdf.cell(col_width - 90, 6, f"{months_remaining + extension_months:.2f} months", 0, 1)
+
+    # Right column: Cost Overview (Aligned at the same top position)
+    pdf.set_y(summary_top)  # Ensures both boxes start at the same Y position
+    pdf.set_x(15 + col_width + 5)
+    pdf.set_fill_color(*light_bg)
+    pdf.rect(15 + col_width + 5, summary_top, col_width - 5, box_height, 'F')  # Draw background
+
+    pdf.set_y(summary_top + 5)
+    pdf.set_x(20 + col_width + 5)
+    highlight_style()
+    pdf.cell(col_width - 10, 7, "Cost Overview", 0, 1)
+
+    normal_style()
+    pdf.set_x(20 + col_width + 5)
+    pdf.cell(80, 6, f"Current Annual Cost:", 0, 0)
+    pdf.cell(col_width - 90, 6, money_format(total_current_cost), 0, 1)
+
+    pdf.set_x(20 + col_width + 5)
+    pdf.cell(80, 6, f"First Year Co-Termed Cost:", 0, 0)
+    pdf.cell(col_width - 90, 6, money_format(total_first_year_cost), 0, 1)
+
+    pdf.set_x(20 + col_width + 5)
+    pdf.cell(80, 6, f"Updated Annual Cost:", 0, 0)
+    pdf.cell(col_width - 90, 6, money_format(total_updated_annual_cost), 0, 1)
+
+    # Ensure the next content starts below both boxes
+    pdf.set_y(summary_top + box_height + 10)  # Adds spacing after both boxes
                      
     # Create PDF object using our custom subclass (landscape orientation for more space)
     pdf = PDF(orientation='L')
@@ -898,6 +969,17 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf.set_font("Arial", "B", 16)
     pdf.set_text_color(*secondary_color)
     pdf.cell(0, 15, f"{billing_term} Billing", 0, 1, 'C')
+    
+    # Add a horizontal divider
+    pdf.set_y(top_y + 60)
+    pdf.set_draw_color(*border_color)
+    pdf.set_line_width(0.5)
+    pdf.line(15, pdf.get_y(), pdf.w - 15, pdf.get_y())
+    
+    # Agreement Summary Section
+    pdf.set_y(top_y + 70)
+    section_header_style()
+    pdf.cell(0, 10, "Agreement Summary", 0, 1, 'L')
     
     # Create two columns for agreement details
     normal_style()
