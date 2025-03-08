@@ -842,6 +842,13 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
     pdf = PDF(orientation='L', logo_path=logo_path)
     pdf.alias_nb_pages()
     pdf.add_page()
+     
+    # ✅ Define colors at the beginning
+    primary_color = (41, 128, 185)    # Blue
+    secondary_color = (52, 73, 94)    # Dark blue-gray
+    accent_color = (39, 174, 96)      # Green
+    light_bg = (245, 247, 250)        # Light background
+    border_color = (189, 195, 199)    # Light gray
 
     # Set margins
     pdf.set_left_margin(15)
