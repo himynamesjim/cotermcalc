@@ -873,7 +873,7 @@ def generate_pdf(billing_term, months_remaining, extension_months, total_current
             print(f"Could not add logo: {e}")
             pdf.set_y(30)  # Default position if logo fails
     else:
-        pdf.set_y(30)  # Default position if no logo
+        pdf.set_y(10)  # Default position if no logo
     
     # Add date to the upper right corner
     pdf.set_y(15)
